@@ -18,6 +18,8 @@ import type { FormApiResponse } from "@/lib/types";
 export function ProviderForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [identityFile, setIdentityFile] = useState<File | null>(null);
+  const [permitFile, setPermitFile] = useState<File | null>(null);
 
   const {
     register,
@@ -28,26 +30,55 @@ export function ProviderForm() {
   } = useForm<ProviderApplicationInput>({
     resolver: zodResolver(providerApplicationSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       businessName: "",
       email: "",
       phone: "",
+      addressLine: "",
+      postalCode: "",
+      canton: "VD",
       city: "Lausanne",
+      interventionRadiusKm: 20,
       category: serviceCategories[0].label,
+      legalStatus: "independant",
+      companyName: "",
+      ideNumber: "",
       servicesDescription: "",
       yearsExperience: "",
       availability: providerAvailabilityOptions[0],
+      idDocumentType: "piece_identite",
+      residencePermitType: "",
       websiteOrInstagram: "",
+      legalResponsibilityAck: false,
+      termsAck: false,
       consent: false,
     },
   });
 
+  const selectedIdDocType = watch("idDocumentType");
+
   const onSubmit = async (values: ProviderApplicationInput) => {
     setSubmitError(null);
 
+    if (values.idDocumentType === "piece_identite" && !identityFile) {
+      setSubmitError("Veuillez joindre une pièce d'identité.");
+      return;
+    }
+
+    if ((values.idDocumentType === "titre_sejour_b" || values.idDocumentType === "titre_sejour_c") && !permitFile) {
+      setSubmitError("Veuillez joindre un titre de séjour B ou C.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(values));
+    if (identityFile) formData.append("identityDocument", identityFile);
+    if (permitFile) formData.append("residencePermit", permitFile);
+
     const response = await fetch("/api/provider-applications", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: formData,
     });
 
     const data = (await response.json()) as FormApiResponse;
@@ -63,8 +94,8 @@ export function ProviderForm() {
   if (isSuccess) {
     return (
       <SuccessState
-        title="Candidature envoyée"
-        description="Merci pour votre intérêt. Nous vous recontactons rapidement pour valider votre profil prestataire test."
+        title="Dossier prestataire envoyé"
+        description="Merci. Votre dossier est en attente de validation manuelle. Vous recevrez un email dès qu'un administrateur aura statué."
         ctaLabel="Retour à l'accueil"
       />
     );
@@ -72,7 +103,16 @@ export function ProviderForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <FormField id="businessName" label="Nom de l'entreprise ou nom complet" error={errors.businessName?.message}>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="firstName" label="Prénom" error={errors.firstName?.message}>
+          <Input id="firstName" placeholder="Marie" {...register("firstName")} />
+        </FormField>
+        <FormField id="lastName" label="Nom" error={errors.lastName?.message}>
+          <Input id="lastName" placeholder="Dupont" {...register("lastName")} />
+        </FormField>
+      </div>
+
+      <FormField id="businessName" label="Nom professionnel affiché" error={errors.businessName?.message}>
         <Input id="businessName" placeholder="Atelier Martin" {...register("businessName")} />
       </FormField>
 
@@ -85,10 +125,23 @@ export function ProviderForm() {
         </FormField>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <FormField id="addressLine" label="Adresse" error={errors.addressLine?.message}>
+        <Input id="addressLine" placeholder="Rue du Lac 12" {...register("addressLine")} />
+      </FormField>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <FormField id="postalCode" label="Code postal" error={errors.postalCode?.message}>
+          <Input id="postalCode" placeholder="1003" {...register("postalCode")} />
+        </FormField>
         <FormField id="city" label="Ville" error={errors.city?.message}>
           <Input id="city" placeholder="Lausanne" {...register("city")} />
         </FormField>
+        <FormField id="canton" label="Canton" error={errors.canton?.message}>
+          <Input id="canton" placeholder="VD" {...register("canton")} />
+        </FormField>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
         <FormField id="category" label="Catégorie" error={errors.category?.message}>
           <Select
             value={watch("category")}
@@ -108,6 +161,37 @@ export function ProviderForm() {
               ))}
             </SelectContent>
           </Select>
+        </FormField>
+
+        <FormField id="interventionRadiusKm" label="Rayon d'intervention (km)" error={errors.interventionRadiusKm?.message}>
+          <Input id="interventionRadiusKm" type="number" min={1} max={80} {...register("interventionRadiusKm", { valueAsNumber: true })} />
+        </FormField>
+
+        <FormField id="legalStatus" label="Statut" error={errors.legalStatus?.message}>
+          <Select
+            value={watch("legalStatus")}
+            onValueChange={(value) => {
+              if (!value) return;
+              setValue("legalStatus", value as ProviderApplicationInput["legalStatus"], { shouldValidate: true });
+            }}
+          >
+            <SelectTrigger id="legalStatus" className="h-10 w-full rounded-md">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="independant">Indépendant</SelectItem>
+              <SelectItem value="entreprise">Entreprise</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormField>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="companyName" label="Raison sociale (si existante)" error={errors.companyName?.message}>
+          <Input id="companyName" placeholder="Ex: ABC Services Sàrl" {...register("companyName")} />
+        </FormField>
+        <FormField id="ideNumber" label="Numéro IDE (facultatif)" error={errors.ideNumber?.message}>
+          <Input id="ideNumber" placeholder="CHE-123.456.789" {...register("ideNumber")} />
         </FormField>
       </div>
 
@@ -150,6 +234,93 @@ export function ProviderForm() {
         <Input id="websiteOrInstagram" placeholder="https://..." {...register("websiteOrInstagram")} />
       </FormField>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="idDocumentType" label="Document transmis" error={errors.idDocumentType?.message}>
+          <Select
+            value={watch("idDocumentType")}
+            onValueChange={(value) => {
+              if (!value) return;
+              setValue("idDocumentType", value as ProviderApplicationInput["idDocumentType"], { shouldValidate: true });
+            }}
+          >
+            <SelectTrigger id="idDocumentType" className="h-10 w-full rounded-md">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="piece_identite">Pièce d'identité</SelectItem>
+              <SelectItem value="titre_sejour_b">Titre de séjour B</SelectItem>
+              <SelectItem value="titre_sejour_c">Titre de séjour C</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormField>
+
+        {(selectedIdDocType === "titre_sejour_b" || selectedIdDocType === "titre_sejour_c") ? (
+          <FormField id="residencePermitType" label="Type du titre" error={errors.residencePermitType?.message}>
+            <Select
+              value={watch("residencePermitType")}
+              onValueChange={(value) => {
+                if (!value) return;
+                setValue("residencePermitType", value as ProviderApplicationInput["residencePermitType"], { shouldValidate: true });
+              }}
+            >
+              <SelectTrigger id="residencePermitType" className="h-10 w-full rounded-md">
+                <SelectValue placeholder="Choisir" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="B">B</SelectItem>
+                <SelectItem value="C">C</SelectItem>
+              </SelectContent>
+            </Select>
+          </FormField>
+        ) : <div className="hidden sm:block" />}
+      </div>
+
+      {selectedIdDocType === "piece_identite" ? (
+        <FormField id="identityDocument" label="Upload pièce d'identité (PDF/JPG/PNG, max 8MB)">
+          <Input
+            id="identityDocument"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.webp"
+            onChange={(event) => setIdentityFile(event.target.files?.[0] ?? null)}
+          />
+        </FormField>
+      ) : (
+        <FormField id="residencePermit" label="Upload titre de séjour B/C (PDF/JPG/PNG, max 8MB)">
+          <Input
+            id="residencePermit"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,.webp"
+            onChange={(event) => setPermitFile(event.target.files?.[0] ?? null)}
+          />
+        </FormField>
+      )}
+
+      <div className="space-y-2">
+        <label className="flex items-start gap-3 rounded-lg border border-border/80 bg-secondary/30 p-3">
+          <Checkbox
+            checked={watch("legalResponsibilityAck")}
+            onCheckedChange={(checked) => setValue("legalResponsibilityAck", Boolean(checked), { shouldValidate: true })}
+          />
+          <span className="text-sm leading-relaxed text-muted-foreground">
+            Je confirme agir sous ma propre responsabilité et rester seul responsable de mes obligations légales, fiscales, sociales et administratives.
+          </span>
+        </label>
+        {errors.legalResponsibilityAck?.message ? <p className="text-xs text-destructive">{errors.legalResponsibilityAck.message}</p> : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="flex items-start gap-3 rounded-lg border border-border/80 bg-secondary/30 p-3">
+          <Checkbox
+            checked={watch("termsAck")}
+            onCheckedChange={(checked) => setValue("termsAck", Boolean(checked), { shouldValidate: true })}
+          />
+          <span className="text-sm leading-relaxed text-muted-foreground">
+            J'accepte les CGU prestataires et comprends que la validation NearYou ne remplace pas mes obligations légales en Suisse.
+          </span>
+        </label>
+        {errors.termsAck?.message ? <p className="text-xs text-destructive">{errors.termsAck.message}</p> : null}
+      </div>
+
       <div className="space-y-2">
         <label className="flex items-start gap-3 rounded-lg border border-border/80 bg-secondary/30 p-3">
           <Checkbox
@@ -157,7 +328,7 @@ export function ProviderForm() {
             onCheckedChange={(checked) => setValue("consent", Boolean(checked), { shouldValidate: true })}
           />
           <span className="text-sm leading-relaxed text-muted-foreground">
-            J'accepte que mes informations soient utilisées pour l'étude de ma candidature prestataire.
+            J'autorise NearYou à traiter ce dossier de candidature et mes justificatifs, visibles uniquement par les administrateurs autorisés.
           </span>
         </label>
         {errors.consent?.message ? <p className="text-xs text-destructive">{errors.consent.message}</p> : null}
@@ -170,7 +341,7 @@ export function ProviderForm() {
       ) : null}
 
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isSubmitting}>
-        {isSubmitting ? "Envoi en cours..." : "Envoyer ma candidature"}
+        {isSubmitting ? "Envoi en cours..." : "Envoyer mon dossier prestataire"}
       </Button>
     </form>
   );

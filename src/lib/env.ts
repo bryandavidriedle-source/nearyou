@@ -13,6 +13,7 @@ const publicEnvSchema = z.object({
 
 const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: optionalSecret,
+  SUPER_ADMIN_EMAIL: z.string().email().optional().or(z.literal("")),
   OPENAI_API_KEY: optionalSecret,
   OPENAI_MODEL: z.string().default("gpt-5.4-mini"),
   STRIPE_SECRET_KEY: z.string().optional().or(z.literal("")),
@@ -44,6 +45,7 @@ if (!parsedPublic.success) {
 
 const parsedServer = serverEnvSchema.safeParse({
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   OPENAI_MODEL: process.env.OPENAI_MODEL,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,

@@ -34,8 +34,21 @@ npm run dev
 1. Créer le projet Supabase.
 2. Exécuter SQL migration:
 - `supabase/migrations/20260421093000_nearyou_init.sql`
+- `supabase/migrations/20260421102000_auth_profiles_triggers.sql`
+- `supabase/migrations/20260421143000_service_requests_tracking.sql`
+- `supabase/migrations/20260421170000_admin_rbac_provider_workflow.sql`
 3. Exécuter seed:
 - `supabase/seed.sql`
+
+## Auth production (indispensable)
+Dans Supabase > Authentication > URL Configuration:
+- `https://<votre-domaine>/auth/callback`
+- `https://www.<votre-domaine>/auth/callback`
+- `http://localhost:3000/auth/callback`
+
+## RBAC admin
+- `SUPER_ADMIN_EMAIL` permet de bootstrap le super-admin unique.
+- Les admins additionnels sont gérés via le backoffice (scope: `admin_ops`, `admin_support`, `admin_review`).
 
 ## Fonctionnalités prêtes
 - Formulaires leads + support stockés en DB

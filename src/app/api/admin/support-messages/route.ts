@@ -1,9 +1,9 @@
 ﻿import { jsonError } from "@/lib/api";
-import { requireApiRole } from "@/lib/auth";
+import { requireApiAdminScopes } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
-  const auth = await requireApiRole("admin");
+  const auth = await requireApiAdminScopes(["super_admin", "admin_support", "admin_ops"]);
   if (!auth) {
     return jsonError("Accès non autorisé.", 403);
   }

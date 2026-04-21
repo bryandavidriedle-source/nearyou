@@ -468,5 +468,109 @@ export async function getMissionById(missionId: string) {
   };
 }
 
+export async function getAdminDashboardData() {
+  if (!hasSupabaseServiceRole()) {
+    return {
+      kpis: {
+        totalRequests: 42,
+        newRequests: 10,
+        inProgressRequests: 17,
+        completedRequests: 11,
+        cancelledRequests: 4,
+        users: 120,
+        providers: 18,
+        providerPending: 6,
+      },
+      byCategory: [
+        { category: "Aide à domicile", count: 14 },
+        { category: "Visite senior", count: 10 },
+        { category: "Promenade chien", count: 8 },
+      ],
+      byCity: [
+        { city: "Lausanne", count: 23 },
+        { city: "Renens", count: 9 },
+      ],
+      volume: {
+        last7Days: 12,
+        last30Days: 37,
+      },
+    };
+  }
+
+  const supabase = getSupabaseAdminClient();
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setDate(now.getDate() - 7);
+  const thirtyDaysAgo = new Date(now);
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  const [
+    requestsRes,
+    profilesCount,
+    providersCount,
+    providerPendingCount,
+  ] = await Promise.all([
+    supabase
+      .from("service_requests")
+      .select("id, status, category, city, created_at"),
+    supabase.from("profiles").select("id", { head: true, count: "exact" }),
+    supabase.from("providers").select("id", { head: true, count: "exact" }),
+    supabase
+      .from("provider_applications")
+      .select("id", { head: true, count: "exact" })
+      .in("workflow_status", ["submitted", "pending_review", "needs_info"]),
+  ]);
+
+  const requests = requestsRes.data ?? [];
+  const statusCount = {
+    new: 0,
+    reviewing: 0,
+    contacted: 0,
+    closed: 0,
+  };
+
+  const byCategoryMap = new Map<string, number>();
+  const byCityMap = new Map<string, number>();
+  let last7Days = 0;
+  let last30Days = 0;
+
+  for (const request of requests) {
+    if (request.status in statusCount) {
+      statusCount[request.status as keyof typeof statusCount] += 1;
+    }
+
+    byCategoryMap.set(request.category, (byCategoryMap.get(request.category) ?? 0) + 1);
+    byCityMap.set(request.city, (byCityMap.get(request.city) ?? 0) + 1);
+
+    const createdAt = new Date(request.created_at);
+    if (createdAt >= sevenDaysAgo) last7Days += 1;
+    if (createdAt >= thirtyDaysAgo) last30Days += 1;
+  }
+
+  return {
+    kpis: {
+      totalRequests: requests.length,
+      newRequests: statusCount.new,
+      inProgressRequests: statusCount.reviewing,
+      completedRequests: statusCount.contacted,
+      cancelledRequests: statusCount.closed,
+      users: profilesCount.count ?? 0,
+      providers: providersCount.count ?? 0,
+      providerPending: providerPendingCount.count ?? 0,
+    },
+    byCategory: Array.from(byCategoryMap.entries())
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count),
+    byCity: Array.from(byCityMap.entries())
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count),
+    volume: {
+      last7Days,
+      last30Days,
+    },
+  };
+}
+
 
 

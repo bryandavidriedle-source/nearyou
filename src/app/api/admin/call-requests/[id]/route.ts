@@ -1,11 +1,11 @@
 ﻿import { jsonError, jsonSuccess } from "@/lib/api";
 import { logAdminAction } from "@/lib/audit";
-import { requireApiRole } from "@/lib/auth";
+import { requireApiAdminScopes } from "@/lib/auth";
 import { callRequestStatusSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireApiRole("admin");
+  const auth = await requireApiAdminScopes(["super_admin", "admin_support", "admin_ops"]);
   if (!auth) {
     return jsonError("Accès non autorisé.", 403);
   }
@@ -31,9 +31,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   await logAdminAction("call_request_status_updated", "call_requests", id, {
     status: parsed.data.status,
+    adminScope: auth.adminScope,
   });
 
   return jsonSuccess("Statut mis à jour.");
 }
-
-

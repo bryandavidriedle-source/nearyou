@@ -17,6 +17,7 @@ export async function Footer() {
           <Link href="/hotline" className="hover:text-slate-900">{m.navbar.phoneHelp}</Link>
           <Link href="/assistant" className="hover:text-slate-900">Assistant IA</Link>
           <Link href="/conditions-utilisation" className="hover:text-slate-900">CGU</Link>
+          <Link href="/conditions-prestataires" className="hover:text-slate-900">Conditions prestataires</Link>
           <Link href="/politique-confidentialite" className="hover:text-slate-900">Confidentialité</Link>
           <Link href="/politique-cookies" className="hover:text-slate-900">Cookies</Link>
           <Link href="/mentions-legales" className="hover:text-slate-900">Mentions légales</Link>

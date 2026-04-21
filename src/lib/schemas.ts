@@ -23,15 +23,28 @@ export const serviceRequestSchema = z.object({
 });
 
 export const providerApplicationSchema = z.object({
+  firstName: sanitizedString(2, "Prénom requis."),
+  lastName: sanitizedString(2, "Nom requis."),
   businessName: sanitizedString(2, "Nom requis."),
   email: z.string().email("Email invalide."),
   phone: z.string().trim().regex(phoneRegex, "Numéro de téléphone invalide."),
+  addressLine: sanitizedString(4, "Adresse requise."),
+  postalCode: sanitizedString(4, "Code postal requis."),
+  canton: sanitizedString(2, "Canton requis."),
   city: sanitizedString(2, "Ville requise."),
+  interventionRadiusKm: z.number().int().min(1).max(80),
   category: sanitizedString(2, "Catégorie requise."),
+  legalStatus: z.enum(["independant", "entreprise"]),
+  companyName: z.string().trim().max(100).optional().or(z.literal("")),
+  ideNumber: z.string().trim().max(30).optional().or(z.literal("")),
   servicesDescription: sanitizedString(20, "Description trop courte."),
   yearsExperience: sanitizedString(1, "Expérience requise."),
   availability: sanitizedString(2, "Disponibilité requise."),
+  idDocumentType: z.enum(["piece_identite", "titre_sejour_b", "titre_sejour_c"]),
+  residencePermitType: z.enum(["B", "C"]).optional().or(z.literal("")),
   websiteOrInstagram: z.string().trim().optional().or(z.literal("")),
+  legalResponsibilityAck: z.boolean().refine((v) => v, "Validation de responsabilité requise."),
+  termsAck: z.boolean().refine((v) => v, "Acceptation des conditions requise."),
   consent: z.boolean().refine((v) => v, "Consentement requis."),
 });
 
