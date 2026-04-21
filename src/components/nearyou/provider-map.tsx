@@ -34,7 +34,7 @@ type ProviderMapProps = {
 export function ProviderMap({ markers, selectedId, onSelect }: ProviderMapProps) {
   const mapRef = useRef<MapRef | null>(null);
   const [popup, setPopup] = useState<MarkerItem | null>(null);
-  const [mapStyle, setMapStyle] = useState<"light" | "streets" | "outdoors">("light");
+  const [mapStyle, setMapStyle] = useState<"light" | "streets" | "outdoors">("streets");
 
   const mapboxToken = publicEnv.NEXT_PUBLIC_MAPBOX_TOKEN;
   const styleUri =
@@ -42,7 +42,7 @@ export function ProviderMap({ markers, selectedId, onSelect }: ProviderMapProps)
       ? "mapbox://styles/mapbox/light-v11"
       : mapStyle === "outdoors"
         ? "mapbox://styles/mapbox/outdoors-v12"
-        : "mapbox://styles/mapbox/streets-v12";
+        : "mapbox://styles/bryan-riedle/cmo8n2un2001001qweafn7w2q";
 
   const markerStyle = (type: MarkerItem["type"], isSelected: boolean) => {
     const base =
