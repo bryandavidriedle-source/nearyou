@@ -1,0 +1,17 @@
+﻿{
+  "name": "NearYou",
+  "short_name": "NearYou",
+  "description": "Services locaux en Suisse, réservation rapide et humaine",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fbff",
+  "theme_color": "#1d4ed8",
+  "lang": "fr-CH",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

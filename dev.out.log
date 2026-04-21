@@ -1,0 +1,19 @@
+
+> 2026-04-20-contexte-du-projet-tu-es-un-2@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.3.5
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.223:3000
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 8.4s (1426 modules)
+ GET / 200 in 9930ms
+ GET / 200 in 130ms
+ GET / 200 in 315ms
+ ○ Compiling /icon.svg ...
+ ✓ Compiled /icon.svg in 801ms (858 modules)
+ GET /icon.svg 200 in 1010ms

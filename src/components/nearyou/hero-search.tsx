@@ -1,0 +1,63 @@
+"use client";
+
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { messages, type Language } from "@/lib/i18n";
+
+type SearchPayload = {
+  service: string;
+  address: string;
+  date: string;
+};
+
+type Props = {
+  lang: Language;
+  onSearch?: (value: SearchPayload) => void;
+};
+
+export function HeroSearch({ lang, onSearch }: Props) {
+  const m = messages[lang];
+  const [service, setService] = useState("Home help");
+  const [address, setAddress] = useState("Lausanne, VD");
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [locationMessage, setLocationMessage] = useState<string | null>(null);
+
+  function handleSearch() {
+    onSearch?.({ service, address, date });
+  }
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setLocationMessage(m.search.geolocationUnsupported);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocationMessage(`${m.search.locationCaptured} (${position.coords.latitude.toFixed(3)}, ${position.coords.longitude.toFixed(3)}).`);
+      },
+      () => {
+        setLocationMessage(m.search.locationDenied);
+      },
+    );
+  }
+
+  return (
+    <div className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+      <div className="grid gap-3 md:grid-cols-3">
+        <Input value={service} onChange={(e) => setService(e.target.value)} placeholder={m.search.service} className="h-12 text-base" />
+        <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={m.search.address} className="h-12 text-base" />
+        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-12 text-base" />
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={handleSearch} className="h-12 rounded-xl bg-green-600 px-6 text-base hover:bg-green-700">{m.search.search}</Button>
+        <Button variant="outline" onClick={useMyLocation} className="h-12 rounded-xl border-blue-200 text-base text-blue-700 hover:bg-blue-50">
+          {m.search.useLocation}
+        </Button>
+      </div>
+      {locationMessage ? <p className="text-sm text-slate-600">{locationMessage}</p> : null}
+    </div>
+  );
+}

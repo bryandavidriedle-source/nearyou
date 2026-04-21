@@ -1,0 +1,4 @@
+﻿-- NearYou schema entrypoint
+-- Utilisez les fichiers dans /supabase/migrations pour la configuration complète.
+-- Migration principale: 20260421093000_nearyou_init.sql
+-- Seed de démonstration: /supabase/seed.sql
