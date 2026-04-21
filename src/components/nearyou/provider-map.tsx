@@ -42,7 +42,7 @@ export function ProviderMap({ markers, selectedId, onSelect }: ProviderMapProps)
       ? "mapbox://styles/mapbox/light-v11"
       : mapStyle === "outdoors"
         ? "mapbox://styles/mapbox/outdoors-v12"
-        : "mapbox://styles/bryan-riedle/cmo8n2un2001001qweafn7w2q";
+        : "mapbox://styles/mapbox/streets-v12";
 
   const markerStyle = (type: MarkerItem["type"], isSelected: boolean) => {
     const base =
