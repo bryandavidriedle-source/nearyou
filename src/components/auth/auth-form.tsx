@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { publicEnv } from "@/lib/env";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export function AuthForm() {
@@ -15,6 +16,8 @@ export function AuthForm() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -38,11 +41,46 @@ export function AuthForm() {
         return;
       }
 
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${publicEnv.NEXT_PUBLIC_SITE_URL}/connexion`,
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            language: "fr",
+          },
+        },
+      });
       if (error) {
         setMessage(error.message);
       } else {
         setMessage("Compte créé. Vérifiez votre email pour confirmer l'inscription.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onForgotPassword() {
+    if (!email) {
+      setMessage("Ajoutez votre email pour recevoir le lien de réinitialisation.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${publicEnv.NEXT_PUBLIC_SITE_URL}/connexion`,
+      });
+
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Email envoyé. Vérifiez votre boîte de réception.");
       }
     } finally {
       setLoading(false);
@@ -60,11 +98,39 @@ export function AuthForm() {
       </div>
 
       <form className="mt-4 space-y-3" onSubmit={onSubmit}>
+        {mode === "signup" ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Prénom"
+              required
+            />
+            <Input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Nom"
+              required
+            />
+          </div>
+        ) : null}
         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
         <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" required minLength={8} />
         <Button type="submit" disabled={loading} className="w-full rounded-xl bg-blue-700 hover:bg-blue-800">
           {loading ? "Chargement..." : mode === "login" ? "Se connecter" : "Créer un compte"}
         </Button>
+
+        {mode === "login" ? (
+          <button
+            type="button"
+            onClick={onForgotPassword}
+            className="w-full text-center text-sm text-blue-700 underline-offset-2 hover:underline"
+          >
+            Mot de passe oublié ?
+          </button>
+        ) : null}
       </form>
 
       {message ? <p className="mt-3 text-sm text-slate-600">{message}</p> : null}

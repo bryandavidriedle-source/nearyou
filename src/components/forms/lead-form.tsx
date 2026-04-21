@@ -68,9 +68,9 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
     return (
       <SuccessState
         title="Demande envoyée"
-        description="Merci. Votre demande a bien été reçue. Notre équipe revient vers vous rapidement."
-        ctaLabel="Faire une nouvelle demande"
-        ctaHref="/trouver-un-prestataire"
+        description="Merci. Votre demande a bien été reçue. Vous pouvez suivre son évolution depuis votre espace client."
+        ctaLabel="Voir mes demandes"
+        ctaHref="/espace-client"
       />
     );
   }

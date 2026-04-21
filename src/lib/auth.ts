@@ -30,7 +30,7 @@ export async function getAuthContext() {
 export async function requireAuth(redirectTo = "/connexion") {
   const context = await getAuthContext();
   if (!context.user) {
-    redirect(`${redirectTo}?next=${encodeURIComponent("/")}`);
+    redirect(`${redirectTo}?next=${encodeURIComponent("/espace-client")}`);
   }
   return context;
 }

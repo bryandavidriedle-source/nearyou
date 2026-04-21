@@ -72,6 +72,11 @@ export const callRequestStatusSchema = z.object({
   status: z.enum(["new", "reviewing", "contacted", "closed"]),
 });
 
+export const serviceRequestStatusSchema = z.object({
+  status: z.enum(["new", "reviewing", "contacted", "closed"]),
+  note: z.string().trim().max(300).optional().or(z.literal("")),
+});
+
 export const aiChatSchema = z.object({
   conversationId: z.string().uuid().optional(),
   message: sanitizedString(2, "Message requis."),
