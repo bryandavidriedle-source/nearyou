@@ -20,6 +20,7 @@ export function AuthForm() {
   const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const callbackBase = `${publicEnv.NEXT_PUBLIC_SITE_URL}/auth/callback`;
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -45,7 +46,7 @@ export function AuthForm() {
         email,
         password,
         options: {
-          emailRedirectTo: `${publicEnv.NEXT_PUBLIC_SITE_URL}/connexion`,
+          emailRedirectTo: `${callbackBase}?next=/espace-client`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -74,7 +75,7 @@ export function AuthForm() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${publicEnv.NEXT_PUBLIC_SITE_URL}/connexion`,
+        redirectTo: `${callbackBase}?next=/connexion`,
       });
 
       if (error) {
@@ -133,6 +134,11 @@ export function AuthForm() {
         ) : null}
       </form>
 
+      {searchParams.get("error") ? (
+        <p className="mt-3 text-sm text-amber-700">
+          Lien de confirmation invalide ou expiré. Merci de relancer l&apos;inscription ou la récupération.
+        </p>
+      ) : null}
       {message ? <p className="mt-3 text-sm text-slate-600">{message}</p> : null}
     </Card>
   );
