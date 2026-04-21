@@ -9,6 +9,8 @@ type Messages = {
     phoneHelp: string;
     admin: string;
     bookNow: string;
+    find: string;
+    account: string;
   };
   footer: {
     tagline: string;
@@ -90,7 +92,7 @@ type Messages = {
 
 export const messages: Record<Language, Messages> = {
   en: {
-    navbar: { home: "Home", catalogue: "Catalogue", phoneHelp: "Phone help", admin: "Admin", bookNow: "Book now" },
+    navbar: { home: "Home", catalogue: "Catalogue", phoneHelp: "Phone help", admin: "Admin", bookNow: "Book now", find: "Find", account: "Account" },
     footer: { tagline: "NEARYOU - Local help in seconds.", protection: "Payment and support protection is only guaranteed through the platform." },
     home: {
       badge: "Fast local marketplace - Switzerland",
@@ -138,7 +140,7 @@ export const messages: Record<Language, Messages> = {
     },
   },
   fr: {
-    navbar: { home: "Accueil", catalogue: "Catalogue", phoneHelp: "Aide téléphone", admin: "Admin", bookNow: "Réserver" },
+    navbar: { home: "Accueil", catalogue: "Catalogue", phoneHelp: "Aide téléphone", admin: "Admin", bookNow: "Réserver", find: "Trouver", account: "Compte" },
     footer: { tagline: "NEARYOU - Aide locale en quelques secondes.", protection: "Le paiement et l'assistance sont garantis uniquement via la plateforme." },
     home: {
       badge: "Marketplace locale rapide - Suisse",
@@ -180,7 +182,7 @@ export const messages: Record<Language, Messages> = {
     },
   },
   it: {
-    navbar: { home: "Home", catalogue: "Catalogo", phoneHelp: "Aiuto telefono", admin: "Admin", bookNow: "Prenota" },
+    navbar: { home: "Home", catalogue: "Catalogo", phoneHelp: "Aiuto telefono", admin: "Admin", bookNow: "Prenota", find: "Trova", account: "Account" },
     footer: { tagline: "NEARYOU - Aiuto locale in pochi secondi.", protection: "Pagamento e supporto garantiti solo tramite piattaforma." },
     home: {
       badge: "Marketplace locale veloce - Svizzera", title: "Di cosa hai bisogno oggi?", subtitle: "Trova aiuto affidabile vicino a te in pochi secondi.",
@@ -211,7 +213,7 @@ export const messages: Record<Language, Messages> = {
     },
   },
   de: {
-    navbar: { home: "Start", catalogue: "Katalog", phoneHelp: "Telefonhilfe", admin: "Admin", bookNow: "Buchen" },
+    navbar: { home: "Start", catalogue: "Katalog", phoneHelp: "Telefonhilfe", admin: "Admin", bookNow: "Buchen", find: "Finden", account: "Konto" },
     footer: { tagline: "NEARYOU - Lokale Hilfe in Sekunden.", protection: "Zahlung und Support sind nur über die Plattform garantiert." },
     home: {
       badge: "Schneller lokaler Marktplatz - Schweiz", title: "Was brauchen Sie heute?", subtitle: "Finden Sie vertrauenswürdige Hilfe in Ihrer Nähe in Sekunden.",

@@ -2,10 +2,12 @@
 import { Inter } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
+import { MobileWebappNav } from "@/components/layout/mobile-webapp-nav";
 import { Navbar } from "@/components/layout/navbar";
 import { CookieBanner } from "@/components/shared/cookie-banner";
 import { PwaRegister } from "@/components/shared/pwa-register";
 import { getCurrentLanguage } from "@/lib/i18n-server";
+import { messages } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/site";
 
 import "./globals.css";
@@ -36,14 +38,24 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const lang = await getCurrentLanguage();
+  const m = messages[lang];
 
   return (
     <html lang={lang} className={`${inter.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
         <PwaRegister />
         <Navbar />
-        <main>{children}</main>
+        <main className="pb-24 md:pb-0">{children}</main>
         <Footer />
+        <MobileWebappNav
+          currentLanguage={lang}
+          labels={{
+            home: m.navbar.home,
+            catalogue: m.navbar.catalogue,
+            find: m.navbar.find,
+            account: m.navbar.account,
+          }}
+        />
         <CookieBanner />
       </body>
     </html>
