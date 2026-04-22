@@ -8,8 +8,8 @@ import { messages } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18n-server";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Rappel telephonique | NearYou",
-  description: "Assistance telephonique NearYou pour reserver simplement avec accompagnement humain.",
+  title: "Rappel téléphonique | NearYou",
+  description: "Assistance téléphonique NearYou pour réserver simplement avec accompagnement humain.",
   path: "/hotline",
 });
 
@@ -21,7 +21,7 @@ export default async function HotlinePage() {
     <section className="py-12">
       <Container className="max-w-4xl space-y-6">
         <Card className="rounded-2xl border-blue-100 bg-blue-50 p-5">
-          <p className="font-semibold text-blue-900">{m.hotline.title}</p>
+          <h1 className="text-2xl font-semibold text-blue-900">{m.hotline.title}</h1>
           <p className="mt-1 text-sm text-blue-700">{m.hotline.subtitle.replace("+41 21 555 00 00", siteConfig.phone)}</p>
         </Card>
 
@@ -33,6 +33,15 @@ export default async function HotlinePage() {
 
         <HotlineForm lang={lang} />
       </Container>
+
+      <div className="fixed inset-x-0 bottom-20 z-40 px-4 md:hidden">
+        <a
+          href={`tel:${siteConfig.phone.replace(/\s+/g, "")}`}
+          className="block rounded-xl bg-green-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg hover:bg-green-700"
+        >
+          Appeler {siteConfig.phone}
+        </a>
+      </div>
     </section>
   );
 }

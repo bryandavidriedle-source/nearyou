@@ -18,7 +18,7 @@ type ProviderItem = {
   title: string;
   fromPrice: number;
   category: string;
-  distanceKm: number;
+  distanceKm: number | null;
   isAvailableToday: boolean;
   badge: string | null;
   lat: number;
@@ -69,7 +69,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
 
   const filteredProviders = useMemo(() => {
     return providers.filter((provider) => {
-      const byRadius = provider.distanceKm <= radiusKm;
+      const byRadius = provider.distanceKm == null ? true : provider.distanceKm <= radiusKm;
       const byPrice = provider.fromPrice <= priceLimit;
       const byAvailability = onlyToday ? provider.isAvailableToday : true;
       const byCategory = categoryFilter === "all" ? true : provider.category === categoryFilter;
@@ -115,6 +115,25 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
     d.setDate(today.getDate() + index);
     return d.toLocaleDateString("fr-CH", { day: "2-digit", month: "short" });
   });
+
+  if (providers.length === 0) {
+    return (
+      <section className="space-y-4">
+        <Card className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-center shadow-sm">
+          <p className="text-lg font-semibold text-slate-900">Aucun prestataire disponible pour le moment</p>
+          <p className="mt-2 text-sm text-slate-600">Les premiers prestataires arrivent bientôt dans votre zone.</p>
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
+              <Link href="/trouver-un-prestataire">Faire une demande</Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl border-blue-200 text-blue-700">
+              <Link href="/devenir-prestataire">Devenir prestataire</Link>
+            </Button>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-4">
@@ -176,11 +195,13 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="max-h-[700px] space-y-4 overflow-auto pr-1">
-          {filteredProviders.map((provider) => (
-            <Card
-              key={provider.id}
-              className={`rounded-2xl border bg-white p-4 shadow-sm transition ${selectedProviderId === provider.id ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200"}`}
-            >
+          {filteredProviders.map((provider) => {
+            const hasValidPublicId = Boolean(provider.id);
+            return (
+              <Card
+                key={provider.id}
+                className={`rounded-2xl border bg-white p-4 shadow-sm transition ${selectedProviderId === provider.id ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200"}`}
+              >
               <button
                 type="button"
                 onClick={() => setSelectedProviderId(provider.id)}
@@ -199,7 +220,8 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
                     <p className="text-sm text-slate-600">{provider.title}</p>
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600">
                       <span className="inline-flex items-center gap-1">
-                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {provider.rating.toFixed(1)}
+                        <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />{" "}
+                        {provider.rating > 0 ? provider.rating.toFixed(1) : "Nouveau"}
                       </span>
                       <span className="rounded-full bg-blue-100 px-2 py-1 font-semibold text-blue-700">
                         Score {provider.providerScore}/100
@@ -207,9 +229,11 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
                       <span>
                         {provider.completedMissions} {m.map.missions}
                       </span>
-                      <span>
-                        {provider.distanceKm.toFixed(1)} {m.map.km}
-                      </span>
+                      {provider.distanceKm != null ? (
+                        <span>
+                          {provider.distanceKm.toFixed(1)} {m.map.km}
+                        </span>
+                      ) : null}
                       {provider.isAvailableToday ? (
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Disponible maintenant</Badge>
                       ) : null}
@@ -217,30 +241,47 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
                     </div>
                   </div>
                 </div>
-              </button>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {upcomingDates.map((date) => (
-                  <button
-                    key={`${provider.id}-${date}`}
-                    className="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:border-blue-300 hover:text-blue-700"
-                  >
-                    {date}
                   </button>
-                ))}
-              </div>
-              <div className="mt-3 flex gap-2">
-                <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
-                  <Link href={`/reserve/${provider.id}`}>{m.map.bookNow}</Link>
-                </Button>
-                <Button asChild variant="outline" className="rounded-xl border-blue-200 text-blue-700">
-                  <Link href={`/providers/${provider.id}`}>{m.map.viewProfile}</Link>
-                </Button>
-              </div>
-            </Card>
-          ))}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {upcomingDates.map((date) => (
+                    <button
+                      key={`${provider.id}-${date}`}
+                      className="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:border-blue-300 hover:text-blue-700"
+                    >
+                      {date}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  {hasValidPublicId ? (
+                    <>
+                      <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
+                        <Link href={`/reserve/${provider.id}`}>{m.map.bookNow}</Link>
+                      </Button>
+                      <Button asChild variant="outline" className="rounded-xl border-blue-200 text-blue-700">
+                        <Link href={`/providers/${provider.id}`}>{m.map.viewProfile}</Link>
+                      </Button>
+                    </>
+                  ) : (
+                    <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
+                      <Link href="/trouver-un-prestataire">Faire une demande</Link>
+                    </Button>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
           {filteredProviders.length === 0 ? (
             <Card className="rounded-2xl border-dashed border-slate-300 bg-white p-6 text-sm text-slate-600">
-              {m.map.noMatch}
+              <p>{m.map.noMatch}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild size="sm" className="rounded-lg bg-green-600 hover:bg-green-700">
+                  <Link href="/trouver-un-prestataire">Faire une demande</Link>
+                </Button>
+                <Button asChild size="sm" variant="outline" className="rounded-lg border-blue-200 text-blue-700">
+                  <Link href="/devenir-prestataire">Devenir prestataire</Link>
+                </Button>
+              </div>
             </Card>
           ) : null}
         </div>

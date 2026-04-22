@@ -17,9 +17,9 @@ export function pageMetadata(input: { title: string; description: string; path?:
     title: input.title,
     description: input.description,
     keywords: [
-      "services a domicile suisse",
-      "prestataires verifies",
-      "reserver service local lausanne",
+      "services à domicile suisse",
+      "prestataires vérifiés",
+      "réserver service local lausanne",
       "mise en relation locale",
       "NearYou",
     ],

@@ -8,6 +8,7 @@ type SectionHeaderProps = {
   description?: string;
   align?: "left" | "center";
   action?: ReactNode;
+  as?: "h1" | "h2";
 };
 
 export function SectionHeader({
@@ -16,13 +17,15 @@ export function SectionHeader({
   description,
   align = "left",
   action,
+  as = "h1",
 }: SectionHeaderProps) {
+  const TitleTag = as;
   return (
     <div className={cn("mb-8", align === "center" && "text-center") }>
       {eyebrow ? (
         <p className="mb-2 text-sm font-medium uppercase tracking-wide text-primary/80">{eyebrow}</p>
       ) : null}
-      <h2 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{title}</h2>
+      <TitleTag className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{title}</TitleTag>
       {description ? (
         <p className={cn("mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base", align === "center" && "mx-auto")}>{description}</p>
       ) : null}

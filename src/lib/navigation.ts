@@ -21,11 +21,11 @@ export function resolveNavigationRole({
 export function getDesktopPrimaryNav(role: NavigationRole): NavigationItem[] {
   if (role === "admin") {
     return [
-      { href: "/backoffice", label: "Dashboard" },
-      { href: "/backoffice/prestataires", label: "Prestataires" },
-      { href: "/backoffice/utilisateurs", label: "Clients" },
-      { href: "/backoffice/demandes", label: "Demandes" },
-      { href: "/backoffice/avis", label: "Avis" },
+      { href: "/admin", label: "Dashboard" },
+      { href: "/admin/prestataires", label: "Prestataires" },
+      { href: "/admin/clients", label: "Clients" },
+      { href: "/admin/demandes", label: "Demandes" },
+      { href: "/admin/avis", label: "Avis" },
     ];
   }
 
@@ -33,7 +33,7 @@ export function getDesktopPrimaryNav(role: NavigationRole): NavigationItem[] {
     return [
       { href: "/espace-prestataire", label: "Dashboard" },
       { href: "/espace-prestataire/demandes", label: "Mes missions" },
-      { href: "/espace-prestataire/disponibilites", label: "Disponibilites" },
+      { href: "/espace-prestataire/disponibilites", label: "Disponibilités" },
       { href: "/espace-prestataire/paiements", label: "Paiements" },
       { href: "/espace-prestataire/profil", label: "Mon profil" },
     ];
@@ -52,17 +52,17 @@ export function getDesktopPrimaryNav(role: NavigationRole): NavigationItem[] {
     { href: "/", label: "Accueil" },
     { href: "/trouver-un-prestataire", label: "Trouver un prestataire" },
     { href: "/devenir-prestataire", label: "Devenir prestataire" },
-    { href: "/hotline", label: "Aide telephone" },
+    { href: "/hotline", label: "Aide téléphone" },
   ];
 }
 
 export function getMobileNav(role: NavigationRole): NavigationItem[] {
   if (role === "admin") {
     return [
-      { href: "/backoffice", label: "Dashboard" },
-      { href: "/backoffice/prestataires", label: "Prestataires" },
-      { href: "/backoffice/utilisateurs", label: "Clients" },
-      { href: "/backoffice/demandes", label: "Demandes" },
+      { href: "/admin", label: "Dashboard" },
+      { href: "/admin/prestataires", label: "Prestataires" },
+      { href: "/admin/clients", label: "Clients" },
+      { href: "/admin/demandes", label: "Demandes" },
     ];
   }
 
@@ -86,8 +86,8 @@ export function getMobileNav(role: NavigationRole): NavigationItem[] {
 
   return [
     { href: "/", label: "Accueil" },
-    { href: "/catalogue", label: "Catalogue" },
     { href: "/trouver-un-prestataire", label: "Trouver" },
+    { href: "/devenir-prestataire", label: "Devenir" },
     { href: "/connexion", label: "Connexion" },
   ];
 }

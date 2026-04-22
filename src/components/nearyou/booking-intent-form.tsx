@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -41,6 +42,7 @@ function buildIsoRange(day: string, startHour: number, durationHours: number) {
 }
 
 export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
+  const router = useRouter();
   const [result, setResult] = useState<string | null>(null);
   const [resultType, setResultType] = useState<"success" | "error" | null>(null);
   const [selectedDate, setSelectedDate] = useState(nextDayIsoDate());
@@ -115,25 +117,30 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
       body: JSON.stringify(values),
     });
 
-    const data = (await response.json().catch(() => null)) as (FormApiResponse & { bookingId?: string }) | null;
+    const data = (await response.json().catch(() => null)) as (FormApiResponse & { bookingId?: string; loginPath?: string }) | null;
+    if (response.status === 401 && data?.loginPath) {
+      router.push(data.loginPath);
+      return;
+    }
+
     if (!response.ok || !data?.success) {
       setResultType("error");
-      setResult(data?.message ?? "Reservation impossible pour le moment.");
+      setResult(data?.message ?? "Réservation impossible pour le moment.");
       return;
     }
 
     setResultType("success");
-    setResult(`Reservation creee (ref. ${data.bookingId?.slice(0, 8) ?? "NearYou"}). Nous confirmons les details rapidement.`);
+    setResult(`Réservation créée (réf. ${data.bookingId?.slice(0, 8) ?? "NearYou"}). Nous confirmons les détails rapidement.`);
   };
 
   return (
     <Card className="premium-card space-y-4 p-5 sm:p-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-semibold text-slate-900">Finaliser ma reservation</h2>
-        <p className="text-sm text-slate-600">Tarif indicatif des {defaultFromPrice} CHF. Le montant final depend du detail de mission.</p>
+        <h2 className="text-xl font-semibold text-slate-900">Finaliser ma réservation</h2>
+        <p className="text-sm text-slate-600">Tarif indicatif dès {defaultFromPrice} CHF. Le montant final dépend des détails de mission.</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form id="booking-intent-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <input
           type="text"
           tabIndex={-1}
@@ -159,7 +166,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Creneau</label>
+            <label className="text-sm font-medium text-slate-700">Créneau</label>
             <select
               className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm"
               value={selectedSlot}
@@ -183,15 +190,15 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
             {errors.contactEmail ? <p className="text-xs text-red-600">{errors.contactEmail.message}</p> : null}
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Telephone</label>
+            <label className="text-sm font-medium text-slate-700">Téléphone</label>
             <Input placeholder="+41 79 123 45 67" {...register("contactPhone")} className="h-11" />
             {errors.contactPhone ? <p className="text-xs text-red-600">{errors.contactPhone.message}</p> : null}
           </div>
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Details utiles</label>
-          <Textarea placeholder="Adresse, acces, instructions particulieres..." {...register("details")} className="min-h-24" />
+          <label className="text-sm font-medium text-slate-700">Détails utiles</label>
+          <Textarea placeholder="Adresse, accès, instructions particulières..." {...register("details")} className="min-h-24" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -201,7 +208,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
             onChange={(e) => setValue("reservationSource", e.target.value as BookingIntentInput["reservationSource"])}
           >
             <option value="app">Site NearYou</option>
-            <option value="partner_cafe">Partenaire cafe</option>
+            <option value="partner_cafe">Partenaire café</option>
             <option value="partner_pharmacy">Partenaire pharmacie</option>
             <option value="hotline">Hotline</option>
           </select>
@@ -216,18 +223,18 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
         {errors.endAt ? <p className="text-xs text-red-600">{errors.endAt.message}</p> : null}
 
         <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800">
-          Creneau selectionne: {slotSummary.date} - {slotSummary.label}
+          Créneau sélectionné: {slotSummary.date} - {slotSummary.label}
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
-          <p className="font-semibold text-slate-900">Resume avant confirmation</p>
+          <p className="font-semibold text-slate-900">Résumé avant confirmation</p>
           <p className="mt-1">Service: Mission #{missionId.slice(0, 8)}</p>
-          <p>Date et creneau: {slotSummary.date} - {slotSummary.label}</p>
+          <p>Date et créneau: {slotSummary.date} - {slotSummary.label}</p>
           <p>Email: {bookingPreview.contactEmail || "-"}</p>
-          <p>Telephone: {bookingPreview.contactPhone || "-"}</p>
+          <p>Téléphone: {bookingPreview.contactPhone || "-"}</p>
           <p>Canal: {bookingPreview.reservationSource}</p>
           <p className="mt-1 text-xs text-slate-500">
-            {bookingPreview.details ? `Details: ${bookingPreview.details}` : "Aucun detail complementaire."}
+            {bookingPreview.details ? `Détails: ${bookingPreview.details}` : "Aucun détail complémentaire."}
           </p>
           {!bookingPreview.consent ? (
             <p className="mt-1 text-xs font-medium text-amber-700">L'accord de traitement est requis pour valider.</p>
@@ -235,7 +242,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
         </div>
 
         <Button disabled={isSubmitting} className="h-11 w-full rounded-xl bg-green-600 hover:bg-green-700">
-          {isSubmitting ? "Validation en cours..." : "Confirmer ma reservation"}
+          {isSubmitting ? "Validation en cours..." : "Confirmer ma réservation"}
         </Button>
 
         {result ? (

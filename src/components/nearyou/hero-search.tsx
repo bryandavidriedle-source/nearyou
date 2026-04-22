@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { serviceCategories } from "@/lib/constants";
 import { messages, type Language } from "@/lib/i18n";
 
 type SearchPayload = {
@@ -21,7 +22,7 @@ type Props = {
 export function HeroSearch({ lang, onSearch }: Props) {
   const router = useRouter();
   const m = messages[lang];
-  const [service, setService] = useState("Aide a domicile");
+  const [service, setService] = useState<string>(serviceCategories[0]?.label ?? "Ménage");
   const [address, setAddress] = useState("Lausanne, VD");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [locationMessage, setLocationMessage] = useState<string | null>(null);

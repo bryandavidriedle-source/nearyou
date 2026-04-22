@@ -26,7 +26,7 @@ export async function Navbar() {
       ? "Admin"
       : navRole === "provider"
         ? auth.role === "provider" || auth.providerWorkflowStatus === "approved"
-          ? "Prestataire valide"
+          ? "Prestataire validé"
           : "Prestataire en attente"
         : "Client"
     : null;
@@ -34,9 +34,9 @@ export async function Navbar() {
   const userMenuItems =
     navRole === "admin"
       ? [
-          { href: "/backoffice", label: "Dashboard admin" },
-          { href: "/backoffice/prestataires", label: "Validation prestataires" },
-          { href: "/backoffice/settings", label: "Parametres" },
+          { href: "/admin", label: "Dashboard admin" },
+          { href: "/admin/prestataires", label: "Validation prestataires" },
+          { href: "/admin/admins", label: "Paramètres" },
         ]
       : navRole === "provider"
         ? [
@@ -47,7 +47,7 @@ export async function Navbar() {
         : [
             { href: "/espace-client", label: "Mon compte" },
             { href: "/espace-client/prestations", label: "Mes prestations" },
-            { href: "/espace-client/securite", label: "Securite" },
+            { href: "/espace-client/securite", label: "Sécurité" },
           ];
 
   return (

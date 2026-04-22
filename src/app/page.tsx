@@ -14,17 +14,13 @@ import { getCurrentLanguage } from "@/lib/i18n-server";
 import { priceHighlights, siteConfig } from "@/lib/site";
 
 const trustPillars = [
-  { icon: ShieldCheck, title: "Prestataires verifies", detail: "Validation documentaire et controle manuel avant activation." },
-  { icon: Clock3, title: "Reponse rapide", detail: "Demande traitee rapidement avec suivi clair dans votre espace client." },
-  { icon: UsersRound, title: "Approche humaine", detail: "Equipe locale disponible par email, telephone et WhatsApp." },
-  { icon: CheckCircle2, title: "Cadre suisse prudent", detail: "NearYou est une plateforme d'intermediation, pas un employeur." },
+  { icon: ShieldCheck, title: "Prestataires vérifiés", detail: "Validation documentaire et contrôle manuel avant activation." },
+  { icon: Clock3, title: "Réponse rapide", detail: "Demande traitée rapidement avec suivi clair dans votre espace client." },
+  { icon: UsersRound, title: "Approche humaine", detail: "Équipe locale disponible par email, téléphone et WhatsApp." },
+  { icon: CheckCircle2, title: "Cadre suisse prudent", detail: "NearYou est une plateforme d'intermédiation, pas un employeur." },
 ];
 
-const socialProof = [
-  { name: "Sophie M. - Lausanne", text: "Processus clair et tres rassurant. Prestataire ponctuel et professionnel." },
-  { name: "Marc T. - Renens", text: "J'ai reserve pour ma mere en quelques minutes, avec rappel humain ensuite." },
-  { name: "Claire B. - Pully", text: "Bonne experience mobile. Demande simple, statut visible et support reactif." },
-];
+const socialProof: Array<{ name: string; text: string }> = [];
 
 export default async function HomePage() {
   const lang = await getCurrentLanguage();
@@ -38,7 +34,7 @@ export default async function HomePage() {
           fromPrice: category.fromPrice,
         }))
       : priceHighlights.map((category, index) => ({
-          id: `fallback-${index}`,
+          id: `local-${index}`,
           label: category.label,
           fromPrice: category.fromPrice,
         }));
@@ -57,9 +53,9 @@ export default async function HomePage() {
       lng: mission.lng,
       providerName: `${mission.provider.profile?.firstName ?? ""} ${mission.provider.profile?.lastName ?? ""}`.trim(),
       providerAvatar: mission.provider.profile?.avatarUrl ?? "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
-      rating: mission.provider.profile?.rating ?? 4.7,
+      rating: mission.provider.profile?.rating ?? 0,
       completedMissions: mission.provider.profile?.completedMissions ?? 0,
-      providerScore: mission.provider.profile?.providerScore ?? 82,
+      providerScore: mission.provider.profile?.providerScore ?? 0,
     }));
 
   return (
@@ -87,15 +83,15 @@ export default async function HomePage() {
                     <Link href="/devenir-prestataire">Devenir prestataire</Link>
                   </Button>
                 </div>
-                <p className="text-sm text-slate-500">Operation pilote a {siteConfig.city}. Extension progressive en Suisse romande.</p>
+                <p className="text-sm text-slate-500">Opération pilote à {siteConfig.city}. Extension progressive en Suisse romande.</p>
               </div>
 
               <Card className="premium-card border-blue-100 p-5">
-                <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Comment ca marche</p>
+                <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Comment ça marche</p>
                 <ol className="mt-3 space-y-3 text-sm text-slate-600">
-                  <li>1. Vous decrivez votre besoin en moins de 2 minutes.</li>
-                  <li>2. NearYou propose des prestataires verifies et disponibles.</li>
-                  <li>3. Vous confirmez votre reservation avec suivi transparent.</li>
+                  <li>1. Choisissez un service.</li>
+                  <li>2. Sélectionnez un prestataire vérifié.</li>
+                  <li>3. Réservez en quelques clics.</li>
                 </ol>
                 <p className="mt-4 rounded-xl bg-green-50 px-3 py-2 text-sm text-green-800">
                   Validation manuelle obligatoire des prestataires avant publication.
@@ -119,14 +115,14 @@ export default async function HomePage() {
       <section className="py-8 sm:py-12">
         <Container className="space-y-4">
           <div className="flex items-end justify-between gap-3">
-          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Categories les plus demandees</h2>
+          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Catégories les plus demandées</h2>
           <Link href="/catalogue" className="text-sm font-medium text-blue-700 hover:text-blue-800">Voir tout le catalogue</Link>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {categoryHighlights.slice(0, 8).map((category) => (
               <Card key={category.id} className="premium-card p-5">
                 <p className="text-sm text-slate-500">{category.label}</p>
-                <p className="mt-1 text-2xl font-bold text-green-700">des {category.fromPrice} CHF</p>
+                <p className="mt-1 text-2xl font-bold text-green-700">dès {category.fromPrice} CHF</p>
                 <Button asChild variant="outline" className="mt-4 h-10 rounded-lg border-blue-200 text-blue-700">
                   <Link href={`/trouver-un-prestataire?categorie=${encodeURIComponent(category.label)}`}>Demander</Link>
                 </Button>
@@ -153,33 +149,39 @@ export default async function HomePage() {
 
       <section className="py-8 sm:py-12">
         <Container className="space-y-4">
-          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Avis clients verifies</h2>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {socialProof.map((review) => (
-              <Card key={review.name} className="premium-card p-5">
-                <p className="text-sm text-slate-700">{review.text}</p>
-                <p className="mt-3 text-sm font-semibold text-slate-900">{review.name}</p>
-              </Card>
-            ))}
-          </div>
+          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Avis clients</h2>
+          {socialProof.length > 0 ? (
+            <div className="grid gap-4 lg:grid-cols-3">
+              {socialProof.map((review) => (
+                <Card key={review.name} className="premium-card p-5">
+                  <p className="text-sm text-slate-700">{review.text}</p>
+                  <p className="mt-3 text-sm font-semibold text-slate-900">{review.name}</p>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-600">
+              Les premiers avis vérifiés seront affichés ici dès les premières missions complétées.
+            </Card>
+          )}
         </Container>
       </section>
 
       <section className="py-8 sm:py-12">
         <Container className="grid gap-6 lg:grid-cols-3">
           <Card className="section-shell p-6 lg:col-span-2">
-            <h3 className="text-2xl font-semibold text-slate-900">Vous etes prestataire independant en Suisse ?</h3>
+            <h3 className="text-2xl font-semibold text-slate-900">Vous êtes prestataire indépendant en Suisse ?</h3>
             <p className="mt-2 text-slate-600">
-              Rejoignez NearYou avec un dossier structure, validation manuelle et cadre clair d'intermediation.
+              Rejoignez NearYou avec un dossier structuré, validation manuelle et cadre clair d'intermédiation.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-slate-600">
               <li>- Candidature en ligne et upload de justificatifs.</li>
               <li>- Statuts de validation lisibles dans votre espace prestataire.</li>
-              <li>- Activation uniquement apres controle admin autorise.</li>
+              <li>- Activation uniquement après contrôle admin autorisé.</li>
             </ul>
             <div className="mt-5 flex flex-wrap gap-3">
               <Button asChild className="h-11 rounded-xl bg-green-600 hover:bg-green-700">
-                <Link href="/devenir-prestataire">Deposer mon dossier</Link>
+                <Link href="/devenir-prestataire">Déposer mon dossier</Link>
               </Button>
               <Button asChild variant="outline" className="h-11 rounded-xl border-blue-200 text-blue-700 hover:bg-blue-50">
                 <Link href="/conditions-prestataires">Lire les conditions prestataires</Link>
@@ -189,9 +191,9 @@ export default async function HomePage() {
 
           <Card className="premium-card border-green-100 bg-green-50 p-6">
             <p className="text-sm font-semibold uppercase tracking-wide text-green-700">Assistance humaine</p>
-            <p className="mt-2 text-xl font-semibold text-green-900">Besoin d'aide pour reserver ?</p>
+            <p className="mt-2 text-xl font-semibold text-green-900">Besoin d'aide pour réserver ?</p>
             <p className="mt-2 text-sm text-green-800">
-              Notre equipe peut vous rappeler pour vous guider de facon simple.
+              Notre équipe peut vous rappeler pour vous guider simplement.
             </p>
             <Button asChild className="mt-4 h-10 rounded-xl bg-green-700 hover:bg-green-800">
               <Link href="/hotline">Demander un rappel</Link>
@@ -199,6 +201,17 @@ export default async function HomePage() {
           </Card>
         </Container>
       </section>
+
+      <div className="fixed inset-x-0 bottom-20 z-40 px-4 md:hidden">
+        <div className="mx-auto grid max-w-md grid-cols-2 gap-2">
+          <Button asChild className="h-11 rounded-xl bg-green-600 hover:bg-green-700">
+            <Link href="/trouver-un-prestataire">Réserver</Link>
+          </Button>
+          <Button asChild variant="outline" className="h-11 rounded-xl border-blue-200 bg-white text-blue-700 hover:bg-blue-50">
+            <Link href="/devenir-prestataire">Devenir prestataire</Link>
+          </Button>
+        </div>
+      </div>
     </>
   );
 }

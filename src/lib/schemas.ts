@@ -1,4 +1,6 @@
-﻿import { z } from "zod";
+import { z } from "zod";
+
+import { serviceCategoryLabels } from "@/lib/constants";
 
 const phoneRegex = /^[+0-9()\-\s]{8,20}$/;
 
@@ -33,7 +35,10 @@ export const serviceRequestSchema = z.object({
   email: z.string().email("Email invalide."),
   phone: z.string().trim().regex(phoneRegex, "Numéro de téléphone invalide."),
   city: sanitizedString(2, "Ville requise."),
-  category: sanitizedString(2, "Catégorie requise."),
+  category: sanitizedString(2, "Catégorie requise.").refine(
+    (value) => serviceCategoryLabels.includes(value),
+    "Catégorie de service invalide.",
+  ),
   serviceId: z.string().uuid().optional().or(z.literal("")),
   interventionAddress: sanitizedString(4, "Adresse d'intervention requise."),
   accessInstructions: z.string().trim().max(500).optional().or(z.literal("")),
@@ -69,7 +74,10 @@ export const providerApplicationSchema = z.object({
   city: sanitizedString(2, "Ville requise."),
   country: sanitizedString(2, "Pays requis."),
   interventionRadiusKm: z.number().int().min(1).max(80),
-  category: sanitizedString(2, "Catégorie requise."),
+  category: sanitizedString(2, "Catégorie requise.").refine(
+    (value) => serviceCategoryLabels.includes(value),
+    "Catégorie de service invalide.",
+  ),
   legalStatus: z.enum(["independant", "entreprise"]),
   companyName: z.string().trim().max(100).optional().or(z.literal("")),
   ideNumber: z.string().trim().max(30).optional().or(z.literal("")),

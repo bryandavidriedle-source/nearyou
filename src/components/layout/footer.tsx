@@ -23,8 +23,8 @@ export async function Footer() {
             <p className="font-semibold text-slate-900">Clients</p>
             <Link href="/trouver-un-prestataire" className="block hover:text-slate-900">Faire une demande</Link>
             <Link href="/services" className="block hover:text-slate-900">Catalogue des services</Link>
-            <Link href="/comment-ca-marche" className="block hover:text-slate-900">Comment ca marche</Link>
-            <Link href="/hotline" className="block hover:text-slate-900">Rappel telephonique</Link>
+            <Link href="/comment-ca-marche" className="block hover:text-slate-900">Comment ça marche</Link>
+            <Link href="/hotline" className="block hover:text-slate-900">Rappel téléphonique</Link>
             <Link href="/connexion" className="block hover:text-slate-900">Connexion client</Link>
           </div>
 
@@ -37,12 +37,12 @@ export async function Footer() {
           </div>
 
           <div className="space-y-2">
-            <p className="font-semibold text-slate-900">Legal & confiance</p>
+            <p className="font-semibold text-slate-900">Légal & confiance</p>
             <Link href="/conditions" className="block hover:text-slate-900">Conditions</Link>
             <Link href="/conditions-utilisation" className="block hover:text-slate-900">CGU</Link>
-            <Link href="/politique-confidentialite" className="block hover:text-slate-900">Confidentialite</Link>
+            <Link href="/politique-confidentialite" className="block hover:text-slate-900">Confidentialité</Link>
             <Link href="/politique-cookies" className="block hover:text-slate-900">Cookies</Link>
-            <Link href="/mentions-legales" className="block hover:text-slate-900">Mentions legales</Link>
+            <Link href="/mentions-legales" className="block hover:text-slate-900">Mentions légales</Link>
             <Link href="/faq" className="block hover:text-slate-900">FAQ</Link>
             <p className="pt-2 text-xs text-slate-500">
               Contact: <a className="hover:text-slate-900" href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>
@@ -52,7 +52,7 @@ export async function Footer() {
 
         <div className="flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>{siteConfig.name} - Suisse - Lausanne</p>
-          <p>Plateforme d'intermediation locale, operationnelle en Suisse romande.</p>
+          <p>Plateforme d'intermédiation locale, opérationnelle en Suisse romande.</p>
         </div>
       </Container>
     </footer>

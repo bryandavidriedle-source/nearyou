@@ -8,7 +8,7 @@ export default function HowItWorksPage() {
   return (
     <section className="py-12">
       <Container className="max-w-4xl space-y-5">
-        <h1 className="text-3xl font-bold text-slate-900">Comment ca marche</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Comment ça marche</h1>
         <p className="text-sm text-slate-600">
           NearYou facilite la mise en relation locale en Suisse avec validation manuelle des prestataires.
         </p>
@@ -16,7 +16,7 @@ export default function HowItWorksPage() {
         <div className="grid gap-4 md:grid-cols-3">
           {howItWorksSteps.map((step, index) => (
             <Card key={step.title} className="premium-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Etape {index + 1}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Étape {index + 1}</p>
               <h2 className="mt-1 text-lg font-semibold text-slate-900">{step.title}</h2>
               <p className="mt-2 text-sm text-slate-700">{step.description}</p>
             </Card>

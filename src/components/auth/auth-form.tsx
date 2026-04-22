@@ -38,8 +38,8 @@ async function resolvePostLoginPathClient(
   ]);
 
   const role = profile?.role as "admin" | "provider" | "customer" | undefined;
-  if (role === "admin" && adminAccount?.is_active) return "/backoffice";
-  if (role === "admin") return "/backoffice";
+  if (role === "admin" && adminAccount?.is_active) return "/admin";
+  if (role === "admin") return "/admin";
   if (role === "provider") return "/espace-prestataire";
   if (providerApplication?.id) return "/espace-prestataire";
   if (role === "customer") return null;
@@ -175,15 +175,17 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
 
   return (
     <Card className="rounded-2xl border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="text-2xl font-bold text-slate-900">Connexion NearYou</h1>
-      <p className="mt-1 text-sm text-slate-600">Accedez a votre espace client, prestataire ou admin.</p>
+      <h2 className="text-2xl font-bold text-slate-900">{mode === "login" ? "Connexion sécurisée" : "Créer un compte"}</h2>
+      <p className="mt-1 text-sm text-slate-600">
+        {mode === "login" ? "Accédez à votre espace client, prestataire ou admin." : "Choisissez votre profil pour démarrer avec NearYou."}
+      </p>
 
       <div className="mt-4 flex gap-2">
         <Button type="button" variant={mode === "login" ? "default" : "outline"} onClick={() => setMode("login")}>
           Se connecter
         </Button>
         <Button type="button" variant={mode === "signup" ? "default" : "outline"} onClick={() => setMode("signup")}>
-          Creer un compte
+          Créer un compte
         </Button>
       </div>
 
@@ -202,7 +204,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
                 onClick={() => setSignupRole("customer")}
               >
                 <span className="block font-semibold">Client</span>
-                <span className="text-xs text-slate-500">Je reserve des services.</span>
+                <span className="text-xs text-slate-500">Je réserve des services.</span>
               </button>
               <button
                 type="button"
@@ -223,7 +225,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Prenom"
+                placeholder="Prénom"
                 required
               />
               <Input
@@ -238,7 +240,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Telephone"
+              placeholder="Téléphone"
               required
             />
           </div>
@@ -246,7 +248,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
         <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" required minLength={8} />
         <Button type="submit" disabled={loading} className="w-full rounded-xl bg-blue-700 hover:bg-blue-800">
-          {loading ? "Chargement..." : mode === "login" ? "Se connecter" : "Creer un compte"}
+          {loading ? "Chargement..." : mode === "login" ? "Se connecter" : "Créer un compte"}
         </Button>
 
         {mode === "login" ? (
@@ -255,7 +257,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
             onClick={onForgotPassword}
             className="w-full text-center text-sm text-blue-700 underline-offset-2 hover:underline"
           >
-            Mot de passe oublie ?
+            Mot de passe oublié ?
           </button>
         ) : null}
       </form>

@@ -33,6 +33,11 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
   const [suggestions, setSuggestions] = useState<CatalogSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
+  const safeInitialCategory =
+    initialCategory && serviceCategories.some((category) => category.label === initialCategory)
+      ? initialCategory
+      : serviceCategories[0].label;
+
   const {
     register,
     setValue,
@@ -47,7 +52,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       email: "",
       phone: "",
       city: "Lausanne",
-      category: initialCategory ?? serviceCategories[0].label,
+      category: safeInitialCategory,
       serviceId: "",
       interventionAddress: "",
       accessInstructions: "",
@@ -107,7 +112,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
 
     const data = (await response.json()) as FormApiResponse;
     if (!response.ok || !data.success) {
-      setSubmitError(data.message || "Une erreur est survenue. Merci de reessayer.");
+      setSubmitError(data.message || "Une erreur est survenue. Merci de réessayer.");
       return;
     }
 
@@ -117,8 +122,8 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
   if (isSuccess) {
     return (
       <SuccessState
-        title="Demande envoyee"
-        description="Merci. Votre demande a bien ete recue. Vous pouvez suivre son evolution depuis votre espace client."
+        title="Demande envoyée"
+        description="Merci. Votre demande a bien été reçue. Vous pouvez suivre son évolution depuis votre espace client."
         ctaLabel="Voir mes demandes"
         ctaHref="/espace-client"
       />
@@ -126,14 +131,14 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
   }
 
   return (
-    <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form id="service-request-form" className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
       <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" {...register("website")} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="lastName" label="Nom" error={errors.lastName?.message}>
           <Input id="lastName" placeholder="Dupont" {...register("lastName")} />
         </FormField>
-        <FormField id="firstName" label="Prenom" error={errors.firstName?.message}>
+        <FormField id="firstName" label="Prénom" error={errors.firstName?.message}>
           <Input id="firstName" placeholder="Marie" {...register("firstName")} />
         </FormField>
       </div>
@@ -142,13 +147,13 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
         <FormField id="email" label="Email" error={errors.email?.message}>
           <Input id="email" type="email" placeholder="vous@email.ch" {...register("email")} />
         </FormField>
-        <FormField id="phone" label="Telephone" error={errors.phone?.message}>
+        <FormField id="phone" label="Téléphone" error={errors.phone?.message}>
           <Input id="phone" type="tel" placeholder="+41 79 123 45 67" {...register("phone")} />
         </FormField>
       </div>
 
       <div className="space-y-2">
-        <FormField id="serviceQuery" label="Service recherche (autocomplete catalogue)">
+        <FormField id="serviceQuery" label="Service recherché (autocomplete catalogue)">
           <Input
             id="serviceQuery"
             value={serviceQuery}
@@ -156,7 +161,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
               setServiceQuery(event.target.value);
               setValue("serviceId", "", { shouldValidate: true });
             }}
-            placeholder="Ex: Tondre la pelouse, Promenade chien..."
+            placeholder="Ex: Tondre la pelouse, Promenade de chien..."
           />
         </FormField>
         {loadingSuggestions ? <p className="text-xs text-slate-500">Recherche des services...</p> : null}
@@ -170,7 +175,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
                 className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50"
               >
                 <span>{item.title}</span>
-                <span className="text-xs font-semibold text-green-700">des {item.fromPriceChf} CHF</span>
+                <span className="text-xs font-semibold text-green-700">dès {item.fromPriceChf} CHF</span>
               </button>
             ))}
           </div>
@@ -181,7 +186,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
         <FormField id="city" label="Ville" error={errors.city?.message}>
           <Input id="city" placeholder="Lausanne" {...register("city")} />
         </FormField>
-        <FormField id="category" label="Categorie de service" error={errors.category?.message}>
+        <FormField id="category" label="Catégorie de service" error={errors.category?.message}>
           <Select
             value={watch("category")}
             onValueChange={(value) => {
@@ -190,7 +195,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
             }}
           >
             <SelectTrigger id="category" className="h-10 w-full rounded-md">
-              <SelectValue placeholder="Choisir une categorie" />
+              <SelectValue placeholder="Choisir une catégorie" />
             </SelectTrigger>
             <SelectContent>
               {serviceCategories.map((category) => (
@@ -208,7 +213,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id="requestedFor" label="Date/heure souhaitee (optionnel)" error={errors.requestedFor?.message}>
+        <FormField id="requestedFor" label="Date/heure souhaitée (optionnel)" error={errors.requestedFor?.message}>
           <Input id="requestedFor" type="datetime-local" {...register("requestedFor")} />
         </FormField>
         <FormField id="budget" label="Budget estimatif" error={errors.budget?.message}>
@@ -218,37 +223,37 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="doorCode" label="Code porte (optionnel)" error={errors.doorCode?.message}>
-          <Input id="doorCode" placeholder="Code d'entree" {...register("doorCode")} />
+          <Input id="doorCode" placeholder="Code d'entrée" {...register("doorCode")} />
         </FormField>
-        <FormField id="floor" label="Etage (optionnel)" error={errors.floor?.message}>
+        <FormField id="floor" label="Étage (optionnel)" error={errors.floor?.message}>
           <Input id="floor" placeholder="Ex: 3e gauche" {...register("floor")} />
         </FormField>
         <FormField id="parkingInstructions" label="Stationnement (optionnel)" error={errors.parkingInstructions?.message}>
           <Input id="parkingInstructions" placeholder="Infos parking utiles" {...register("parkingInstructions")} />
         </FormField>
-        <FormField id="gardenAccessInstructions" label="Acces jardin (optionnel)" error={errors.gardenAccessInstructions?.message}>
+        <FormField id="gardenAccessInstructions" label="Accès jardin (optionnel)" error={errors.gardenAccessInstructions?.message}>
           <Input id="gardenAccessInstructions" placeholder="Portail, acces lateral..." {...register("gardenAccessInstructions")} />
         </FormField>
       </div>
 
-      <FormField
-        id="accessInstructions"
-        label="Instructions d'acces"
-        hint="Indiquez les points d'attention: acces immeuble, ascenseur, difficultes, etc."
-        error={errors.accessInstructions?.message}
-      >
-        <Textarea id="accessInstructions" placeholder="Instructions d'acces..." className="min-h-24" {...register("accessInstructions")} />
-      </FormField>
+        <FormField
+          id="accessInstructions"
+          label="Instructions d'accès"
+          hint="Indiquez les points d'attention: accès immeuble, ascenseur, difficultés, etc."
+          error={errors.accessInstructions?.message}
+        >
+          <Textarea id="accessInstructions" placeholder="Instructions d'accès..." className="min-h-24" {...register("accessInstructions")} />
+        </FormField>
 
       <FormField
         id="description"
         label="Description du besoin"
-        hint="Precisez le contexte, la taille du besoin et vos contraintes eventuelles."
+        hint="Précisez le contexte, la taille du besoin et vos contraintes éventuelles."
         error={errors.description?.message}
       >
         <Textarea
           id="description"
-          placeholder="Exemple: Besoin d'un menage complet de 3 pieces avant vendredi."
+          placeholder="Exemple: besoin d'un ménage complet de 3 pièces avant vendredi."
           className="min-h-28"
           {...register("description")}
         />
@@ -281,7 +286,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
             onCheckedChange={(checked) => setValue("materialsAvailable", Boolean(checked), { shouldValidate: true })}
           />
           <span className="text-sm leading-relaxed text-muted-foreground">
-            J&apos;ai deja du materiel disponible sur place.
+            J&apos;ai déjà du matériel disponible sur place.
           </span>
         </label>
       </div>
@@ -306,8 +311,8 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       ) : null}
 
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isSubmitting}>
-        {isSubmitting ? "Envoi en cours..." : "Envoyer ma demande"}
-      </Button>
-    </form>
+          {isSubmitting ? "Envoi en cours..." : "Envoyer ma demande"}
+        </Button>
+      </form>
   );
 }

@@ -13,7 +13,8 @@ export const metadata: Metadata = pageMetadata({
 export default function AssistantPage() {
   return (
     <section className="py-12">
-      <Container className="max-w-3xl">
+      <Container className="max-w-3xl space-y-4">
+        <h1 className="text-3xl font-bold text-slate-900">Assistant NearYou</h1>
         <AiAssistant />
       </Container>
     </section>

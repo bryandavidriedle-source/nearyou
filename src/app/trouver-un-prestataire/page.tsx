@@ -27,8 +27,8 @@ export default async function FindProviderPage({ searchParams }: FindProviderPag
       <Container className="max-w-3xl">
         <SectionHeader
           eyebrow="Demande de service"
-          title="Decrivez votre besoin"
-          description="Parcours simple, traitement humain et mise en relation locale adaptee a votre situation."
+          title="Décrivez votre besoin"
+          description="Parcours simple, traitement humain et mise en relation locale adaptée à votre situation."
         />
 
         <Card className="rounded-3xl border-border/80 bg-card/95 shadow-sm">
@@ -37,6 +37,16 @@ export default async function FindProviderPage({ searchParams }: FindProviderPag
           </CardContent>
         </Card>
       </Container>
+
+      <div className="fixed inset-x-0 bottom-20 z-40 px-4 md:hidden">
+        <button
+          type="submit"
+          form="service-request-form"
+          className="w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-green-700"
+        >
+          Envoyer ma demande
+        </button>
+      </div>
     </section>
   );
 }

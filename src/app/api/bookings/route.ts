@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { bookingIntentSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
   const parsed = bookingIntentSchema.safeParse(body);
 
   if (!parsed.success) {
-    return jsonError("Champs de reservation invalides.", 400, parsed.error.flatten().fieldErrors);
+    return jsonError("Champs de réservation invalides.", 400, parsed.error.flatten().fieldErrors);
   }
 
   const securityGuard = await enforcePublicFormSecurity(parsed.data);
@@ -25,10 +27,40 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabaseServer.auth.getUser();
   if (!user) {
-    return jsonError("Connexion requise pour confirmer une reservation.", 401);
+    const safeMissionId = parsed.data.missionId.replace(/[^a-zA-Z0-9-_]/g, "");
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Connectez-vous pour confirmer votre réservation.",
+        loginPath: `/connexion?next=${encodeURIComponent(`/reserve/${safeMissionId}`)}`,
+      },
+      { status: 401 },
+    );
   }
 
   const supabase = getSupabaseAdminClient();
+  const { data: provider } = await supabase
+    .from("providers")
+    .select("id, is_active, profile_id")
+    .eq("id", parsed.data.missionId)
+    .maybeSingle();
+
+  if (!provider || !provider.is_active || !provider.profile_id) {
+    return jsonError("Ce prestataire n'est plus disponible.", 404);
+  }
+
+  const { data: providerApplication } = await supabase
+    .from("provider_applications")
+    .select("workflow_status")
+    .eq("profile_id", provider.profile_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (providerApplication?.workflow_status !== "approved") {
+    return jsonError("Ce prestataire n'est pas publiable actuellement.", 403);
+  }
+
   const { data: booking, error } = await supabase
     .from("bookings")
     .insert({
@@ -45,7 +77,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error || !booking) {
-    return jsonError("Reservation impossible pour le moment.", 500);
+    return jsonError("Réservation impossible pour le moment.", 500);
   }
 
   await supabase.from("payments").insert({
@@ -54,5 +86,5 @@ export async function POST(request: Request) {
     status: "pending",
   });
 
-  return jsonSuccess("Reservation enregistree.", { bookingId: booking.id });
+  return jsonSuccess("Réservation enregistrée.", { bookingId: booking.id });
 }

@@ -20,15 +20,15 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "NearYou | Services a domicile premium en Suisse",
-    description: "Plateforme suisse de mise en relation locale avec prestataires verifies et suivi humain.",
+    title: "NearYou | Services à domicile premium en Suisse",
+    description: "Plateforme suisse de mise en relation locale avec prestataires vérifiés et suivi humain.",
     path: "/",
   }),
   manifest: "/manifest.webmanifest",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   openGraph: {
-    title: "NearYou | Services locaux verifies",
-    description: "Reservation simple, confiance forte et operation locale en Suisse romande.",
+    title: "NearYou | Services locaux vérifiés",
+    description: "Réservation simple, confiance forte et opération locale en Suisse romande.",
     type: "website",
     locale: "fr_CH",
   },

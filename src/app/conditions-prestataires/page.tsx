@@ -5,7 +5,7 @@ import { pageMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Conditions prestataires | NearYou",
-  description: "Conditions prestataires NearYou / PresDeToi pour une activite locale en Suisse.",
+  description: "Conditions prestataires NearYou pour une activité locale en Suisse.",
   path: "/conditions-prestataires",
 });
 
@@ -15,54 +15,54 @@ export default function ProviderTermsPage() {
       <Container className="max-w-3xl space-y-5 text-sm leading-relaxed text-slate-700">
         <h1 className="text-3xl font-semibold text-slate-900">Conditions prestataires</h1>
         <p>
-          Ces conditions s'appliquent a tout prestataire candidat ou actif sur NearYou / PresDeToi. L'activation publique
-          est conditionnee a une validation manuelle du dossier.
+          Ces conditions s'appliquent à tout prestataire candidat ou actif sur NearYou. L'activation publique est conditionnée
+          à une validation manuelle du dossier.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900">1. Statut juridique</h2>
         <p>
-          Le prestataire agit a titre independant ou en qualite de societe. Il n'existe aucun lien de subordination avec NearYou.
-          Le prestataire assume seul ses obligations sociales, fiscales, administratives et reglementaires.
+          Le prestataire agit à titre indépendant ou en qualité de société. Il n'existe aucun lien de subordination avec NearYou.
+          Le prestataire assume seul ses obligations sociales, fiscales, administratives et réglementaires.
         </p>
         <p>
-          Age minimum pour candidater: 16 ans. Une candidature dont la date de naissance indique moins de 16 ans est bloquee.
+          Âge minimum pour candidater: 16 ans. Une candidature dont la date de naissance indique moins de 16 ans est bloquée.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900">2. Validation du dossier</h2>
         <p>
           Le dossier peut passer par les statuts: draft, submitted, pending_review, needs_info, approved, rejected, suspended.
-          Tant que le statut n'est pas approved, le profil ne doit pas etre considere comme actif publiquement.
+          Tant que le statut n'est pas approved, le profil ne doit pas être considéré comme actif publiquement.
         </p>
         <p>
-          Le prestataire s'engage a transmettre des informations exactes et a jour. NearYou peut demander tout justificatif
-          complementaire en cas de doute de conformite.
+          Le prestataire s'engage à transmettre des informations exactes et à jour. NearYou peut demander tout justificatif
+          complémentaire en cas de doute de conformité.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900">3. Documents et conformite</h2>
         <p>
-          Selon l'activite, NearYou peut demander une piece d'identite, un permis de sejour, une assurance RC et tout document
-          complementaire utile a la validation. Les documents restent en stockage prive.
+          Selon l'activité, NearYou peut demander une pièce d'identité, un permis de séjour, une assurance RC et tout document
+          complémentaire utile à la validation. Les documents restent en stockage privé.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900">4. Missions et qualite de service</h2>
         <p>
-          Le prestataire s'engage a repondre rapidement aux demandes assignees, a respecter les horaires confirmes et a maintenir
-          un niveau de qualite compatible avec les attentes de la plateforme.
+          Le prestataire s'engage à répondre rapidement aux demandes assignées, à respecter les horaires confirmés et à maintenir
+          un niveau de qualité compatible avec les attentes de la plateforme.
         </p>
         <p>
-          Les prix affiches sont des prix de depart. En cas d'ajustement sur place, un supplement motive peut etre propose,
-          mais il doit etre approuve explicitement par le client avant application.
+          Les prix affichés sont des prix de départ. En cas d'ajustement sur place, un supplément motivé peut être proposé,
+          mais il doit être approuvé explicitement par le client avant application.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900">5. Paiements et commissions</h2>
         <p>
           Les montants prestataires sont suivis dans l'espace paiement avec distinction brut, commission plateforme et net.
-          Les modalites de versement peuvent evoluer avec l'integration de solutions de paiement externes.
+          Les modalités de versement peuvent évoluer avec l'intégration de solutions de paiement externes.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900">6. Suspension et cloture</h2>
         <p>
-          En cas de manquement grave, de non-conformite ou de risque operationnel, NearYou peut suspendre un compte prestataire.
+          En cas de manquement grave, de non-conformité ou de risque opérationnel, NearYou peut suspendre un compte prestataire.
           Le compte reste accessible en lecture pour suivi administratif.
         </p>
 

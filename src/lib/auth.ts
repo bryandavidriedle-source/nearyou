@@ -91,7 +91,7 @@ export async function resolveAuthenticatedHomePath() {
   if (!context.user) return "/connexion";
 
   if (context.role === "admin") {
-    return "/backoffice";
+    return "/admin";
   }
 
   if (context.role === "provider") {
@@ -106,7 +106,7 @@ export async function resolveAuthenticatedHomePath() {
 }
 
 function fallbackPathForRole(role: AppRole | null) {
-  if (role === "admin") return "/backoffice";
+  if (role === "admin") return "/admin";
   if (role === "provider") return "/espace-prestataire";
   return "/espace-client";
 }

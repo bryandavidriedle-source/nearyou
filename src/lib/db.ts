@@ -1,4 +1,4 @@
-﻿import { fullCatalogue } from "@/lib/constants";
+import { fullCatalogue, serviceCategories } from "@/lib/constants";
 import { hasSupabaseServiceRole } from "@/lib/supabase";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -9,7 +9,7 @@ type HomeData = {
     description: string;
     fromPrice: number;
     isAvailableToday: boolean;
-    distanceKm: number;
+    distanceKm: number | null;
     badge: string | null;
     lat: number;
     lng: number;
@@ -46,101 +46,119 @@ type HomeData = {
   categories: Array<{ id: string; name: string; fromPrice: number }>;
 };
 
-const fallbackProviderTemplates = [
-  { firstName: "Camille", lastName: "R.", city: "Lausanne", category: "Aide a domicile", rating: 4.9, completed: 124, price: 35, lat: 46.5207, lng: 6.6323, badge: "Verifie" },
-  { firstName: "Nora", lastName: "M.", city: "Renens", category: "Visite senior", rating: 4.8, completed: 89, price: 29, lat: 46.5364, lng: 6.5888, badge: "Top" },
-  { firstName: "Yann", lastName: "L.", city: "Pully", category: "Promenade chien", rating: 4.7, completed: 51, price: 22, lat: 46.5112, lng: 6.6613, badge: null },
-  { firstName: "Lea", lastName: "V.", city: "Geneve", category: "Menage premium", rating: 4.9, completed: 158, price: 42, lat: 46.2044, lng: 6.1432, badge: "Verifie" },
-  { firstName: "Sami", lastName: "D.", city: "Fribourg", category: "Bricolage", rating: 4.6, completed: 77, price: 38, lat: 46.8065, lng: 7.1619, badge: null },
-  { firstName: "Mila", lastName: "P.", city: "Montreux", category: "Garde d'enfants", rating: 4.8, completed: 112, price: 34, lat: 46.433, lng: 6.9114, badge: "Top" },
-  { firstName: "Arnaud", lastName: "K.", city: "Nyon", category: "Jardinage", rating: 4.7, completed: 64, price: 31, lat: 46.3833, lng: 6.2397, badge: null },
-  { firstName: "Ines", lastName: "T.", city: "Sion", category: "Aide a domicile", rating: 4.8, completed: 95, price: 33, lat: 46.2331, lng: 7.3606, badge: "Verifie" },
-  { firstName: "Hugo", lastName: "B.", city: "Neuchatel", category: "Bricolage", rating: 4.6, completed: 70, price: 36, lat: 46.9896, lng: 6.9293, badge: null },
-  { firstName: "Sofia", lastName: "A.", city: "Yverdon", category: "Visite senior", rating: 4.9, completed: 133, price: 30, lat: 46.7785, lng: 6.6412, badge: "Top" },
-  { firstName: "Noe", lastName: "G.", city: "Vevey", category: "Promenade chien", rating: 4.7, completed: 58, price: 24, lat: 46.4612, lng: 6.843, badge: null },
-  { firstName: "Eva", lastName: "S.", city: "Morges", category: "Menage premium", rating: 4.8, completed: 102, price: 40, lat: 46.5118, lng: 6.498, badge: "Verifie" },
-] as const;
+function getDefaultCategories() {
+  return serviceCategories.map((category) => ({
+    id: category.slug,
+    name: category.label,
+    fromPrice: category.fromPrice,
+  }));
+}
 
-const fallbackHomeData: HomeData = {
-  missions: fallbackProviderTemplates.map((provider, index) => {
-    const providerScore = Math.min(100, Math.round(provider.rating * 14 + Math.min(provider.completed, 220) * 0.24 + (index % 2 === 0 ? 8 : 0)));
-    return {
-      id: `mission-${index + 1}`,
-      title: `${provider.category} - ${provider.city}`,
-      description: `${provider.category} avec accompagnement humain et suivi local`,
-      fromPrice: provider.price,
-      isAvailableToday: index % 2 === 0,
-      distanceKm: 1.4 + index * 0.8,
-      badge: provider.badge,
-      lat: provider.lat,
-      lng: provider.lng,
-      category: { name: provider.category },
-      provider: {
-        profile: {
-          firstName: provider.firstName,
-          lastName: provider.lastName,
-          avatarUrl: `https://i.pravatar.cc/300?img=${(index % 70) + 1}`,
-          rating: provider.rating,
-          completedMissions: provider.completed,
-          providerScore,
-        },
-      },
-    };
-  }),
-  parkingListings: [
-    { id: "parking-1", title: "Parking gare", city: "Lausanne", dayPrice: 12, hasPower: false, lat: 46.5169, lng: 6.6291 },
-    { id: "parking-2", title: "Parking van Ouchy", city: "Lausanne", dayPrice: 24, hasPower: true, lat: 46.5076, lng: 6.6259 },
-  ],
-  partners: [
-    { id: "partner-1", name: "Café du Centre", type: "cafe", city: "Lausanne", address: "Place Centrale 4", lat: 46.5198, lng: 6.6323 },
-    { id: "partner-2", name: "Pharmacie de la Gare", type: "pharmacy", city: "Lausanne", address: "Avenue de la Gare 12", lat: 46.5169, lng: 6.6291 },
-  ],
-  categories: [
-    { id: "c1", name: "Aide à domicile", fromPrice: 35 },
-    { id: "c2", name: "Visite senior", fromPrice: 29 },
-    { id: "c3", name: "Promenade chien", fromPrice: 22 },
-    { id: "c4", name: "Parking", fromPrice: 12 },
-  ],
-};
+const allowedCategoryNames = new Set(serviceCategories.map((category) => category.label));
+
+function getEmptyHomeData(): HomeData {
+  return {
+    missions: [],
+    parkingListings: [],
+    partners: [],
+    categories: getDefaultCategories(),
+  };
+}
 
 export async function getHomeData() {
   if (!hasSupabaseServiceRole()) {
-    return fallbackHomeData;
+    return getEmptyHomeData();
   }
 
   try {
     const supabase = getSupabaseAdminClient();
 
-    const [providersRes, categoriesRes, partnersRes] = await Promise.all([
+    const [providersRes, categoriesRes, partnersRes, providerApplicationsRes] = await Promise.all([
       supabase
         .from("providers")
-        .select("id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, latitude, longitude, profiles!inner(first_name,last_name,avatar_url,city)")
+        .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, latitude, longitude, profiles!inner(first_name,last_name,avatar_url,city)")
         .eq("is_active", true)
-        .limit(25),
+        .limit(50),
       supabase.from("service_categories").select("id, name_fr, from_price_chf").eq("active", true),
       supabase.from("partners").select("id, name, type, city, address, latitude, longitude").eq("active", true),
+      supabase.from("provider_applications").select("profile_id, workflow_status, created_at").order("created_at", { ascending: false }),
     ]);
 
-    if (providersRes.error || categoriesRes.error || partnersRes.error) {
-      return fallbackHomeData;
+    if (providersRes.error || categoriesRes.error || partnersRes.error || providerApplicationsRes.error) {
+      return getEmptyHomeData();
     }
 
-    const categoryByName = (categoriesRes.data ?? []).map((c) => c.name_fr);
+    const latestWorkflowByProfile = new Map<string, string>();
+    for (const application of providerApplicationsRes.data ?? []) {
+      if (!application.profile_id) continue;
+      if (!latestWorkflowByProfile.has(application.profile_id)) {
+        latestWorkflowByProfile.set(application.profile_id, application.workflow_status ?? "draft");
+      }
+    }
 
-    const missions = (providersRes.data ?? []).map((provider, index) => {
+    const visibleCategories = (categoriesRes.data ?? []).filter((category) => allowedCategoryNames.has(category.name_fr));
+    const categoryByName = visibleCategories.map((c) => c.name_fr);
+    const visibleProviders = (providersRes.data ?? []).filter((provider) => {
+      if (!provider.profile_id) return false;
+      return latestWorkflowByProfile.get(provider.profile_id) === "approved";
+    });
+
+    const providerProfileIds = visibleProviders
+      .map((provider) => provider.profile_id)
+      .filter((value): value is string => Boolean(value));
+
+    const availabilityByProfile = new Map<
+      string,
+      Array<{ day_of_week: number; start_time: string | null; end_time: string | null }>
+    >();
+
+    if (providerProfileIds.length > 0) {
+      const { data: availabilityRows } = await supabase
+        .from("provider_availability_rules")
+        .select("profile_id, day_of_week, start_time, end_time")
+        .in("profile_id", providerProfileIds)
+        .eq("is_active", true);
+
+      for (const row of availabilityRows ?? []) {
+        if (!row.profile_id) continue;
+        const current = availabilityByProfile.get(row.profile_id) ?? [];
+        current.push({
+          day_of_week: row.day_of_week,
+          start_time: row.start_time,
+          end_time: row.end_time,
+        });
+        availabilityByProfile.set(row.profile_id, current);
+      }
+    }
+
+    const now = new Date();
+    const currentDay = now.getDay();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const missions = visibleProviders.map((provider, index) => {
       const profile = Array.isArray(provider.profiles) ? provider.profiles[0] : provider.profiles;
       const categoryName = categoryByName[index % Math.max(1, categoryByName.length)] ?? "Service";
-      const rating = Number(provider.rating ?? 5);
+      const categoryFromPrice = visibleCategories[index % Math.max(1, visibleCategories.length)]?.from_price_chf ?? 0;
+      const rating = Number(provider.rating ?? 0);
       const completedMissions = provider.completed_missions ?? 0;
-      const providerScore = Math.min(100, Math.round(rating * 14 + Math.min(completedMissions, 250) * 0.22 + (index % 2 === 0 ? 8 : 0)));
+      const providerScore = Math.min(100, Math.round(rating * 14 + Math.min(completedMissions, 250) * 0.22));
+      const availabilityRows = provider.profile_id ? availabilityByProfile.get(provider.profile_id) ?? [] : [];
+      const isAvailableNow = availabilityRows.some((availability) => {
+        if (availability.day_of_week !== currentDay) return false;
+        const [startHour, startMinute] = (availability.start_time ?? "00:00:00").split(":").map(Number);
+        const [endHour, endMinute] = (availability.end_time ?? "00:00:00").split(":").map(Number);
+        const start = startHour * 60 + startMinute;
+        const end = endHour * 60 + endMinute;
+        return currentMinutes >= start && currentMinutes <= end;
+      });
 
       return {
         id: provider.id,
-        title: `${categoryName} à Lausanne`,
-        description: `${categoryName} avec réponse humaine rapide`,
-        fromPrice: provider.hourly_from_chf,
-        isAvailableToday: index % 2 === 0,
-        distanceKm: 1.2 + index,
+        title: categoryName,
+        description: `Intervention locale en Suisse (${profile?.city ?? "zone locale"})`,
+        fromPrice: Number(provider.hourly_from_chf ?? categoryFromPrice),
+        isAvailableToday: isAvailableNow,
+        distanceKm: null,
         badge: provider.verified ? "Vérifié" : provider.top_provider ? "Top" : null,
         lat: Number(provider.latitude ?? 46.5197),
         lng: Number(provider.longitude ?? 6.6323),
@@ -158,41 +176,9 @@ export async function getHomeData() {
       };
     });
 
-    const parkingCategory = categoriesRes.data?.find((item) => item.name_fr.toLowerCase().includes("parking"));
-    const hydratedMissions =
-      missions.length >= 10
-        ? missions
-        : [
-            ...missions,
-            ...fallbackHomeData.missions.slice(0, Math.max(0, 12 - missions.length)).map((item, index) => ({
-              ...item,
-              id: `fallback-${index}-${item.id}`,
-            })),
-          ];
-    const parkingListings = [
-      {
-        id: "parking-lausanne-centre",
-        title: "Parking Lausanne Centre",
-        city: "Lausanne",
-        dayPrice: parkingCategory?.from_price_chf ?? 12,
-        hasPower: false,
-        lat: 46.5192,
-        lng: 6.6335,
-      },
-      {
-        id: "parking-ouchy-van",
-        title: "Parking Ouchy Van",
-        city: "Lausanne",
-        dayPrice: Math.max(18, parkingCategory?.from_price_chf ?? 12),
-        hasPower: true,
-        lat: 46.5071,
-        lng: 6.6261,
-      },
-    ];
-
     return {
-      missions: hydratedMissions.length > 0 ? hydratedMissions : fallbackHomeData.missions,
-      parkingListings,
+      missions,
+      parkingListings: [],
       partners: (partnersRes.data ?? []).map((partner) => ({
         id: partner.id,
         name: partner.name,
@@ -202,14 +188,17 @@ export async function getHomeData() {
         lat: Number(partner.latitude ?? 46.5197),
         lng: Number(partner.longitude ?? 6.6323),
       })),
-      categories: (categoriesRes.data ?? []).map((category) => ({
-        id: category.id,
-        name: category.name_fr,
-        fromPrice: category.from_price_chf,
-      })),
+      categories:
+        visibleCategories.length > 0
+          ? visibleCategories.map((category) => ({
+              id: category.id,
+              name: category.name_fr,
+              fromPrice: category.from_price_chf,
+            }))
+          : getDefaultCategories(),
     };
   } catch {
-    return fallbackHomeData;
+    return getEmptyHomeData();
   }
 }
 
@@ -243,13 +232,31 @@ export async function getCatalogueData() {
     if (categoriesError || !categories) {
       return [];
     }
+    const filteredCategories = categories.filter((category) => allowedCategoryNames.has(category.name_fr));
+    if (filteredCategories.length === 0) {
+      return fullCatalogue.map((category, categoryIndex) => ({
+        id: `${category.slug}-${categoryIndex}`,
+        name: category.name,
+        fromPrice: serviceCategories.find((item) => item.label === category.name)?.fromPrice ?? 20 + categoryIndex * 4,
+        subcategories: category.subcategories.map((subcategory, subIndex) => ({
+          id: `${subcategory.slug}-${subIndex}`,
+          name: subcategory.name,
+          tasks: subcategory.tasks.map((task, taskIndex) => ({
+            id: `${task.title}-${taskIndex}`,
+            title: task.title,
+            mode: task.mode,
+            tags: task.tags.map((tag) => ({ tag: { name: tag } })),
+          })),
+        })),
+      }));
+    }
 
     const { data: services } = await supabase
       .from("services")
       .select("id, category_id, title, mode, tags")
       .eq("active", true);
 
-    return categories.map((category) => {
+    return filteredCategories.map((category) => {
       const categoryServices = (services ?? []).filter((service) => service.category_id === category.id);
       return {
         id: category.id,
@@ -276,50 +283,40 @@ export async function getCatalogueData() {
 
 export async function getProviderProfile(providerId: string) {
   if (!hasSupabaseServiceRole()) {
-    const mission = fallbackHomeData.missions.find((item) => item.id === providerId) ?? fallbackHomeData.missions[0];
-    const [firstName, lastName] = `${mission.provider.profile?.firstName ?? ""} ${mission.provider.profile?.lastName ?? ""}`.trim().split(" ");
-
-    return {
-      id: providerId,
-      profile: {
-        firstName: firstName ?? "Camille",
-        lastName: lastName ?? "R.",
-        avatarUrl: mission.provider.profile?.avatarUrl ?? fallbackHomeData.missions[0].provider.profile?.avatarUrl ?? "",
-        description: mission.description,
-        rating: mission.provider.profile?.rating ?? 4.8,
-        completedMissions: mission.provider.profile?.completedMissions ?? 40,
-        providerScore: mission.provider.profile?.providerScore ?? 88,
-        isVerified: true,
-        isTopProvider: true,
-        city: "Lausanne",
-      },
-      missions: fallbackHomeData.missions.map((item) => ({
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        fromPrice: item.fromPrice,
-        category: { name: item.category.name },
-      })),
-    };
+    return null;
   }
 
   try {
     const supabase = getSupabaseAdminClient();
     const { data: provider } = await supabase
       .from("providers")
-      .select("id, display_name, rating, completed_missions, verified, top_provider, profiles!inner(first_name,last_name,avatar_url,bio,city)")
+      .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, is_active, profiles!inner(first_name,last_name,avatar_url,bio,city)")
       .eq("id", providerId)
       .maybeSingle();
 
     if (!provider) return null;
+    if (!provider.profile_id || provider.is_active !== true) return null;
+
+    const { data: latestApplication } = await supabase
+      .from("provider_applications")
+      .select("workflow_status")
+      .eq("profile_id", provider.profile_id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestApplication?.workflow_status !== "approved") {
+      return null;
+    }
 
     const profile = Array.isArray(provider.profiles) ? provider.profiles[0] : provider.profiles;
 
-    const { data: services } = await supabase
-      .from("services")
-      .select("id, title, description, from_price_chf, service_categories(name_fr)")
-      .eq("active", true)
-      .limit(6);
+    const { data: providerServices } = await supabase
+      .from("provider_services")
+      .select("service_id, min_price_chf, services(id, title, description, from_price_chf, service_categories(name_fr))")
+      .eq("profile_id", provider.profile_id)
+      .eq("is_active", true)
+      .limit(12);
 
     return {
       id: provider.id,
@@ -328,15 +325,16 @@ export async function getProviderProfile(providerId: string) {
         lastName: profile?.last_name ?? "",
         avatarUrl: profile?.avatar_url ?? "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
         description: profile?.bio ?? "Prestataire local NearYou",
-        rating: Number(provider.rating ?? 5),
+        rating: Number(provider.rating ?? 0),
         completedMissions: provider.completed_missions ?? 0,
-        providerScore: Math.min(100, Math.round(Number(provider.rating ?? 5) * 14 + Math.min(provider.completed_missions ?? 0, 250) * 0.22)),
+        providerScore: Math.min(100, Math.round(Number(provider.rating ?? 0) * 14 + Math.min(provider.completed_missions ?? 0, 250) * 0.22)),
         isVerified: provider.verified,
         isTopProvider: provider.top_provider,
         city: profile?.city ?? "Lausanne",
       },
-      missions: (services ?? []).map((service) => {
-        const serviceCategory = service.service_categories;
+      missions: (providerServices ?? []).map((entry) => {
+        const service = Array.isArray(entry.services) ? entry.services[0] : entry.services;
+        const serviceCategory = service?.service_categories;
         let categoryName = "Service";
 
         if (Array.isArray(serviceCategory)) {
@@ -346,13 +344,13 @@ export async function getProviderProfile(providerId: string) {
         }
 
         return {
-          id: service.id,
-          title: service.title,
-          description: service.description ?? "Service local sur mesure",
-          fromPrice: service.from_price_chf,
+          id: service?.id ?? entry.service_id,
+          title: service?.title ?? "Service local",
+          description: service?.description ?? "Service local sur mesure",
+          fromPrice: Number(entry.min_price_chf ?? service?.from_price_chf ?? 0),
           category: { name: categoryName },
         };
-      }),
+      }).filter((service) => service.fromPrice > 0),
     };
   } catch {
     return null;
@@ -362,22 +360,16 @@ export async function getProviderProfile(providerId: string) {
 export async function getAdminData() {
   if (!hasSupabaseServiceRole()) {
     return {
-      users: 120,
-      missions: 42,
-      providers: 18,
-      parking: 9,
-      partners: 3,
-      reviews: 57,
-      feedbackRate: 68,
-      bookings: [
-        { id: "b1", serviceType: "Aide à domicile", status: "pending", reservationSource: "app", totalFromPrice: 35 },
-      ],
-      hotlineRequests: [
-        { id: "h1", firstName: "Luc", lastName: "B.", serviceType: "Visite senior", status: "new" },
-      ],
-      supportMessages: [
-        { id: "s1", email: "client@example.com", subject: "Question réservation", status: "new", created_at: new Date().toISOString() },
-      ],
+      users: 0,
+      missions: 0,
+      providers: 0,
+      parking: 0,
+      partners: 0,
+      reviews: 0,
+      feedbackRate: 0,
+      bookings: [],
+      hotlineRequests: [],
+      supportMessages: [],
     };
   }
 
@@ -464,27 +456,20 @@ export async function getAdminDashboardData() {
   if (!hasSupabaseServiceRole()) {
     return {
       kpis: {
-        totalRequests: 42,
-        newRequests: 10,
-        inProgressRequests: 17,
-        completedRequests: 11,
-        cancelledRequests: 4,
-        users: 120,
-        providers: 18,
-        providerPending: 6,
+        totalRequests: 0,
+        newRequests: 0,
+        inProgressRequests: 0,
+        completedRequests: 0,
+        cancelledRequests: 0,
+        users: 0,
+        providers: 0,
+        providerPending: 0,
       },
-      byCategory: [
-        { category: "Aide à domicile", count: 14 },
-        { category: "Visite senior", count: 10 },
-        { category: "Promenade chien", count: 8 },
-      ],
-      byCity: [
-        { city: "Lausanne", count: 23 },
-        { city: "Renens", count: 9 },
-      ],
+      byCategory: [],
+      byCity: [],
       volume: {
-        last7Days: 12,
-        last30Days: 37,
+        last7Days: 0,
+        last30Days: 0,
       },
     };
   }

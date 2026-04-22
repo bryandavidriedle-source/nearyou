@@ -93,7 +93,7 @@ type Messages = {
 export const messages: Record<Language, Messages> = {
   en: {
     navbar: { home: "Home", catalogue: "Catalogue", phoneHelp: "Phone help", admin: "Admin", bookNow: "Book now", find: "Find", account: "Account" },
-    footer: { tagline: "NEARYOU - Local help in seconds.", protection: "Payment and support protection is only guaranteed through the platform." },
+    footer: { tagline: "NearYou - Local help in seconds.", protection: "Payment and support protection is only guaranteed through the platform." },
     home: {
       badge: "Fast local marketplace - Switzerland",
       title: "What do you need today?",
@@ -141,21 +141,21 @@ export const messages: Record<Language, Messages> = {
   },
   fr: {
     navbar: { home: "Accueil", catalogue: "Catalogue", phoneHelp: "Aide téléphone", admin: "Admin", bookNow: "Réserver", find: "Trouver", account: "Compte" },
-    footer: { tagline: "NearYou - Services locaux premium en Suisse.", protection: "NearYou agit comme plateforme d'intermediation. Les prestataires restent juridiquement independants." },
+    footer: { tagline: "NearYou - Services locaux premium en Suisse.", protection: "NearYou agit comme plateforme d'intermédiation. Les prestataires restent juridiquement indépendants." },
     home: {
       badge: "Plateforme locale premium - Suisse",
-      title: "Trouvez un prestataire fiable pres de chez vous",
-      subtitle: "Parcours simple, validation manuelle des prestataires et suivi humain de chaque demande.",
-      actions: ["Aide a domicile", "Visite senior", "Promenade chien", "Parking"],
+      title: "Réservez un service près de chez vous en quelques minutes",
+      subtitle: "Ménage, beauté, massage, jardin, bricolage et bien plus, avec des prestataires vérifiés.",
+      actions: ["Aide à domicile", "Beauté", "Bricolage", "Transport"],
       pricingTitle: "Tarifs indicatifs des",
-      seniorTitle: "Un parcours pense pour les familles et les seniors",
-      seniorText: "Demande de rappel, aide telephone et reservation guidee pour aller vite sans stress.",
+      seniorTitle: "Un parcours pensé pour les familles et les seniors",
+      seniorText: "Demande de rappel, aide téléphone et réservation guidée pour aller vite sans stress.",
       seniorCta1: "Demander un rappel",
       seniorCta2: "Voir les services",
       voucher: "Offre lancement",
-      voucherText: "Reduction de bienvenue sur votre premiere demande validee.",
+      voucherText: "Réduction de bienvenue sur votre première demande validée.",
       partnersTitle: "Ancrage local suisse",
-      partnersText: "Reseau de partenaires de proximite et operation pilote en Suisse romande.",
+      partnersText: "Réseau de partenaires de proximité et opération pilote en Suisse romande.",
     },
     search: {
       service: "Service", address: "Adresse", date: "Date", search: "Rechercher", useLocation: "Utiliser ma position",
@@ -164,8 +164,8 @@ export const messages: Record<Language, Messages> = {
     map: {
       radius: "Rayon (km)", maxPrice: "Prix max dès", category: "Catégorie", allCategories: "Toutes les catégories", search: "Recherche",
       nameOrService: "Nom ou service", todayOnly: "Disponible aujourd'hui", anyAvailability: "Toute dispo",
-      mapLegend: "Carte : prestataires, parkings, partenaires cafés/pharmacies", availableToday: "Disponible aujourd'hui", missions: "missions",
-      km: "km", from: "dès", bookNow: "Réserver", viewProfile: "Voir profil", noMatch: "Aucun prestataire ne correspond à vos filtres.",
+      mapLegend: "Carte : prestataires et partenaires locaux", availableToday: "Disponible aujourd'hui", missions: "missions",
+      km: "km", from: "dès", bookNow: "Réserver", viewProfile: "Voir le profil", noMatch: "Aucun prestataire ne correspond à vos filtres. Essayez d'élargir votre recherche.",
     },
     catalogue: {
       title: "Catalogue de tâches", subtitle: "Catégories, sous-catégories, tâches et tags (instantané / planifié / récurrent).",
@@ -183,7 +183,7 @@ export const messages: Record<Language, Messages> = {
   },
   it: {
     navbar: { home: "Home", catalogue: "Catalogo", phoneHelp: "Aiuto telefono", admin: "Admin", bookNow: "Prenota", find: "Trova", account: "Account" },
-    footer: { tagline: "NEARYOU - Aiuto locale in pochi secondi.", protection: "Pagamento e supporto garantiti solo tramite piattaforma." },
+    footer: { tagline: "NearYou - Aiuto locale in pochi secondi.", protection: "Pagamento e supporto garantiti solo tramite piattaforma." },
     home: {
       badge: "Marketplace locale veloce - Svizzera", title: "Di cosa hai bisogno oggi?", subtitle: "Trova aiuto affidabile vicino a te in pochi secondi.",
       actions: ["Aiuto a domicilio", "Visita senior", "Passeggiata cane", "Parcheggio"],
@@ -214,7 +214,7 @@ export const messages: Record<Language, Messages> = {
   },
   de: {
     navbar: { home: "Start", catalogue: "Katalog", phoneHelp: "Telefonhilfe", admin: "Admin", bookNow: "Buchen", find: "Finden", account: "Konto" },
-    footer: { tagline: "NEARYOU - Lokale Hilfe in Sekunden.", protection: "Zahlung und Support sind nur über die Plattform garantiert." },
+    footer: { tagline: "NearYou - Lokale Hilfe in Sekunden.", protection: "Zahlung und Support sind nur über die Plattform garantiert." },
     home: {
       badge: "Schneller lokaler Marktplatz - Schweiz", title: "Was brauchen Sie heute?", subtitle: "Finden Sie vertrauenswürdige Hilfe in Ihrer Nähe in Sekunden.",
       actions: ["Hilfe zu Hause", "Seniorenbesuch", "Hundespaziergang", "Parken"],

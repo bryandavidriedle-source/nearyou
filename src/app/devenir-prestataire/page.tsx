@@ -22,7 +22,7 @@ export default async function BecomeProviderPage() {
 
   if (auth.user) {
     const home = await resolveAuthenticatedHomePath();
-    if (home === "/espace-prestataire" || home === "/backoffice") {
+    if (home === "/espace-prestataire" || home === "/admin") {
       redirect(home);
     }
   }

@@ -7,8 +7,8 @@ import { buildMetadata } from "@/lib/metadata";
 import { serviceCategories } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Categories de services | NearYou",
-  description: "Explorez les categories de services disponibles sur NearYou en Suisse romande.",
+  title: "Catégories de services | NearYou",
+  description: "Explorez les catégories de services disponibles sur NearYou en Suisse romande.",
   path: "/categories",
 });
 
@@ -17,9 +17,9 @@ export default function CategoriesPage() {
     <section className="py-12 sm:py-16">
       <Container>
         <SectionHeader
-          eyebrow="Categories"
+          eyebrow="Catégories"
           title="Services disponibles"
-          description="Chaque categorie vous redirige vers un formulaire de demande avec specialite pre-remplie."
+          description="Chaque catégorie vous redirige vers un formulaire de demande avec spécialité pré-remplie."
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

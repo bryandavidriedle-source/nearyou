@@ -58,10 +58,10 @@ async function bootstrapProviderOnboardingIfNeeded() {
     email: user.email ?? null,
     phone: null,
     city: null,
-    category: "A definir",
-    services_description: "Description a completer",
+    category: "À définir",
+    services_description: "Description à compléter",
     years_experience: "0",
-    availability: "A definir",
+    availability: "À définir",
     country: "Suisse",
     legal_status: "independant",
     legal_responsibility_ack: true,
@@ -76,11 +76,11 @@ export async function GET() {
     await bootstrapProviderOnboardingIfNeeded();
     const context = await getAuthContext();
     if (!context.user) {
-      return jsonError("Session indisponible.", 401);
+    return jsonError("Session indisponible.", 401);
     }
     const path = await resolveAuthenticatedHomePath();
     return Response.json({ success: true, path });
   } catch {
-    return jsonError("Impossible de determiner la redirection.", 500);
+    return jsonError("Impossible de déterminer la redirection.", 500);
   }
 }

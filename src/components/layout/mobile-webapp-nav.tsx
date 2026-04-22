@@ -126,7 +126,7 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: Mob
               aria-label="Se deconnecter"
             >
               <LogOut className="mb-1 h-4 w-4" />
-              <span>{loggingOut ? "..." : "Sortir"}</span>
+              <span>{loggingOut ? "..." : "Déconnexion"}</span>
             </button>
           ) : (
             <button

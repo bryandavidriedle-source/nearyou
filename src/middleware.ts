@@ -3,9 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { publicEnv } from "@/lib/env";
 
-const PROTECTED_PREFIXES = ["/admin", "/backoffice", "/espace-client", "/espace-prestataire", "/reserve"];
+const PROTECTED_PREFIXES = ["/admin", "/backoffice", "/espace-client", "/espace-prestataire"];
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith("/backoffice")) {
+    const adminUrl = request.nextUrl.clone();
+    adminUrl.pathname = request.nextUrl.pathname.replace(/^\/backoffice/, "/admin") || "/admin";
+    return NextResponse.redirect(adminUrl);
+  }
+
   const response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -48,5 +54,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/backoffice/:path*", "/espace-client/:path*", "/espace-prestataire/:path*", "/reserve/:path*"],
+  matcher: ["/admin/:path*", "/backoffice/:path*", "/espace-client/:path*", "/espace-prestataire/:path*"],
 };

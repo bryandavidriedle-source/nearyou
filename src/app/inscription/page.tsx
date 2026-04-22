@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Inscription NearYou",
-  description: "Creez votre compte NearYou en quelques secondes.",
+  description: "Créez votre compte NearYou en quelques instants.",
   path: "/inscription",
 });
 
@@ -31,12 +31,12 @@ export default async function SignupPage(props: { searchParams?: Promise<{ next?
       <Container className="grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-2xl border border-green-100 bg-green-50 p-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-green-700">Nouveau compte</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">Choisissez votre profil des l'inscription</h1>
+          <h1 className="mt-2 text-3xl font-bold text-slate-900">Créer un compte</h1>
           <p className="mt-3 text-sm text-slate-700">
-            Vous pouvez demarrer en client ou en prestataire avec onboarding adapte.
+            Rejoignez NearYou en quelques instants.
           </p>
           <ul className="mt-4 space-y-2 text-sm text-slate-700">
-            <li>1. Creation du compte en moins d&apos;une minute.</li>
+            <li>1. Création du compte en moins d&apos;une minute.</li>
             <li>2. Choix du parcours client ou prestataire.</li>
             <li>3. Redirection automatique vers votre dashboard.</li>
           </ul>
