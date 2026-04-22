@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   let query = supabase
     .from("provider_applications")
     .select(
-      "id, created_at, updated_at, workflow_status, status, first_name, last_name, business_name, city, canton, category, legal_status, intervention_radius_km, id_document_type, id_document_path, residence_permit_type, residence_permit_path, admin_note, reviewed_at",
+      "id, profile_id, created_at, updated_at, workflow_status, status, first_name, last_name, email, phone, business_name, city, canton, country, category, legal_status, intervention_radius_km, languages, accepts_urgency, id_document_type, id_document_path, residence_permit_type, residence_permit_path, admin_note, reviewed_at",
     )
     .order("created_at", { ascending: false })
     .limit(200);
@@ -34,4 +34,3 @@ export async function GET(request: Request) {
 
   return Response.json({ success: true, data });
 }
-

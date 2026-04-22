@@ -27,6 +27,7 @@ type ProviderItem = {
   providerAvatar: string;
   rating: number;
   completedMissions: number;
+  providerScore: number;
 };
 
 type ParkingItem = {
@@ -200,6 +201,9 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
                       <span className="inline-flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> {provider.rating.toFixed(1)}
                       </span>
+                      <span className="rounded-full bg-blue-100 px-2 py-1 font-semibold text-blue-700">
+                        Score {provider.providerScore}/100
+                      </span>
                       <span>
                         {provider.completedMissions} {m.map.missions}
                       </span>
@@ -207,7 +211,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
                         {provider.distanceKm.toFixed(1)} {m.map.km}
                       </span>
                       {provider.isAvailableToday ? (
-                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">{m.map.availableToday}</Badge>
+                        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Disponible maintenant</Badge>
                       ) : null}
                       {provider.badge ? <Badge variant="secondary">{provider.badge}</Badge> : null}
                     </div>

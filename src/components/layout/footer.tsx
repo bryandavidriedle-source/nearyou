@@ -1,30 +1,60 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { Container } from "@/components/shared/container";
 import { messages } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18n-server";
+import { siteConfig } from "@/lib/site";
 
 export async function Footer() {
   const lang = await getCurrentLanguage();
   const m = messages[lang];
 
   return (
-    <footer className="mt-16 border-t border-blue-100 bg-white py-10">
-      <Container className="space-y-4 text-sm text-slate-600">
-        <p className="font-semibold text-slate-900">{m.footer.tagline}</p>
-        <div className="flex flex-wrap gap-4">
-          <Link href="/catalogue" className="hover:text-slate-900">{m.navbar.catalogue}</Link>
-          <Link href="/hotline" className="hover:text-slate-900">{m.navbar.phoneHelp}</Link>
-          <Link href="/assistant" className="hover:text-slate-900">Assistant IA</Link>
-          <Link href="/conditions-utilisation" className="hover:text-slate-900">CGU</Link>
-          <Link href="/conditions-prestataires" className="hover:text-slate-900">Conditions prestataires</Link>
-          <Link href="/politique-confidentialite" className="hover:text-slate-900">Confidentialité</Link>
-          <Link href="/politique-cookies" className="hover:text-slate-900">Cookies</Link>
-          <Link href="/mentions-legales" className="hover:text-slate-900">Mentions légales</Link>
+    <footer className="mt-16 border-t border-blue-100 bg-white py-12">
+      <Container className="space-y-8 text-sm text-slate-600">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-3">
+            <p className="text-base font-semibold text-slate-900">NearYou</p>
+            <p>{m.footer.tagline}</p>
+            <p className="text-xs text-slate-500">{m.footer.protection}</p>
+          </div>
+
+          <div className="space-y-2">
+            <p className="font-semibold text-slate-900">Clients</p>
+            <Link href="/trouver-un-prestataire" className="block hover:text-slate-900">Faire une demande</Link>
+            <Link href="/services" className="block hover:text-slate-900">Catalogue des services</Link>
+            <Link href="/comment-ca-marche" className="block hover:text-slate-900">Comment ca marche</Link>
+            <Link href="/hotline" className="block hover:text-slate-900">Rappel telephonique</Link>
+            <Link href="/connexion" className="block hover:text-slate-900">Connexion client</Link>
+          </div>
+
+          <div className="space-y-2">
+            <p className="font-semibold text-slate-900">Prestataires</p>
+            <Link href="/devenir-prestataire" className="block hover:text-slate-900">Candidater</Link>
+            <Link href="/connexion?next=/espace-prestataire" className="block hover:text-slate-900">Connexion prestataire</Link>
+            <Link href="/conditions-prestataires" className="block hover:text-slate-900">Conditions prestataires</Link>
+            <Link href="/contact" className="block hover:text-slate-900">Support</Link>
+          </div>
+
+          <div className="space-y-2">
+            <p className="font-semibold text-slate-900">Legal & confiance</p>
+            <Link href="/conditions" className="block hover:text-slate-900">Conditions</Link>
+            <Link href="/conditions-utilisation" className="block hover:text-slate-900">CGU</Link>
+            <Link href="/politique-confidentialite" className="block hover:text-slate-900">Confidentialite</Link>
+            <Link href="/politique-cookies" className="block hover:text-slate-900">Cookies</Link>
+            <Link href="/mentions-legales" className="block hover:text-slate-900">Mentions legales</Link>
+            <Link href="/faq" className="block hover:text-slate-900">FAQ</Link>
+            <p className="pt-2 text-xs text-slate-500">
+              Contact: <a className="hover:text-slate-900" href={`mailto:${siteConfig.contactEmail}`}>{siteConfig.contactEmail}</a>
+            </p>
+          </div>
         </div>
-        <p>{m.footer.protection}</p>
+
+        <div className="flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>{siteConfig.name} - Suisse - Lausanne</p>
+          <p>Plateforme d'intermediation locale, operationnelle en Suisse romande.</p>
+        </div>
       </Container>
     </footer>
   );
 }
-

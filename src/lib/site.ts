@@ -6,6 +6,7 @@ export const siteConfig = {
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "support@nearyou.ch",
   phone: "+41 21 555 00 00",
   city: "Lausanne",
+  locale: "fr_CH",
 };
 
 export function pageMetadata(input: { title: string; description: string; path?: string }): Metadata {
@@ -15,14 +16,34 @@ export function pageMetadata(input: { title: string; description: string; path?:
   return {
     title: input.title,
     description: input.description,
+    keywords: [
+      "services a domicile suisse",
+      "prestataires verifies",
+      "reserver service local lausanne",
+      "mise en relation locale",
+      "NearYou",
+    ],
     alternates: { canonical: url },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
     openGraph: {
       title: input.title,
       description: input.description,
       url,
       siteName: siteConfig.name,
       type: "website",
-      locale: "fr_CH",
+      locale: siteConfig.locale,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: input.title,
+      description: input.description,
     },
   };
 }

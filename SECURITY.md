@@ -1,25 +1,36 @@
-﻿# Sécurité - NearYou
+# Securite - NearYou
 
-## Contrôles en place
-- Validation serveur par Zod sur API routes
-- Sanitation basique des textes entrants
-- Secrets côté serveur uniquement (`SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`)
-- Security headers (CSP, HSTS, X-Frame-Options, etc.)
-- Middleware d'accès aux routes protégées
-- Contrôle de rôle côté serveur pour admin/provider/customer
-- Journalisation audit (actions admin)
-- Rate limiting mémoire (AI/contact/auth)
+## Controles en place
+- Validation serveur stricte via Zod sur toutes les routes critiques.
+- Sanitation des textes entrants.
+- Security headers (CSP, HSTS, X-Frame-Options, Permissions-Policy).
+- Controle de roles serveur (customer/provider/admin + scopes admin).
+- Journalisation d'actions admin (`admin_audit_events`).
+- Rate limiting par bucket (`ai`, `contact`, `auth`, `booking`).
+- Anti-spam formulaires publics:
+  - honeypot `website`
+  - fenetre de soumission minimale/maximale
+  - verification Turnstile serveur (si token fourni)
+- Protection origine write APIs (`enforceWriteOrigin`).
+- Documents sensibles prestataires en bucket prive + URL signee.
 
-## Points à renforcer avant scale
-- Remplacer rate-limit mémoire par Redis/KV (Upstash)
-- Ajouter Cloudflare Turnstile sur auth/contact/AI
-- Ajouter monitoring sécurité (Sentry + alerting)
-- Ajouter rotation de secrets et gestion vault
+## Observabilite et resilience
+- Logging structure (info/warn/error) pour rate-limit, origine, anti-spam et readiness.
+- `GET /api/health` pour liveness.
+- `GET /api/ready` avec check role service + ping DB.
+- Emails transactionnels non bloquants sur les flux metier critiques.
 
-## Données personnelles
-- Minimisation des données collectées
-- RLS activé sur tables sensibles
-- Pages légales FR incluses
+## Donnees personnelles
+- Minimisation des donnees collectees.
+- RLS activee sur tables sensibles.
+- Acces admin scope-aware.
+- Pages legales FR incluses.
 
-## Responsabilités
-NearYou est une plateforme intermédiaire. Les prestataires restent indépendants.
+## Points a renforcer avant scale
+- Remplacer rate-limit memoire par Redis/KV distribue.
+- Brancher widget Turnstile front en production.
+- Brancher un fournisseur d'alerte incident (Sentry/Datadog/etc.).
+- Mettre en place rotation periodique de secrets.
+
+## Cadre produit
+NearYou est une plateforme d'intermediation. Les prestataires restent juridiquement independants.

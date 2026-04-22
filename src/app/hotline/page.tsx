@@ -8,8 +8,8 @@ import { messages } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18n-server";
 
 export const metadata: Metadata = pageMetadata({
-  title: "NEARYOU Phone help",
-  description: "Simple phone booking support for seniors and families.",
+  title: "Rappel telephonique | NearYou",
+  description: "Assistance telephonique NearYou pour reserver simplement avec accompagnement humain.",
   path: "/hotline",
 });
 

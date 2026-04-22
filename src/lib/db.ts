@@ -21,6 +21,7 @@ type HomeData = {
         avatarUrl: string;
         rating: number;
         completedMissions: number;
+        providerScore: number;
       } | null;
     };
   }>;
@@ -45,72 +46,47 @@ type HomeData = {
   categories: Array<{ id: string; name: string; fromPrice: number }>;
 };
 
+const fallbackProviderTemplates = [
+  { firstName: "Camille", lastName: "R.", city: "Lausanne", category: "Aide a domicile", rating: 4.9, completed: 124, price: 35, lat: 46.5207, lng: 6.6323, badge: "Verifie" },
+  { firstName: "Nora", lastName: "M.", city: "Renens", category: "Visite senior", rating: 4.8, completed: 89, price: 29, lat: 46.5364, lng: 6.5888, badge: "Top" },
+  { firstName: "Yann", lastName: "L.", city: "Pully", category: "Promenade chien", rating: 4.7, completed: 51, price: 22, lat: 46.5112, lng: 6.6613, badge: null },
+  { firstName: "Lea", lastName: "V.", city: "Geneve", category: "Menage premium", rating: 4.9, completed: 158, price: 42, lat: 46.2044, lng: 6.1432, badge: "Verifie" },
+  { firstName: "Sami", lastName: "D.", city: "Fribourg", category: "Bricolage", rating: 4.6, completed: 77, price: 38, lat: 46.8065, lng: 7.1619, badge: null },
+  { firstName: "Mila", lastName: "P.", city: "Montreux", category: "Garde d'enfants", rating: 4.8, completed: 112, price: 34, lat: 46.433, lng: 6.9114, badge: "Top" },
+  { firstName: "Arnaud", lastName: "K.", city: "Nyon", category: "Jardinage", rating: 4.7, completed: 64, price: 31, lat: 46.3833, lng: 6.2397, badge: null },
+  { firstName: "Ines", lastName: "T.", city: "Sion", category: "Aide a domicile", rating: 4.8, completed: 95, price: 33, lat: 46.2331, lng: 7.3606, badge: "Verifie" },
+  { firstName: "Hugo", lastName: "B.", city: "Neuchatel", category: "Bricolage", rating: 4.6, completed: 70, price: 36, lat: 46.9896, lng: 6.9293, badge: null },
+  { firstName: "Sofia", lastName: "A.", city: "Yverdon", category: "Visite senior", rating: 4.9, completed: 133, price: 30, lat: 46.7785, lng: 6.6412, badge: "Top" },
+  { firstName: "Noe", lastName: "G.", city: "Vevey", category: "Promenade chien", rating: 4.7, completed: 58, price: 24, lat: 46.4612, lng: 6.843, badge: null },
+  { firstName: "Eva", lastName: "S.", city: "Morges", category: "Menage premium", rating: 4.8, completed: 102, price: 40, lat: 46.5118, lng: 6.498, badge: "Verifie" },
+] as const;
+
 const fallbackHomeData: HomeData = {
-  missions: [
-    {
-      id: "mission-1",
-      title: "Aide à domicile - matin",
-      description: "Aide quotidienne avec présence bienveillante",
-      fromPrice: 35,
-      isAvailableToday: true,
-      distanceKm: 2.1,
-      badge: "Vérifié",
-      lat: 46.5207,
-      lng: 6.6323,
-      category: { name: "Aide à domicile" },
+  missions: fallbackProviderTemplates.map((provider, index) => {
+    const providerScore = Math.min(100, Math.round(provider.rating * 14 + Math.min(provider.completed, 220) * 0.24 + (index % 2 === 0 ? 8 : 0)));
+    return {
+      id: `mission-${index + 1}`,
+      title: `${provider.category} - ${provider.city}`,
+      description: `${provider.category} avec accompagnement humain et suivi local`,
+      fromPrice: provider.price,
+      isAvailableToday: index % 2 === 0,
+      distanceKm: 1.4 + index * 0.8,
+      badge: provider.badge,
+      lat: provider.lat,
+      lng: provider.lng,
+      category: { name: provider.category },
       provider: {
         profile: {
-          firstName: "Camille",
-          lastName: "R.",
-          avatarUrl: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
-          rating: 4.9,
-          completedMissions: 124,
+          firstName: provider.firstName,
+          lastName: provider.lastName,
+          avatarUrl: `https://i.pravatar.cc/300?img=${(index % 70) + 1}`,
+          rating: provider.rating,
+          completedMissions: provider.completed,
+          providerScore,
         },
       },
-    },
-    {
-      id: "mission-2",
-      title: "Visite senior - après-midi",
-      description: "Visite de compagnie et accompagnement léger",
-      fromPrice: 29,
-      isAvailableToday: true,
-      distanceKm: 3.7,
-      badge: "Top",
-      lat: 46.5121,
-      lng: 6.6401,
-      category: { name: "Visite senior" },
-      provider: {
-        profile: {
-          firstName: "Nora",
-          lastName: "M.",
-          avatarUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80",
-          rating: 4.8,
-          completedMissions: 89,
-        },
-      },
-    },
-    {
-      id: "mission-3",
-      title: "Promenade chien - soir",
-      description: "Promenade locale 30 à 60 minutes",
-      fromPrice: 22,
-      isAvailableToday: false,
-      distanceKm: 1.9,
-      badge: null,
-      lat: 46.5077,
-      lng: 6.6241,
-      category: { name: "Promenade chien" },
-      provider: {
-        profile: {
-          firstName: "Yann",
-          lastName: "L.",
-          avatarUrl: "https://images.unsplash.com/photo-1541534401786-2077eed87a72?auto=format&fit=crop&w=800&q=80",
-          rating: 4.7,
-          completedMissions: 51,
-        },
-      },
-    },
-  ],
+    };
+  }),
   parkingListings: [
     { id: "parking-1", title: "Parking gare", city: "Lausanne", dayPrice: 12, hasPower: false, lat: 46.5169, lng: 6.6291 },
     { id: "parking-2", title: "Parking van Ouchy", city: "Lausanne", dayPrice: 24, hasPower: true, lat: 46.5076, lng: 6.6259 },
@@ -154,6 +130,9 @@ export async function getHomeData() {
     const missions = (providersRes.data ?? []).map((provider, index) => {
       const profile = Array.isArray(provider.profiles) ? provider.profiles[0] : provider.profiles;
       const categoryName = categoryByName[index % Math.max(1, categoryByName.length)] ?? "Service";
+      const rating = Number(provider.rating ?? 5);
+      const completedMissions = provider.completed_missions ?? 0;
+      const providerScore = Math.min(100, Math.round(rating * 14 + Math.min(completedMissions, 250) * 0.22 + (index % 2 === 0 ? 8 : 0)));
 
       return {
         id: provider.id,
@@ -171,14 +150,25 @@ export async function getHomeData() {
             firstName: profile?.first_name ?? provider.display_name,
             lastName: profile?.last_name ?? "",
             avatarUrl: profile?.avatar_url ?? "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
-            rating: Number(provider.rating ?? 5),
-            completedMissions: provider.completed_missions ?? 0,
+            rating,
+            completedMissions,
+            providerScore,
           },
         },
       };
     });
 
     const parkingCategory = categoriesRes.data?.find((item) => item.name_fr.toLowerCase().includes("parking"));
+    const hydratedMissions =
+      missions.length >= 10
+        ? missions
+        : [
+            ...missions,
+            ...fallbackHomeData.missions.slice(0, Math.max(0, 12 - missions.length)).map((item, index) => ({
+              ...item,
+              id: `fallback-${index}-${item.id}`,
+            })),
+          ];
     const parkingListings = [
       {
         id: "parking-lausanne-centre",
@@ -201,7 +191,7 @@ export async function getHomeData() {
     ];
 
     return {
-      missions: missions.length > 0 ? missions : fallbackHomeData.missions,
+      missions: hydratedMissions.length > 0 ? hydratedMissions : fallbackHomeData.missions,
       parkingListings,
       partners: (partnersRes.data ?? []).map((partner) => ({
         id: partner.id,
@@ -298,6 +288,7 @@ export async function getProviderProfile(providerId: string) {
         description: mission.description,
         rating: mission.provider.profile?.rating ?? 4.8,
         completedMissions: mission.provider.profile?.completedMissions ?? 40,
+        providerScore: mission.provider.profile?.providerScore ?? 88,
         isVerified: true,
         isTopProvider: true,
         city: "Lausanne",
@@ -339,6 +330,7 @@ export async function getProviderProfile(providerId: string) {
         description: profile?.bio ?? "Prestataire local NearYou",
         rating: Number(provider.rating ?? 5),
         completedMissions: provider.completed_missions ?? 0,
+        providerScore: Math.min(100, Math.round(Number(provider.rating ?? 5) * 14 + Math.min(provider.completed_missions ?? 0, 250) * 0.22)),
         isVerified: provider.verified,
         isTopProvider: provider.top_provider,
         city: profile?.city ?? "Lausanne",

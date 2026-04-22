@@ -13,9 +13,8 @@ type FindProviderPageProps = {
 };
 
 export const metadata: Metadata = buildMetadata({
-  title: "Trouver un prestataire | PrèsDeToi",
-  description:
-    "Faites une demande de service locale à Lausanne en quelques minutes.",
+  title: "Trouver un prestataire | NearYou",
+  description: "Faites une demande locale en Suisse romande en quelques minutes.",
   path: "/trouver-un-prestataire",
 });
 
@@ -28,8 +27,8 @@ export default async function FindProviderPage({ searchParams }: FindProviderPag
       <Container className="max-w-3xl">
         <SectionHeader
           eyebrow="Demande de service"
-          title="Décrivez votre besoin"
-          description="Une demande claire, un traitement humain, une mise en relation locale adaptée à Lausanne."
+          title="Decrivez votre besoin"
+          description="Parcours simple, traitement humain et mise en relation locale adaptee a votre situation."
         />
 
         <Card className="rounded-3xl border-border/80 bg-card/95 shadow-sm">
@@ -41,4 +40,3 @@ export default async function FindProviderPage({ searchParams }: FindProviderPag
     </section>
   );
 }
-

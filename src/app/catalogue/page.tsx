@@ -10,8 +10,8 @@ import { messages } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18n-server";
 
 export const metadata: Metadata = pageMetadata({
-  title: "NEARYOU Catalogue",
-  description: "Large task catalogue with categories, subcategories, tags and free request.",
+  title: "Catalogue des services | NearYou",
+  description: "Catalogue NearYou: categories, sous-categories et services locaux disponibles en Suisse romande.",
   path: "/catalogue",
 });
 
@@ -55,7 +55,9 @@ export default async function CataloguePage() {
         <Card className="rounded-2xl border-green-100 bg-green-50 p-5">
           <h2 className="text-xl font-semibold text-green-800">{m.catalogue.cannotFind}</h2>
           <p className="mt-1 text-sm text-green-700">{m.catalogue.cannotFindText}</p>
-          <Button className="mt-4 rounded-xl bg-green-600 hover:bg-green-700">{m.catalogue.freeRequest}</Button>
+          <Button asChild className="mt-4 rounded-xl bg-green-600 hover:bg-green-700">
+            <a href="/trouver-un-prestataire">{m.catalogue.freeRequest}</a>
+          </Button>
         </Card>
       </Container>
     </section>

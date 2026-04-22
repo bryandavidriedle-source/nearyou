@@ -1,39 +1,34 @@
-# LAUNCH_CHECKLIST
+# LAUNCH_CHECKLIST (NearYou)
 
-## Préparation technique
+## Go/No-go technique
+- [ ] `npm run release:check` OK
+- [ ] `/api/health` = 200
+- [ ] `/api/ready` = 200
+- [ ] Migrations Supabase executees dans le bon ordre
+- [ ] Variables Vercel configurees (dont `SUPER_ADMIN_EMAIL`)
 
-- [ ] Domaine configuré
-- [ ] Projet connecté à Vercel
-- [ ] Variables d'environnement Vercel ajoutées
-- [ ] Base Supabase initialisée avec `supabase/schema.sql`
-- [ ] Policies RLS insert vérifiées
+## Go/No-go produit
+- [ ] Hero + CTA homepage verifies mobile
+- [ ] Flux "Trouver un prestataire" teste (cas valide + erreurs)
+- [ ] Flux "Devenir prestataire" teste (upload doc + erreurs)
+- [ ] Flux reservation teste (date/slot + confirmation)
+- [ ] Hotline/contact testes
 
-## Vérifications produit
+## Go/No-go admin ops
+- [ ] Backoffice accessible au super admin
+- [ ] Gestion demandes (statuts) validee
+- [ ] Validation prestataires (approved/rejected/needs_info) validee
+- [ ] Moderation avis validee
+- [ ] Journal d'actions admin verifie
 
-- [ ] Formulaire `Trouver un prestataire` testé (cas valide)
-- [ ] Formulaire `Devenir prestataire` testé (cas valide)
-- [ ] Formulaire `Contact` testé (cas valide)
-- [ ] Cas erreur testés (email invalide, consentement absent, champs vides)
-- [ ] Données visibles dans les 3 tables Supabase
+## Securite/conformite
+- [ ] Headers securite actifs
+- [ ] RLS Supabase verifie
+- [ ] Protection anti-spam active (honeypot + timing, turnstile si active)
+- [ ] Role d'intermediation correctement affiche (pas d'ambiguite employeur)
+- [ ] Pages legales revues
 
-## Légal et confiance
-
-- [ ] Mentions légales relues et adaptées
-- [ ] Politique de confidentialité relue
-- [ ] Conditions d'utilisation relues
-- [ ] Email de contact réel configuré (`NEXT_PUBLIC_CONTACT_EMAIL`)
-
-## Performance & qualité
-
-- [ ] Test mobile iOS/Android
-- [ ] Test desktop Chrome/Safari/Firefox
-- [ ] Vérification Lighthouse (mobile + desktop)
-- [ ] Vérification des métadonnées SEO
-
-## Exploitation bêta
-
-- [ ] Groupe test utilisateurs défini
-- [ ] Message d'introduction bêta prêt
-- [ ] Process de collecte feedback prêt (Notion/Formulaire)
-- [ ] Personne responsable du suivi quotidien des leads assignée
-
+## Support/incident
+- [ ] Canal de support defini (email + hotline)
+- [ ] Responsable de permanence defini
+- [ ] Runbook incident lu: `docs/incident-runbook.md`

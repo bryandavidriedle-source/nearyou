@@ -23,7 +23,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; img-src 'self' data: https://images.unsplash.com https://*.supabase.co https://api.mapbox.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://api.mapbox.com https://events.mapbox.com https://api.openai.com; font-src 'self' data:; frame-ancestors 'none';",
+      "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https://images.unsplash.com https://*.supabase.co https://api.mapbox.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://api.mapbox.com https://events.mapbox.com https://api.openai.com https://challenges.cloudflare.com; font-src 'self' data:; frame-ancestors 'none'; upgrade-insecure-requests;",
   },
 ];
 

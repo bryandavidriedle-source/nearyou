@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { publicEnv } from "@/lib/env";
 
-const PROTECTED_PREFIXES = ["/admin", "/espace-client", "/espace-prestataire"];
+const PROTECTED_PREFIXES = ["/admin", "/backoffice", "/espace-client", "/espace-prestataire", "/reserve"];
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({
@@ -39,7 +39,8 @@ export async function middleware(request: NextRequest) {
   if (needsAuth && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/connexion";
-    loginUrl.searchParams.set("next", pathname);
+    const nextPath = `${pathname}${request.nextUrl.search || ""}`;
+    loginUrl.searchParams.set("next", nextPath);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -47,5 +48,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/espace-client/:path*", "/espace-prestataire/:path*"],
+  matcher: ["/admin/:path*", "/backoffice/:path*", "/espace-client/:path*", "/espace-prestataire/:path*", "/reserve/:path*"],
 };

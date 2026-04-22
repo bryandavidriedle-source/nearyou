@@ -1,8 +1,9 @@
 ﻿import OpenAI from "openai";
 
 import { aiChatSchema } from "@/lib/schemas";
-import { applyRateLimit, jsonError, jsonSuccess } from "@/lib/api";
+import { applyRateLimit, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { serverEnv } from "@/lib/env";
+import { getErrorMessage, logEvent } from "@/lib/monitoring";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -19,6 +20,9 @@ Contraintes:
 - Mentionner que NearYou est une plateforme intermédiaire et que les prestataires restent indépendants.`;
 
 export async function POST(request: Request) {
+  const originGuard = enforceWriteOrigin(request);
+  if (originGuard) return originGuard;
+
   const limited = applyRateLimit(request, "ai");
   if (limited) return limited;
 
@@ -68,21 +72,30 @@ export async function POST(request: Request) {
 
   const openai = new OpenAI({ apiKey: serverEnv.OPENAI_API_KEY });
 
-  const completion = await openai.responses.create({
-    model: serverEnv.OPENAI_MODEL,
-    input: [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT,
-      },
-      {
-        role: "user",
-        content: parsed.data.message,
-      },
-    ],
-  });
+  let assistantReply = "Je vous propose de passer au support humain pour vous aider rapidement.";
+  try {
+    const completion = await openai.responses.create({
+      model: serverEnv.OPENAI_MODEL,
+      input: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
+        },
+        {
+          role: "user",
+          content: parsed.data.message,
+        },
+      ],
+    });
 
-  const assistantReply = completion.output_text?.trim() || "Je vous propose de passer au support humain pour vous aider rapidement.";
+    assistantReply = completion.output_text?.trim() || assistantReply;
+  } catch (error) {
+    logEvent("error", {
+      event: "ai.chat.completion_failed",
+      message: "OpenAI completion failed in assistant chat.",
+      context: { reason: getErrorMessage(error), conversationId },
+    });
+  }
 
   await supabaseAdmin.from("ai_messages").insert({
     conversation_id: conversationId,

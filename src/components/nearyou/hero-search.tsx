@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,14 +19,22 @@ type Props = {
 };
 
 export function HeroSearch({ lang, onSearch }: Props) {
+  const router = useRouter();
   const m = messages[lang];
-  const [service, setService] = useState("Home help");
+  const [service, setService] = useState("Aide a domicile");
   const [address, setAddress] = useState("Lausanne, VD");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
 
   function handleSearch() {
-    onSearch?.({ service, address, date });
+    const payload = { service, address, date };
+    onSearch?.(payload);
+    const params = new URLSearchParams({
+      categorie: payload.service,
+      ville: payload.address,
+      date: payload.date,
+    });
+    router.push(`/trouver-un-prestataire?${params.toString()}`);
   }
 
   function useMyLocation() {

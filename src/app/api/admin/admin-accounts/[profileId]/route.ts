@@ -1,4 +1,4 @@
-import { jsonError, jsonSuccess } from "@/lib/api";
+import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { requireApiAdminScopes } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { z } from "zod";
@@ -12,6 +12,9 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ profileId: string }> },
 ) {
+  const originGuard = enforceWriteOrigin(request);
+  if (originGuard) return originGuard;
+
   const auth = await requireApiAdminScopes(["super_admin"]);
   if (!auth) return jsonError("Accès non autorisé.", 403);
 
@@ -41,4 +44,3 @@ export async function PATCH(
 
   return jsonSuccess("Administrateur mis à jour.");
 }
-

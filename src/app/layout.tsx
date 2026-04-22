@@ -1,35 +1,38 @@
-﻿import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Manrope } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
 import { MobileWebappNav } from "@/components/layout/mobile-webapp-nav";
 import { Navbar } from "@/components/layout/navbar";
 import { CookieBanner } from "@/components/shared/cookie-banner";
 import { PwaRegister } from "@/components/shared/pwa-register";
+import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
 import { getCurrentLanguage } from "@/lib/i18n-server";
-import { messages } from "@/lib/i18n";
+import { getMobileNav, resolveNavigationRole } from "@/lib/navigation";
 import { pageMetadata } from "@/lib/site";
 
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "NearYou | Services locaux en Suisse",
-    description: "Trouvez une aide locale fiable en quelques secondes à Lausanne et en Suisse romande.",
+    title: "NearYou | Services a domicile premium en Suisse",
+    description: "Plateforme suisse de mise en relation locale avec prestataires verifies et suivi humain.",
     path: "/",
   }),
   manifest: "/manifest.webmanifest",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   openGraph: {
-    title: "NearYou",
-    description: "Marketplace locale Suisse: simple, rapide, humaine.",
+    title: "NearYou | Services locaux verifies",
+    description: "Reservation simple, confiance forte et operation locale en Suisse romande.",
     type: "website",
+    locale: "fr_CH",
   },
+  applicationName: "NearYou",
 };
 
 export const viewport: Viewport = {
@@ -38,10 +41,16 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const lang = await getCurrentLanguage();
-  const m = messages[lang];
+  const auth = await getAuthContext();
+  const dashboardPath = auth.user ? await resolveAuthenticatedHomePath() : null;
+  const navRole = resolveNavigationRole({
+    isAuthenticated: Boolean(auth.user),
+    dashboardPath,
+  });
+  const mobileItems = getMobileNav(navRole);
 
   return (
-    <html lang={lang} className={`${inter.variable} h-full`}>
+    <html lang={lang} className={`${manrope.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
         <PwaRegister />
         <Navbar />
@@ -49,12 +58,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Footer />
         <MobileWebappNav
           currentLanguage={lang}
-          labels={{
-            home: m.navbar.home,
-            catalogue: m.navbar.catalogue,
-            find: m.navbar.find,
-            account: m.navbar.account,
-          }}
+          items={mobileItems}
+          isAuthenticated={Boolean(auth.user)}
         />
         <CookieBanner />
       </body>

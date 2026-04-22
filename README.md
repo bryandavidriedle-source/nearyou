@@ -2,6 +2,17 @@
 
 NearYou est une marketplace locale suisse (France-first UX) construite avec Next.js 15, TypeScript, Tailwind et Supabase.
 
+## Mise a jour V1 premium (avril 2026)
+- Homepage refondue conversion-first (positionnement clair, reassurance, preuves sociales, recrutement prestataires).
+- Parcours de reservation mobile-first renforce (creneaux lisibles, validation stricte, confirmations explicites).
+- Backoffice admin etendu (RBAC scopes, moderation avis, journal d'actions, suivi operationnel).
+- Espace prestataire complet par onglets (`profil`, `documents`, `demandes`, `disponibilites`, `paiements`).
+- Workflow prestataire complet (draft -> pending_review -> approved/rejected/needs_info/suspended) avec validation manuelle.
+- Documents prives prestataire (bucket prive + revue admin + statut par document).
+- Console admin operationnelle (`/admin/prestataires`, `/admin/clients`, `/admin/demandes`, `/admin/admins`, `/admin/categories`, `/admin/avis`).
+- Durcissement securite formulaires/API (origin guard, anti-spam honeypot + delai, turnstile serveur optionnel, rate limit bucket booking).
+- Harmonisation branding NearYou + SEO metadata FR/Suisse.
+
 ## Stack
 - Next.js 15 (App Router)
 - TypeScript
@@ -17,6 +28,7 @@ NearYou est une marketplace locale suisse (France-first UX) construite avec Next
 - `npm run start`
 - `npm run lint`
 - `npm run typecheck`
+- `npm run release:check`
 
 ## Démarrage local
 1. Installer les dépendances:
@@ -37,6 +49,7 @@ npm run dev
 - `supabase/migrations/20260421102000_auth_profiles_triggers.sql`
 - `supabase/migrations/20260421143000_service_requests_tracking.sql`
 - `supabase/migrations/20260421170000_admin_rbac_provider_workflow.sql`
+- `supabase/migrations/20260421192000_provider_ops_workflow.sql`
 3. Exécuter seed:
 - `supabase/seed.sql`
 
@@ -70,3 +83,6 @@ Voir [DEPLOY.md](DEPLOY.md)
 
 ## Setup manuel obligatoire
 Voir [docs/manual-setup.md](docs/manual-setup.md)
+
+## Runbook incident
+Voir [docs/incident-runbook.md](docs/incident-runbook.md)

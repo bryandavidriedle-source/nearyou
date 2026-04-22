@@ -1,33 +1,57 @@
 export const serviceCategories = [
   {
-    slug: "home-help",
-    label: "Home help",
-    description: "Daily support at home, fast and friendly.",
-    fromPrice: 35,
+    slug: "exterieur-jardin",
+    label: "Exterieur / Jardin",
+    description: "Entretien exterieur, jardin et petits travaux autour du domicile.",
+    fromPrice: 20,
   },
   {
-    slug: "senior-visit",
-    label: "Visit a loved one",
-    description: "Trusted visits for elderly care and companionship.",
-    fromPrice: 29,
+    slug: "entretien-saisonnier",
+    label: "Entretien saisonnier",
+    description: "Interventions saisonnieres: neige, feuilles, rangement exterieur.",
+    fromPrice: 15,
   },
   {
-    slug: "dog-walking",
-    label: "Dog walking",
-    description: "Reliable dog walkers available today.",
-    fromPrice: 22,
+    slug: "menage-nettoyage",
+    label: "Menage / Nettoyage",
+    description: "Nettoyage interieur, entretien courant et remise en ordre rapide.",
+    fromPrice: 15,
   },
   {
-    slug: "small-services",
-    label: "Small services",
-    description: "Errands, simple tasks, practical daily help.",
-    fromPrice: 25,
+    slug: "organisation-rangement",
+    label: "Organisation / Rangement",
+    description: "Tri, rangement et aide logistique pour maison, cave et demenagement.",
+    fromPrice: 30,
   },
   {
-    slug: "parking",
-    label: "Parking",
-    description: "Day, night, employee, camper, with or without power.",
-    fromPrice: 12,
+    slug: "petits-services-maison",
+    label: "Petits services maison",
+    description: "Petites interventions pratiques a domicile, sans chantier lourd.",
+    fromPrice: 15,
+  },
+  {
+    slug: "auto-transport",
+    label: "Auto / Transport",
+    description: "Aide auto locale, transport ponctuel et accompagnement logistique.",
+    fromPrice: 15,
+  },
+  {
+    slug: "animaux",
+    label: "Animaux",
+    description: "Promenade, nourrissage, surveillance et accompagnement veterinaire.",
+    fromPrice: 15,
+  },
+  {
+    slug: "aide-quotidienne-seniors",
+    label: "Aide quotidienne / Seniors",
+    description: "Presence humaine, accompagnement et aides du quotidien.",
+    fromPrice: 20,
+  },
+  {
+    slug: "courses-livraison",
+    label: "Courses / Livraison",
+    description: "Courses, depot/retrait colis et livraisons locales rapides.",
+    fromPrice: 20,
   },
 ] as const;
 
@@ -37,12 +61,12 @@ export const fullCatalogue = [
     name: "Aide a domicile",
     subcategories: [
       {
-        slug: "daily-help",
-        name: "Daily help",
+        slug: "aide-quotidienne",
+        name: "Aide quotidienne",
         tasks: [
-          { title: "Meal prep", mode: "planned", tags: ["home", "daily"] },
-          { title: "Light cleaning", mode: "planned", tags: ["cleaning", "home"] },
-          { title: "Laundry support", mode: "planned", tags: ["home", "care"] },
+          { title: "Preparation de repas", mode: "planned", tags: ["domicile", "repas"] },
+          { title: "Menage leger", mode: "planned", tags: ["menage", "domicile"] },
+          { title: "Aide lessive", mode: "planned", tags: ["domicile", "aide"] },
         ],
       },
     ],
@@ -52,12 +76,12 @@ export const fullCatalogue = [
     name: "Visite senior",
     subcategories: [
       {
-        slug: "companionship",
-        name: "Companionship",
+        slug: "accompagnement",
+        name: "Accompagnement",
         tasks: [
-          { title: "Friendly visit", mode: "planned", tags: ["senior", "companionship"] },
-          { title: "Medical appointment escort", mode: "planned", tags: ["senior", "mobility"] },
-          { title: "Check-in call", mode: "instant", tags: ["senior", "support"] },
+          { title: "Visite de courtoisie", mode: "planned", tags: ["senior", "presence"] },
+          { title: "Accompagnement rendez-vous", mode: "planned", tags: ["senior", "mobilite"] },
+          { title: "Appel de suivi", mode: "instant", tags: ["senior", "support"] },
         ],
       },
     ],
@@ -67,12 +91,12 @@ export const fullCatalogue = [
     name: "Animaux",
     subcategories: [
       {
-        slug: "dog-care",
-        name: "Dog care",
+        slug: "soin-chien",
+        name: "Soin chien",
         tasks: [
-          { title: "30 min dog walk", mode: "instant", tags: ["dog", "outdoor"] },
-          { title: "Long walk", mode: "planned", tags: ["dog", "sport"] },
-          { title: "Pet feeding visit", mode: "planned", tags: ["pet", "home"] },
+          { title: "Promenade 30 min", mode: "instant", tags: ["chien", "exterieur"] },
+          { title: "Grande promenade", mode: "planned", tags: ["chien", "activite"] },
+          { title: "Passage nourrissage", mode: "planned", tags: ["animal", "domicile"] },
         ],
       },
     ],
@@ -82,12 +106,12 @@ export const fullCatalogue = [
     name: "Bricolage",
     subcategories: [
       {
-        slug: "small-fixes",
-        name: "Small fixes",
+        slug: "depannages",
+        name: "Petits depannages",
         tasks: [
-          { title: "Shelf mounting", mode: "planned", tags: ["fix", "home"] },
-          { title: "Lamp installation", mode: "planned", tags: ["electric", "home"] },
-          { title: "Furniture assembly", mode: "planned", tags: ["furniture", "home"] },
+          { title: "Pose d'etagere", mode: "planned", tags: ["bricolage", "domicile"] },
+          { title: "Installation luminaire", mode: "planned", tags: ["electricite", "domicile"] },
+          { title: "Montage meuble", mode: "planned", tags: ["mobilier", "domicile"] },
         ],
       },
     ],
@@ -97,12 +121,12 @@ export const fullCatalogue = [
     name: "Courses",
     subcategories: [
       {
-        slug: "grocery-help",
-        name: "Grocery",
+        slug: "courses-quoti",
+        name: "Courses",
         tasks: [
-          { title: "Weekly groceries", mode: "planned", tags: ["shopping", "errands"] },
-          { title: "Pharmacy pickup", mode: "instant", tags: ["pharmacy", "errands"] },
-          { title: "Same-day errands", mode: "instant", tags: ["urgent", "errands"] },
+          { title: "Courses hebdomadaires", mode: "planned", tags: ["courses", "quotidien"] },
+          { title: "Retrait pharmacie", mode: "instant", tags: ["pharmacie", "quotidien"] },
+          { title: "Commission urgente", mode: "instant", tags: ["urgent", "quotidien"] },
         ],
       },
     ],
@@ -113,10 +137,10 @@ export const fullCatalogue = [
     subcategories: [
       {
         slug: "garden",
-        name: "Garden",
+        name: "Jardin",
         tasks: [
-          { title: "Lawn mowing", mode: "planned", tags: ["garden", "seasonal"] },
-          { title: "Leaf cleanup", mode: "planned", tags: ["garden", "cleaning"] },
+          { title: "Tonte pelouse", mode: "planned", tags: ["jardin", "saisonnier"] },
+          { title: "Ramassage feuilles", mode: "planned", tags: ["jardin", "entretien"] },
         ],
       },
     ],
@@ -129,8 +153,8 @@ export const fullCatalogue = [
         slug: "transport",
         name: "Transport",
         tasks: [
-          { title: "Ride to appointment", mode: "planned", tags: ["transport", "senior"] },
-          { title: "School pickup", mode: "planned", tags: ["family", "transport"] },
+          { title: "Trajet rendez-vous", mode: "planned", tags: ["transport", "senior"] },
+          { title: "Accompagnement scolaire", mode: "planned", tags: ["famille", "transport"] },
         ],
       },
     ],
@@ -140,15 +164,15 @@ export const fullCatalogue = [
     name: "Parking",
     subcategories: [
       {
-        slug: "daily-night",
-        name: "Day and night",
+        slug: "jour-nuit",
+        name: "Jour et nuit",
         tasks: [
-          { title: "Day parking", mode: "instant", tags: ["parking", "day"] },
-          { title: "Night parking", mode: "instant", tags: ["parking", "night"] },
-          { title: "Employee parking", mode: "recurring", tags: ["parking", "employee"] },
-          { title: "Vacation parking", mode: "planned", tags: ["parking", "vacation"] },
-          { title: "Camping/van no power", mode: "planned", tags: ["parking", "van"] },
-          { title: "Camping/van with power", mode: "planned", tags: ["parking", "van", "power"] },
+          { title: "Parking jour", mode: "instant", tags: ["parking", "jour"] },
+          { title: "Parking nuit", mode: "instant", tags: ["parking", "nuit"] },
+          { title: "Parking employe", mode: "recurring", tags: ["parking", "employe"] },
+          { title: "Parking longue duree", mode: "planned", tags: ["parking", "vacances"] },
+          { title: "Stationnement van sans prise", mode: "planned", tags: ["parking", "van"] },
+          { title: "Stationnement van avec prise", mode: "planned", tags: ["parking", "van", "energie"] },
         ],
       },
     ],
@@ -156,68 +180,81 @@ export const fullCatalogue = [
 ] as const;
 
 export const providerAvailabilityOptions = [
-  "Available now",
-  "Today",
-  "This week",
-  "Planned",
+  "Disponible maintenant",
+  "Aujourd'hui",
+  "Cette semaine",
+  "Planifie",
 ] as const;
 
-export const urgencyOptions = ["Low", "Medium", "High"] as const;
+export const urgencyOptions = ["Faible", "Moyenne", "Elevee"] as const;
 
 export const callbackCategories = [
-  "Home help",
-  "Senior visit",
-  "Dog walking",
-  "Small services",
+  "Aide a domicile",
+  "Visite senior",
+  "Promenade chien",
+  "Petits services",
   "Parking",
-  "Custom request",
+  "Besoin specifique",
 ] as const;
 
-export const callbackSlots = ["morning", "afternoon", "evening"] as const;
+export const callbackSlots = ["matin", "apres-midi", "soir"] as const;
 
 export const callbackContactModes = ["phone", "whatsapp"] as const;
 
 export const howItWorksSteps = [
   {
-    title: "Share your need",
-    description: "Tell us what you need in a few taps.",
+    title: "Decrivez votre besoin",
+    description: "Un formulaire simple ou un rappel en quelques etapes.",
   },
   {
-    title: "Match nearby help",
-    description: "We show trusted local people and parking options.",
+    title: "Validation et matching local",
+    description: "Nous priorisons des profils verifies et proches de chez vous.",
   },
   {
-    title: "Book quickly",
-    description: "Reserve in seconds and finalize safely in platform.",
+    title: "Reservation et suivi",
+    description: "Confirmation claire, suivi client et relances automatisees.",
   },
 ] as const;
 
 export const benefits = [
-  "Fast local matching",
-  "Trusted provider profiles",
-  "Visible from-pricing",
-  "Phone support for seniors",
-  "Partner cafes and pharmacies",
+  "Mise en relation locale rapide",
+  "Profils prestataires verifies manuellement",
+  "Tarifs affiches des le depart",
+  "Assistance humaine par telephone",
+  "Pilotage admin complet",
 ] as const;
 
 export const faqItems = [
   {
-    question: "Can I book as a guest?",
-    answer: "Yes, guest flow is enabled and account can be finalized at the end.",
+    question: "Pourquoi les prix affiches commencent-ils par 'des XX CHF' ?",
+    answer:
+      "Les montants affiches sont des prix de depart. Le prix final depend de la taille reelle de la mission, de l'acces, de l'urgence et du temps passe.",
   },
   {
-    question: "Are payments secure?",
-    answer: "Payment status is managed in platform with pending, paid and released flow.",
+    question: "Un supplement peut-il etre ajoute sans mon accord ?",
+    answer:
+      "Non. Tout supplement demande par le prestataire doit etre justifie et explicitement approuve par le client avant application.",
   },
   {
-    question: "Can I reserve parking for a van?",
-    answer: "Yes, van/camping parking is included with and without power options.",
+    question: "Quel est l'age minimum pour proposer ses services ?",
+    answer:
+      "Un prestataire doit avoir au moins 16 ans. La date de naissance est verifiee pendant l'onboarding et un dossier sous 16 ans est bloque.",
+  },
+  {
+    question: "NearYou est-il l'employeur des prestataires ?",
+    answer:
+      "Non. NearYou agit comme plateforme d'intermediation en Suisse: les prestataires restent independants et responsables de leurs obligations.",
+  },
+  {
+    question: "Comment sont verifies les prestataires ?",
+    answer:
+      "Chaque dossier est controle manuellement avec verification documentaire (identite, assurance et elements de conformite selon le service).",
   },
 ] as const;
 
 export const siteConfig = {
-  name: "NEARYOU",
-  description: "Find trusted help near you in seconds.",
+  name: "NearYou",
+  description: "Plateforme suisse premium de services a domicile.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "support@nearyou.ch",
 };

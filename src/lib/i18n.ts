@@ -141,21 +141,21 @@ export const messages: Record<Language, Messages> = {
   },
   fr: {
     navbar: { home: "Accueil", catalogue: "Catalogue", phoneHelp: "Aide téléphone", admin: "Admin", bookNow: "Réserver", find: "Trouver", account: "Compte" },
-    footer: { tagline: "NEARYOU - Aide locale en quelques secondes.", protection: "Le paiement et l'assistance sont garantis uniquement via la plateforme." },
+    footer: { tagline: "NearYou - Services locaux premium en Suisse.", protection: "NearYou agit comme plateforme d'intermediation. Les prestataires restent juridiquement independants." },
     home: {
-      badge: "Marketplace locale rapide - Suisse",
-      title: "De quoi avez-vous besoin aujourd'hui ?",
-      subtitle: "Trouvez une aide de confiance près de chez vous en quelques secondes.",
-      actions: ["Aide à domicile", "Visite senior", "Promenade chien", "Parking"],
-      pricingTitle: "Prix visibles dès",
-      seniorTitle: "Aide seniors et réservation pour un proche",
-      seniorText: "Réservez pour un proche, demandez un rappel, avec un parcours simple et lisible.",
-      seniorCta1: "Appeler et réserver",
-      seniorCta2: "Voir les tâches seniors",
-      voucher: "Bon de réduction",
-      voucherText: "10% sur votre première réservation.",
-      partnersTitle: "Cafés et pharmacies partenaires",
-      partnersText: "Peuvent aider à réserver. Aucun encaissement direct.",
+      badge: "Plateforme locale premium - Suisse",
+      title: "Trouvez un prestataire fiable pres de chez vous",
+      subtitle: "Parcours simple, validation manuelle des prestataires et suivi humain de chaque demande.",
+      actions: ["Aide a domicile", "Visite senior", "Promenade chien", "Parking"],
+      pricingTitle: "Tarifs indicatifs des",
+      seniorTitle: "Un parcours pense pour les familles et les seniors",
+      seniorText: "Demande de rappel, aide telephone et reservation guidee pour aller vite sans stress.",
+      seniorCta1: "Demander un rappel",
+      seniorCta2: "Voir les services",
+      voucher: "Offre lancement",
+      voucherText: "Reduction de bienvenue sur votre premiere demande validee.",
+      partnersTitle: "Ancrage local suisse",
+      partnersText: "Reseau de partenaires de proximite et operation pilote en Suisse romande.",
     },
     search: {
       service: "Service", address: "Adresse", date: "Date", search: "Rechercher", useLocation: "Utiliser ma position",
@@ -246,8 +246,8 @@ export const messages: Record<Language, Messages> = {
 };
 
 export function normalizeLanguage(value: string | undefined): Language {
-  if (!value) return "en";
-  return supportedLanguages.includes(value as Language) ? (value as Language) : "en";
+  if (!value) return "fr";
+  return supportedLanguages.includes(value as Language) ? (value as Language) : "fr";
 }
 
 

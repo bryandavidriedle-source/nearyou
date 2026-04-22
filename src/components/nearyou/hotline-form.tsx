@@ -27,12 +27,15 @@ export function HotlineForm({ lang }: Props) {
       lastName: "",
       phone: "",
       city: "Lausanne",
-      category: "Visit a loved one",
-      preferredSlot: "morning",
+      category: "Visite senior",
+      preferredSlot: "matin",
       contactMode: "phone",
       note: "",
       consent: false,
       source: "web",
+      website: "",
+      submittedAt: new Date().toISOString(),
+      turnstileToken: "",
     },
   });
 
@@ -57,6 +60,15 @@ export function HotlineForm({ lang }: Props) {
   return (
     <Card className="rounded-2xl border-slate-200 bg-white p-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+        <input
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="hidden"
+          {...register("website")}
+        />
+
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder={m.hotline.firstName} className="h-12" {...register("firstName")} />
           <Input placeholder={m.hotline.lastName} className="h-12" {...register("lastName")} />
@@ -68,9 +80,9 @@ export function HotlineForm({ lang }: Props) {
         <Input placeholder={m.hotline.serviceType} className="h-12" {...register("category")} />
         <div className="grid gap-3 sm:grid-cols-2">
           <select className="h-12 w-full rounded-md border border-input bg-background px-3 text-sm" value={watch("preferredSlot")} onChange={(e) => setValue("preferredSlot", e.target.value as CallRequestInput["preferredSlot"])}>
-            <option value="morning">{lang === "fr" ? "Matin" : lang === "it" ? "Mattina" : lang === "de" ? "Morgen" : "Morning"}</option>
-            <option value="afternoon">{lang === "fr" ? "Après-midi" : lang === "it" ? "Pomeriggio" : lang === "de" ? "Nachmittag" : "Afternoon"}</option>
-            <option value="evening">{lang === "fr" ? "Soir" : lang === "it" ? "Sera" : lang === "de" ? "Abend" : "Evening"}</option>
+            <option value="matin">{lang === "fr" ? "Matin" : lang === "it" ? "Mattina" : lang === "de" ? "Morgen" : "Morning"}</option>
+            <option value="apres-midi">{lang === "fr" ? "Apres-midi" : lang === "it" ? "Pomeriggio" : lang === "de" ? "Nachmittag" : "Afternoon"}</option>
+            <option value="soir">{lang === "fr" ? "Soir" : lang === "it" ? "Sera" : lang === "de" ? "Abend" : "Evening"}</option>
           </select>
           <select className="h-12 w-full rounded-md border border-input bg-background px-3 text-sm" value={watch("contactMode")} onChange={(e) => setValue("contactMode", e.target.value as CallRequestInput["contactMode"])}>
             <option value="phone">{m.hotline.contactModePhone}</option>

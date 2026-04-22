@@ -1,8 +1,11 @@
-﻿import { applyRateLimit, jsonError, jsonSuccess } from "@/lib/api";
+import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { contactMessageSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
+  const originGuard = enforceWriteOrigin(request);
+  if (originGuard) return originGuard;
+
   const limited = applyRateLimit(request, "contact");
   if (limited) return limited;
 
@@ -10,8 +13,11 @@ export async function POST(request: Request) {
   const parsed = contactMessageSchema.safeParse(body);
 
   if (!parsed.success) {
-    return jsonError("Certains champs sont invalides. Merci de vérifier le formulaire.", 400, parsed.error.flatten().fieldErrors);
+    return jsonError("Certains champs sont invalides. Merci de verifier le formulaire.", 400, parsed.error.flatten().fieldErrors);
   }
+
+  const securityGuard = await enforcePublicFormSecurity(parsed.data);
+  if (securityGuard) return securityGuard;
 
   const supabase = getSupabaseAdminClient();
   const { error } = await supabase.from("support_messages").insert({
@@ -24,8 +30,8 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return jsonError("Enregistrement impossible pour le moment. Merci de réessayer.", 500);
+    return jsonError("Enregistrement impossible pour le moment. Merci de reessayer.", 500);
   }
 
-  return jsonSuccess("Votre message a bien été envoyé.");
+  return jsonSuccess("Votre message a bien ete envoye.");
 }

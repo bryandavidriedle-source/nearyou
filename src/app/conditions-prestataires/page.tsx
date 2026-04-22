@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 import { Container } from "@/components/shared/container";
-import { pageMetadata } from "@/lib/site";
+import { pageMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Conditions prestataires | PresDeToi",
-  description: "Conditions spécifiques applicables aux prestataires PresDeToi en Suisse.",
+  title: "Conditions prestataires | NearYou",
+  description: "Conditions prestataires NearYou / PresDeToi pour une activite locale en Suisse.",
   path: "/conditions-prestataires",
 });
 
@@ -14,47 +14,62 @@ export default function ProviderTermsPage() {
     <section className="py-12">
       <Container className="max-w-3xl space-y-5 text-sm leading-relaxed text-slate-700">
         <h1 className="text-3xl font-semibold text-slate-900">Conditions prestataires</h1>
-
         <p>
-          Les présentes conditions s'appliquent à tout prestataire inscrivant un dossier sur PresDeToi.
-          L'activation du profil est soumise à validation manuelle préalable.
+          Ces conditions s'appliquent a tout prestataire candidat ou actif sur NearYou / PresDeToi. L'activation publique
+          est conditionnee a une validation manuelle du dossier.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900">1. Statut indépendant</h2>
+        <h2 className="text-xl font-semibold text-slate-900">1. Statut juridique</h2>
         <p>
-          Le prestataire agit en qualité d'indépendant ou d'entreprise autonome. Il ne dispose d'aucun lien de subordination
-          avec PresDeToi et assume seul ses charges, assurances et obligations légales.
+          Le prestataire agit a titre independant ou en qualite de societe. Il n'existe aucun lien de subordination avec NearYou.
+          Le prestataire assume seul ses obligations sociales, fiscales, administratives et reglementaires.
+        </p>
+        <p>
+          Age minimum pour candidater: 16 ans. Une candidature dont la date de naissance indique moins de 16 ans est bloquee.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900">2. Droit d'exercer</h2>
+        <h2 className="text-xl font-semibold text-slate-900">2. Validation du dossier</h2>
         <p>
-          Le prestataire déclare disposer des autorisations nécessaires à l'exercice de son activité en Suisse.
-          Si un titre de séjour est utilisé, seuls les statuts valables B ou C sont acceptés sous réserve du droit applicable.
+          Le dossier peut passer par les statuts: draft, submitted, pending_review, needs_info, approved, rejected, suspended.
+          Tant que le statut n'est pas approved, le profil ne doit pas etre considere comme actif publiquement.
+        </p>
+        <p>
+          Le prestataire s'engage a transmettre des informations exactes et a jour. NearYou peut demander tout justificatif
+          complementaire en cas de doute de conformite.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900">3. Validation documentaire</h2>
+        <h2 className="text-xl font-semibold text-slate-900">3. Documents et conformite</h2>
         <p>
-          Les justificatifs fournis sont consultables uniquement par les administrateurs autorisés en charge de la revue des dossiers.
-          L'accès aux documents est journalisé et limité dans le temps via URL signées.
+          Selon l'activite, NearYou peut demander une piece d'identite, un permis de sejour, une assurance RC et tout document
+          complementaire utile a la validation. Les documents restent en stockage prive.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900">4. Workflow de dossier</h2>
+        <h2 className="text-xl font-semibold text-slate-900">4. Missions et qualite de service</h2>
         <p>
-          Les statuts possibles sont: brouillon, soumis, en attente de validation, approuvé, refusé, à compléter.
-          Tant que le statut n'est pas approuvé, le prestataire ne doit pas être présenté comme actif.
+          Le prestataire s'engage a repondre rapidement aux demandes assignees, a respecter les horaires confirmes et a maintenir
+          un niveau de qualite compatible avec les attentes de la plateforme.
+        </p>
+        <p>
+          Les prix affiches sont des prix de depart. En cas d'ajustement sur place, un supplement motive peut etre propose,
+          mais il doit etre approuve explicitement par le client avant application.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900">5. Responsabilité</h2>
+        <h2 className="text-xl font-semibold text-slate-900">5. Paiements et commissions</h2>
         <p>
-          Le prestataire demeure seul responsable de ses prestations, de sa conformité réglementaire et des obligations fiscales, sociales
-          et administratives liées à son activité.
+          Les montants prestataires sont suivis dans l'espace paiement avec distinction brut, commission plateforme et net.
+          Les modalites de versement peuvent evoluer avec l'integration de solutions de paiement externes.
         </p>
 
-        <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-900">
-          Note: ce texte est une base opérationnelle MVP et doit être validé juridiquement avant exploitation commerciale à grande échelle en Suisse.
+        <h2 className="text-xl font-semibold text-slate-900">6. Suspension et cloture</h2>
+        <p>
+          En cas de manquement grave, de non-conformite ou de risque operationnel, NearYou peut suspendre un compte prestataire.
+          Le compte reste accessible en lecture pour suivi administratif.
+        </p>
+
+        <p className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-slate-600">
+          Contact operation prestataires: {siteConfig.contactEmail}
         </p>
       </Container>
     </section>
   );
 }
-

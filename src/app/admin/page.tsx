@@ -1,88 +1,93 @@
-﻿import type { Metadata } from "next";
+import Link from "next/link";
 
-import { AdminConsole } from "@/components/admin/admin-console";
-import { Container } from "@/components/shared/container";
 import { Card } from "@/components/ui/card";
-import { requireAdminScopes } from "@/lib/auth";
 import { getAdminDashboardData } from "@/lib/db";
-import { pageMetadata } from "@/lib/site";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
-export const metadata: Metadata = pageMetadata({
-  title: "NearYou Admin dashboard",
-  description: "Backoffice administrateur: KPI, demandes, prestataires et rôles.",
-  path: "/admin",
-});
-
-export default async function AdminPage() {
-  const auth = await requireAdminScopes(["super_admin", "admin_ops", "admin_support", "admin_review"]);
+export default async function AdminDashboardPage() {
   const dashboard = await getAdminDashboardData();
+  const supabase = getSupabaseAdminClient();
 
-  const canManageAdmins = auth.adminScope === "super_admin";
-  const canReviewProviders = auth.adminScope === "super_admin" || auth.adminScope === "admin_review";
+  const [auditRes, providerReviewRes, requestTodayRes] = await Promise.all([
+    supabase
+      .from("admin_audit_events")
+      .select("id, action, entity, created_at")
+      .order("created_at", { ascending: false })
+      .limit(8),
+    supabase
+      .from("provider_applications")
+      .select("id", { count: "exact", head: true })
+      .in("workflow_status", ["submitted", "pending_review", "needs_info"]),
+    supabase
+      .from("service_requests")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
+  ]);
 
   return (
-    <section className="py-12">
-      <Container className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-slate-900">Dashboard administrateur</h1>
-          <p className="text-sm text-slate-600">
-            Rôle actif: <span className="font-semibold">{auth.adminScope}</span>
-          </p>
-        </div>
+    <div className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="premium-card p-4">
+          <p className="text-sm text-slate-500">Demandes totales</p>
+          <p className="mt-1 text-3xl font-bold text-slate-900">{dashboard.kpis.totalRequests}</p>
+        </Card>
+        <Card className="premium-card p-4">
+          <p className="text-sm text-slate-500">Demandes du jour</p>
+          <p className="mt-1 text-3xl font-bold text-slate-900">{requestTodayRes.count ?? 0}</p>
+        </Card>
+        <Card className="premium-card p-4">
+          <p className="text-sm text-slate-500">Prestataires en attente</p>
+          <p className="mt-1 text-3xl font-bold text-slate-900">{providerReviewRes.count ?? dashboard.kpis.providerPending}</p>
+        </Card>
+        <Card className="premium-card p-4">
+          <p className="text-sm text-slate-500">Prestataires actifs</p>
+          <p className="mt-1 text-3xl font-bold text-slate-900">{dashboard.kpis.providers}</p>
+        </Card>
+      </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">Demandes total</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.totalRequests}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">Nouvelles</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.newRequests}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">En cours</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.inProgressRequests}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">Terminées</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.completedRequests}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">Clôturées</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.cancelledRequests}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">Clients inscrits</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.users}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">Prestataires</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.providers}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-500">En attente validation</p>
-            <p className="text-3xl font-bold">{dashboard.kpis.providerPending}</p>
-          </Card>
-        </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="premium-card p-5">
+          <h2 className="text-lg font-semibold text-slate-900">Actions prioritaires</h2>
+          <ul className="mt-3 space-y-2 text-sm text-slate-700">
+            <li>1. Traiter les dossiers prestataires en attente de validation.</li>
+            <li>2. Assigner rapidement les demandes urgentes aux prestataires verifies.</li>
+            <li>3. Controler les avis signales et les documents a revalider.</li>
+          </ul>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/admin/prestataires" className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
+              Ouvrir validation prestataires
+            </Link>
+            <Link href="/admin/demandes" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+              Ouvrir demandes
+            </Link>
+          </div>
+        </Card>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm font-semibold text-slate-900">Volume demandes</p>
-            <p className="mt-1 text-sm text-slate-600">7 jours: {dashboard.volume.last7Days}</p>
-            <p className="text-sm text-slate-600">30 jours: {dashboard.volume.last30Days}</p>
-          </Card>
-          <Card className="rounded-2xl border-slate-200 bg-white p-4">
-            <p className="text-sm font-semibold text-slate-900">Top catégories</p>
-            <ul className="mt-2 space-y-1 text-sm text-slate-600">
-              {dashboard.byCategory.slice(0, 6).map((item) => (
-                <li key={item.category}>{item.category}: {item.count}</li>
-              ))}
-            </ul>
-          </Card>
-        </div>
+        <Card className="premium-card p-5">
+          <h2 className="text-lg font-semibold text-slate-900">Top categories</h2>
+          <div className="mt-3 space-y-2 text-sm text-slate-700">
+            {dashboard.byCategory.slice(0, 8).map((item) => (
+              <div key={item.category} className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2">
+                <span>{item.category}</span>
+                <span className="font-semibold">{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
 
-        <AdminConsole canManageAdmins={canManageAdmins} canReviewProviders={canReviewProviders} />
-      </Container>
-    </section>
+      <Card className="premium-card p-5">
+        <h2 className="text-lg font-semibold text-slate-900">Journal recent</h2>
+        <div className="mt-3 space-y-2">
+          {(auditRes.data ?? []).map((event) => (
+            <div key={event.id} className="rounded-lg border border-slate-100 px-3 py-2 text-sm text-slate-700">
+              <p className="font-medium">{event.action} - {event.entity}</p>
+              <p className="text-xs text-slate-500">{new Date(event.created_at).toLocaleString("fr-CH")}</p>
+            </div>
+          ))}
+          {(auditRes.data ?? []).length === 0 ? <p className="text-sm text-slate-500">Aucun evenement recent.</p> : null}
+        </div>
+      </Card>
+    </div>
   );
 }

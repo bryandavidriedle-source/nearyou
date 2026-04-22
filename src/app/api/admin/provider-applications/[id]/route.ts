@@ -1,30 +1,67 @@
-﻿import { jsonError, jsonSuccess } from "@/lib/api";
+import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { requireApiAdminScopes } from "@/lib/auth";
 import { sendEmail } from "@/lib/email/sender";
 import { emailTemplates } from "@/lib/email/templates";
+import { getErrorMessage, logEvent } from "@/lib/monitoring";
+import { providerApplicationStatusSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
-import { z } from "zod";
 
-const payloadSchema = z.object({
-  workflowStatus: z.enum(["draft", "submitted", "pending_review", "approved", "rejected", "needs_info"]),
-  adminNote: z.string().trim().max(500).optional().or(z.literal("")),
-});
+export async function GET(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireApiAdminScopes(["super_admin", "admin_review", "admin_ops"]);
+  if (!auth) {
+    return jsonError("Acces non autorise.", 403);
+  }
+
+  const { id } = await context.params;
+  const supabase = getSupabaseAdminClient();
+
+  const [applicationRes, documentsRes] = await Promise.all([
+    supabase
+      .from("provider_applications")
+      .select("id, profile_id, created_at, updated_at, workflow_status, status, first_name, last_name, email, phone, business_name, address_line, postal_code, city, canton, country, category, intervention_radius_km, legal_status, company_name, ide_number, iban, vat_number, languages, accepts_urgency, services_description, years_experience, availability, website_or_instagram, id_document_type, id_document_path, residence_permit_type, residence_permit_path, admin_note, reviewed_at, reviewed_by")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("provider_documents")
+      .select("id, kind, status, original_filename, file_size_bytes, admin_note, reviewed_at, created_at")
+      .eq("application_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  if (applicationRes.error || !applicationRes.data) {
+    return jsonError("Dossier introuvable.", 404);
+  }
+
+  return Response.json({
+    success: true,
+    data: {
+      application: applicationRes.data,
+      documents: documentsRes.data ?? [],
+    },
+  });
+}
 
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
+  const originGuard = enforceWriteOrigin(request);
+  if (originGuard) return originGuard;
+
   const auth = await requireApiAdminScopes(["super_admin", "admin_review"]);
   if (!auth) {
-    return jsonError("Accès non autorisé.", 403);
+    return jsonError("Acces non autorise.", 403);
   }
 
   const { id } = await context.params;
   const body = await request.json().catch(() => null);
-  const parsed = payloadSchema.safeParse(body);
+  const parsed = providerApplicationStatusSchema.safeParse(body);
 
   if (!parsed.success) {
-    return jsonError("Données invalides.", 400, parsed.error.flatten().fieldErrors);
+    return jsonError("Donnees invalides.", 400, parsed.error.flatten().fieldErrors);
   }
 
   const supabase = getSupabaseAdminClient();
@@ -49,18 +86,18 @@ export async function PATCH(
       status:
         parsed.data.workflowStatus === "approved"
           ? "contacted"
-          : parsed.data.workflowStatus === "rejected"
+          : parsed.data.workflowStatus === "rejected" || parsed.data.workflowStatus === "suspended"
             ? "closed"
             : "reviewing",
     })
     .eq("id", id);
 
   if (error) {
-    return jsonError("Impossible de mettre à jour ce dossier.", 500);
+    return jsonError("Impossible de mettre a jour ce dossier.", 500);
   }
 
   if (parsed.data.workflowStatus === "approved" && current.profile_id) {
-    await supabase.from("profiles").update({ role: "provider" }).eq("id", current.profile_id);
+    await supabase.from("profiles").update({ role: "provider", account_status: "active" }).eq("id", current.profile_id);
 
     const { data: existingProvider } = await supabase
       .from("providers")
@@ -80,17 +117,41 @@ export async function PATCH(
     }
   }
 
+  if (parsed.data.workflowStatus === "suspended" && current.profile_id) {
+    await Promise.all([
+      supabase.from("profiles").update({ account_status: "suspended" }).eq("id", current.profile_id),
+      supabase.from("providers").update({ is_active: false }).eq("profile_id", current.profile_id),
+    ]);
+  }
+
+  if (parsed.data.workflowStatus === "rejected" && current.profile_id) {
+    await Promise.all([
+      supabase.from("profiles").update({ account_status: "active", role: "customer" }).eq("id", current.profile_id),
+      supabase.from("providers").update({ is_active: false }).eq("profile_id", current.profile_id),
+    ]);
+  }
+
   const name = `${current.first_name ?? ""} ${current.last_name ?? ""}`.trim() || "prestataire";
   const template =
     parsed.data.workflowStatus === "approved"
       ? emailTemplates.providerApplicationApproved(name)
       : parsed.data.workflowStatus === "rejected"
         ? emailTemplates.providerApplicationRejected(name)
+        : parsed.data.workflowStatus === "suspended"
+          ? emailTemplates.providerApplicationNeedsInfo(name, "Votre compte prestataire est temporairement suspendu. Contactez le support NearYou.")
         : parsed.data.workflowStatus === "needs_info"
           ? emailTemplates.providerApplicationNeedsInfo(name, parsed.data.adminNote || undefined)
           : emailTemplates.providerApplicationPendingReview(name);
 
-  await sendEmail({ to: current.email, subject: template.subject, html: template.html });
+  try {
+    await sendEmail({ to: current.email, subject: template.subject, html: template.html });
+  } catch (error) {
+    logEvent("error", {
+      event: "admin.provider_status_email_failed",
+      message: "Provider workflow updated but notification email failed.",
+      context: { applicationId: id, reason: getErrorMessage(error) },
+    });
+  }
 
   await supabase.from("admin_audit_events").insert({
     actor_profile_id: auth.user.id,
@@ -104,5 +165,5 @@ export async function PATCH(
     },
   });
 
-  return jsonSuccess("Dossier mis à jour.");
+  return jsonSuccess("Dossier mis a jour.");
 }

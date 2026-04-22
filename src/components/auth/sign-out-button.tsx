@@ -20,8 +20,7 @@ export function SignOutButton() {
 
   return (
     <Button type="button" variant="outline" className="rounded-xl border-slate-300" onClick={onSignOut} disabled={loading}>
-      {loading ? "Déconnexion..." : "Se déconnecter"}
+      {loading ? "Deconnexion..." : "Se deconnecter"}
     </Button>
   );
 }
-

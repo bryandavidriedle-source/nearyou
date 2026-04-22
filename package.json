@@ -15,7 +15,9 @@
         "supabase:seed": "echo Run supabase/seed.sql in Supabase SQL editor",
         "preflight": "node scripts/preflight.mjs",
         "validate:env": "node scripts/validate-env.mjs",
-        "setup:local": "powershell -ExecutionPolicy Bypass -File scripts/setup-local.ps1 -Install -ValidateEnv"
+        "setup:local": "powershell -ExecutionPolicy Bypass -File scripts/setup-local.ps1 -Install -ValidateEnv",
+        "release:check": "npm run preflight && npm run validate:env && npm run typecheck && npm run lint && npm run build",
+        "seed:demo-providers": "node scripts/seed-demo-providers.mjs"
     },
     "dependencies": {
         "@base-ui/react": "^1.4.1",

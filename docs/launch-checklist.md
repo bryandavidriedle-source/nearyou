@@ -1,37 +1,37 @@
-﻿# Launch checklist NearYou
+# Launch checklist NearYou
 
 ## Produit
-- [ ] Hero + CTA validés mobile
-- [ ] Flux demande service validé
-- [ ] Flux prestataire validé
-- [ ] Hotline/contact validés
+- [ ] Hero + CTA valides mobile
+- [ ] Flux demande service valide
+- [ ] Flux prestataire valide
+- [ ] Flux reservation valide
+- [ ] Hotline/contact valides
 
 ## Technique
-- [ ] `npm run lint` OK
-- [ ] `npm run typecheck` OK
-- [ ] `npm run build` OK
-- [ ] Variables Vercel configurées
-- [ ] Migration Supabase exécutée
-- [ ] Seed chargé
+- [ ] `npm run release:check` OK
+- [ ] Variables Vercel configurees
+- [ ] Migration Supabase executee
+- [ ] Seed charge
 
-## Sécurité
-- [ ] Headers sécurité actifs
-- [ ] RLS vérifié sur Supabase
-- [ ] Secrets non exposés client
-- [ ] Turnstile planifié
+## Securite
+- [ ] Headers securite actifs
+- [ ] RLS verifie sur Supabase
+- [ ] Secrets non exposes client
+- [ ] Anti-spam actif (honeypot + timing + turnstile si active)
 
 ## Infra
-- [ ] Domaine connecté sur Vercel
-- [ ] DNS Cloudflare configuré
-- [ ] HTTPS validé
+- [ ] Domaine connecte sur Vercel
+- [ ] DNS Cloudflare configure
+- [ ] HTTPS valide
 
-## Business
-- [ ] Emails transactionnels configurés
-- [ ] Stripe/TWINT plan d'intégration validé
-- [ ] Support email + numéro hotline final
+## Operations
+- [ ] Email transactionnel configure
+- [ ] Super admin unique configure
+- [ ] Support email + hotline final
+- [ ] Runbook incident partage
 
 ## QA finale
 - [ ] Test iPhone/Android
 - [ ] Test desktop
 - [ ] Test map/booking/assistant
-- [ ] Test pages légales
+- [ ] Test pages legales

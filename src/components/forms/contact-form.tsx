@@ -32,6 +32,9 @@ export function ContactForm() {
       subject: "",
       message: "",
       consent: false,
+      website: "",
+      submittedAt: new Date().toISOString(),
+      turnstileToken: "",
     },
   });
 
@@ -65,6 +68,15 @@ export function ContactForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <input
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+        {...register("website")}
+      />
+
       <FormField id="fullName" label="Nom complet" error={errors.fullName?.message}>
         <Input id="fullName" placeholder="Sophie Martin" {...register("fullName")} />
       </FormField>

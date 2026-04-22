@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 
@@ -36,6 +36,8 @@ const schema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
   NEXT_PUBLIC_MAPBOX_TOKEN: z.string().min(20).optional().or(z.literal("")),
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(10).optional().or(z.literal("")),
+  TURNSTILE_SECRET_KEY: optionalSecret,
   OPENAI_API_KEY: optionalSecret,
   OPENAI_MODEL: z.string().default("gpt-5.4-mini"),
 });
@@ -43,9 +45,9 @@ const schema = z.object({
 const result = schema.safeParse(env);
 
 if (!result.success) {
-  console.error("❌ Variables d'environnement invalides:");
+  console.error("Variables d'environnement invalides:");
   console.error(result.error.flatten().fieldErrors);
   process.exit(1);
 }
 
-console.log("✅ Variables d'environnement valides.");
+console.log("Variables d'environnement valides.");

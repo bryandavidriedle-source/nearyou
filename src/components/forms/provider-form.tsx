@@ -35,15 +35,21 @@ export function ProviderForm() {
       businessName: "",
       email: "",
       phone: "",
+      birthDate: "",
       addressLine: "",
       postalCode: "",
       canton: "VD",
       city: "Lausanne",
+      country: "Suisse",
       interventionRadiusKm: 20,
       category: serviceCategories[0].label,
       legalStatus: "independant",
       companyName: "",
       ideNumber: "",
+      iban: "",
+      vatNumber: "",
+      languages: "francais",
+      acceptsUrgency: false,
       servicesDescription: "",
       yearsExperience: "",
       availability: providerAvailabilityOptions[0],
@@ -53,6 +59,9 @@ export function ProviderForm() {
       legalResponsibilityAck: false,
       termsAck: false,
       consent: false,
+      website: "",
+      submittedAt: new Date().toISOString(),
+      turnstileToken: "",
     },
   });
 
@@ -103,6 +112,15 @@ export function ProviderForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <input
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+        {...register("website")}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="firstName" label="Prénom" error={errors.firstName?.message}>
           <Input id="firstName" placeholder="Marie" {...register("firstName")} />
@@ -125,6 +143,15 @@ export function ProviderForm() {
         </FormField>
       </div>
 
+      <FormField
+        id="birthDate"
+        label="Date de naissance"
+        hint="Age minimum requis pour les prestataires: 16 ans."
+        error={errors.birthDate?.message}
+      >
+        <Input id="birthDate" type="date" {...register("birthDate")} />
+      </FormField>
+
       <FormField id="addressLine" label="Adresse" error={errors.addressLine?.message}>
         <Input id="addressLine" placeholder="Rue du Lac 12" {...register("addressLine")} />
       </FormField>
@@ -138,6 +165,15 @@ export function ProviderForm() {
         </FormField>
         <FormField id="canton" label="Canton" error={errors.canton?.message}>
           <Input id="canton" placeholder="VD" {...register("canton")} />
+        </FormField>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="country" label="Pays" error={errors.country?.message}>
+          <Input id="country" placeholder="Suisse" {...register("country")} />
+        </FormField>
+        <FormField id="languages" label="Langues" error={errors.languages?.message}>
+          <Input id="languages" placeholder="Francais, anglais" {...register("languages")} />
         </FormField>
       </div>
 
@@ -192,6 +228,12 @@ export function ProviderForm() {
         </FormField>
         <FormField id="ideNumber" label="Numéro IDE (facultatif)" error={errors.ideNumber?.message}>
           <Input id="ideNumber" placeholder="CHE-123.456.789" {...register("ideNumber")} />
+        </FormField>
+        <FormField id="iban" label="IBAN (facultatif)" error={errors.iban?.message}>
+          <Input id="iban" placeholder="CH93 0076 2011 6238 5295 7" {...register("iban")} />
+        </FormField>
+        <FormField id="vatNumber" label="Numéro TVA (facultatif)" error={errors.vatNumber?.message}>
+          <Input id="vatNumber" placeholder="CHE-123.456.789 TVA" {...register("vatNumber")} />
         </FormField>
       </div>
 
@@ -294,6 +336,18 @@ export function ProviderForm() {
           />
         </FormField>
       )}
+
+      <div className="space-y-2">
+        <label className="flex items-start gap-3 rounded-lg border border-border/80 bg-secondary/30 p-3">
+          <Checkbox
+            checked={watch("acceptsUrgency")}
+            onCheckedChange={(checked) => setValue("acceptsUrgency", Boolean(checked), { shouldValidate: true })}
+          />
+          <span className="text-sm leading-relaxed text-muted-foreground">
+            J'accepte les interventions urgentes (dans la limite de mes disponibilités).
+          </span>
+        </label>
+      </div>
 
       <div className="space-y-2">
         <label className="flex items-start gap-3 rounded-lg border border-border/80 bg-secondary/30 p-3">

@@ -1,13 +1,16 @@
-﻿import { jsonError, jsonSuccess } from "@/lib/api";
+import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { logAdminAction } from "@/lib/audit";
 import { requireApiAdminScopes } from "@/lib/auth";
 import { callRequestStatusSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const originGuard = enforceWriteOrigin(request);
+  if (originGuard) return originGuard;
+
   const auth = await requireApiAdminScopes(["super_admin", "admin_support", "admin_ops"]);
   if (!auth) {
-    return jsonError("Accès non autorisé.", 403);
+    return jsonError("Acces non autorise.", 403);
   }
 
   const body = await request.json().catch(() => null);
@@ -26,7 +29,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .eq("id", id);
 
   if (error) {
-    return jsonError("Mise à jour impossible.", 500);
+    return jsonError("Mise a jour impossible.", 500);
   }
 
   await logAdminAction("call_request_status_updated", "call_requests", id, {
@@ -34,5 +37,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     adminScope: auth.adminScope,
   });
 
-  return jsonSuccess("Statut mis à jour.");
+  return jsonSuccess("Statut mis a jour.");
 }

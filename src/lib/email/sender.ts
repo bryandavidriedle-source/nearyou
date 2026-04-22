@@ -23,7 +23,7 @@ async function sendWithResend(payload: EmailPayload) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: serverEnv.SMTP_FROM || "no-reply@presdetoi.com",
+      from: serverEnv.SMTP_FROM || "no-reply@nearyou.ch",
       to: [payload.to],
       subject: payload.subject,
       html: payload.html,

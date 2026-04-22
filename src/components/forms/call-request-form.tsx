@@ -42,6 +42,9 @@ export function CallRequestForm() {
       note: "",
       consent: false,
       source: "web",
+      website: "",
+      submittedAt: new Date().toISOString(),
+      turnstileToken: "",
     },
   });
 
@@ -75,6 +78,15 @@ export function CallRequestForm() {
 
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <input
+        type="text"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+        {...register("website")}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="firstName" label="Prenom" error={errors.firstName?.message}>
           <Input id="firstName" className="h-12 text-base" placeholder="Marie" {...register("firstName")} />

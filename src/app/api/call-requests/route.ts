@@ -1,8 +1,11 @@
-﻿import { applyRateLimit, jsonError, jsonSuccess } from "@/lib/api";
+import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { callRequestSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
+  const originGuard = enforceWriteOrigin(request);
+  if (originGuard) return originGuard;
+
   const limited = applyRateLimit(request, "contact");
   if (limited) return limited;
 
@@ -10,8 +13,11 @@ export async function POST(request: Request) {
   const parsed = callRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return jsonError("Certains champs sont invalides. Merci de vérifier le formulaire.", 400, parsed.error.flatten().fieldErrors);
+    return jsonError("Certains champs sont invalides. Merci de verifier le formulaire.", 400, parsed.error.flatten().fieldErrors);
   }
+
+  const securityGuard = await enforcePublicFormSecurity(parsed.data);
+  if (securityGuard) return securityGuard;
 
   const supabase = getSupabaseAdminClient();
   const { error } = await supabase.from("call_requests").insert({
@@ -32,5 +38,5 @@ export async function POST(request: Request) {
     return jsonError("Impossible d'enregistrer la demande de rappel.", 500);
   }
 
-  return jsonSuccess("Votre demande de rappel a bien été enregistrée.");
+  return jsonSuccess("Votre demande de rappel a bien ete enregistree.");
 }
