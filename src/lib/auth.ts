@@ -25,65 +25,74 @@ type AuthenticatedContext = Omit<AuthContext, "user"> & {
   user: NonNullable<AuthContext["user"]>;
 };
 
+function getAnonymousAuthContext() {
+  return {
+    user: null,
+    role: null as AppRole | null,
+    profile: null,
+    adminScope: null as AdminScope | null,
+    providerWorkflowStatus: null as ProviderWorkflowStatus | null,
+  };
+}
+
 function safeNextPath(path: string) {
   if (!path.startsWith("/") || path.startsWith("//")) return "/";
   return path;
 }
 
 export async function getAuthContext() {
-  const supabase = await getSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
+    if (!user) {
+      return getAnonymousAuthContext();
+    }
+
+    const [{ data: profile }, { data: adminAccount }, { data: providerApplication }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, role, first_name, last_name, phone, city, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("admin_accounts")
+        .select("scope, is_active")
+        .eq("profile_id", user.id)
+        .eq("is_active", true)
+        .maybeSingle(),
+      supabase
+        .from("provider_applications")
+        .select("workflow_status")
+        .eq("profile_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+    const isConfiguredSuperAdmin = user.email?.toLowerCase() === serverEnv.SUPER_ADMIN_EMAIL?.toLowerCase();
+
+    const computedRole: AppRole = isConfiguredSuperAdmin
+      ? "admin"
+      : ((profile?.role as AppRole | null) ?? "customer");
+
+    const computedScope =
+      (adminAccount?.scope as AdminScope | null) ??
+      (isConfiguredSuperAdmin ? "super_admin" : null);
+
     return {
-      user: null,
-      role: null as AppRole | null,
-      profile: null,
-      adminScope: null as AdminScope | null,
-      providerWorkflowStatus: null as ProviderWorkflowStatus | null,
+      user,
+      role: computedRole,
+      profile,
+      adminScope: computedScope,
+      providerWorkflowStatus: (providerApplication?.workflow_status as ProviderWorkflowStatus | null) ?? null,
     };
+  } catch {
+    // Never crash global layout on transient auth/network failures.
+    return getAnonymousAuthContext();
   }
-
-  const [{ data: profile }, { data: adminAccount }, { data: providerApplication }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("id, role, first_name, last_name, phone, city, avatar_url")
-      .eq("id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("admin_accounts")
-      .select("scope, is_active")
-      .eq("profile_id", user.id)
-      .eq("is_active", true)
-      .maybeSingle(),
-    supabase
-      .from("provider_applications")
-      .select("workflow_status")
-      .eq("profile_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
-
-  const isConfiguredSuperAdmin = user.email?.toLowerCase() === serverEnv.SUPER_ADMIN_EMAIL?.toLowerCase();
-
-  const computedRole: AppRole = isConfiguredSuperAdmin
-    ? "admin"
-    : ((profile?.role as AppRole | null) ?? "customer");
-
-  const computedScope =
-    (adminAccount?.scope as AdminScope | null) ??
-    (isConfiguredSuperAdmin ? "super_admin" : null);
-
-  return {
-    user,
-    role: computedRole,
-    profile,
-    adminScope: computedScope,
-    providerWorkflowStatus: (providerApplication?.workflow_status as ProviderWorkflowStatus | null) ?? null,
-  };
 }
 
 export async function resolveAuthenticatedHomePath() {
