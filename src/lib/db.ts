@@ -54,6 +54,25 @@ function getDefaultCategories() {
   }));
 }
 
+function getFallbackCatalogueData() {
+  return fullCatalogue.map((category, categoryIndex) => ({
+    id: `${category.slug}-${categoryIndex}`,
+    slug: category.slug,
+    name: category.name,
+    fromPrice: serviceCategories.find((item) => item.slug === category.slug)?.fromPrice ?? 20 + categoryIndex * 4,
+    subcategories: category.subcategories.map((subcategory, subIndex) => ({
+      id: `${subcategory.slug}-${subIndex}`,
+      name: subcategory.name,
+      tasks: subcategory.tasks.map((task, taskIndex) => ({
+        id: `${task.title}-${taskIndex}`,
+        title: task.title,
+        mode: task.mode,
+        tags: task.tags.map((tag) => ({ tag: { name: tag } })),
+      })),
+    })),
+  }));
+}
+
 const allowedCategoryNames = new Set(serviceCategories.map((category) => category.label));
 
 function getEmptyHomeData(): HomeData {
@@ -204,80 +223,93 @@ export async function getHomeData() {
 
 export async function getCatalogueData() {
   if (!hasSupabaseServiceRole()) {
-    return fullCatalogue.map((category, categoryIndex) => ({
-      id: `${category.slug}-${categoryIndex}`,
-      name: category.name,
-      fromPrice: 20 + categoryIndex * 4,
-      subcategories: category.subcategories.map((subcategory, subIndex) => ({
-        id: `${subcategory.slug}-${subIndex}`,
-        name: subcategory.name,
-        tasks: subcategory.tasks.map((task, taskIndex) => ({
-          id: `${task.title}-${taskIndex}`,
-          title: task.title,
-          mode: task.mode,
-          tags: task.tags.map((tag) => ({ tag: { name: tag } })),
-        })),
-      })),
-    }));
+    return getFallbackCatalogueData();
   }
 
   try {
     const supabase = getSupabaseAdminClient();
     const { data: categories, error: categoriesError } = await supabase
       .from("service_categories")
-      .select("id, name_fr, from_price_chf")
+      .select("id, slug, name_fr, from_price_chf")
       .eq("active", true)
-      .order("name_fr", { ascending: true });
+      .order("display_order", { ascending: true });
 
-    if (categoriesError || !categories) {
-      return [];
-    }
-    const filteredCategories = categories.filter((category) => allowedCategoryNames.has(category.name_fr));
-    if (filteredCategories.length === 0) {
-      return fullCatalogue.map((category, categoryIndex) => ({
-        id: `${category.slug}-${categoryIndex}`,
-        name: category.name,
-        fromPrice: serviceCategories.find((item) => item.label === category.name)?.fromPrice ?? 20 + categoryIndex * 4,
-        subcategories: category.subcategories.map((subcategory, subIndex) => ({
-          id: `${subcategory.slug}-${subIndex}`,
-          name: subcategory.name,
-          tasks: subcategory.tasks.map((task, taskIndex) => ({
-            id: `${task.title}-${taskIndex}`,
-            title: task.title,
-            mode: task.mode,
-            tags: task.tags.map((tag) => ({ tag: { name: tag } })),
-          })),
-        })),
-      }));
+    if (categoriesError || !categories || categories.length === 0) {
+      return getFallbackCatalogueData();
     }
 
-    const { data: services } = await supabase
+    const { data: services, error: servicesError } = await supabase
       .from("services")
       .select("id, category_id, title, mode, tags")
       .eq("active", true);
 
-    return filteredCategories.map((category) => {
-      const categoryServices = (services ?? []).filter((service) => service.category_id === category.id);
+    if (servicesError) {
+      return getFallbackCatalogueData();
+    }
+
+    const categoriesWithServices = categories.map((category) => {
+      const categoryServices = (services ?? []).filter((service) => service.category_id === category.id && service.title);
+      const matchingFallback = fullCatalogue.find((item) => item.slug === category.slug);
+
+      const dbTasks = categoryServices.map((service) => {
+        const rawTags = service.tags;
+        const normalizedTags = Array.isArray(rawTags)
+          ? rawTags
+          : typeof rawTags === "string"
+            ? [rawTags]
+            : [];
+
+        return {
+          id: service.id,
+          title: service.title,
+          mode: service.mode,
+          tags: normalizedTags.map((tag: string) => ({ tag: { name: tag } })),
+        };
+      });
+
+      const fallbackSubcategories =
+        matchingFallback?.subcategories.map((subcategory, subIndex) => ({
+          id: `${category.id}-fallback-${subIndex}`,
+          name: subcategory.name,
+          tasks: subcategory.tasks.map((task, taskIndex) => ({
+            id: `${category.id}-fallback-task-${taskIndex}`,
+            title: task.title,
+            mode: task.mode,
+            tags: task.tags.map((tag) => ({ tag: { name: tag } })),
+          })),
+        })) ?? [];
+
+      const subcategories =
+        dbTasks.length > 0
+          ? [
+              {
+                id: `${category.id}-default`,
+                name: "Services disponibles",
+                tasks: dbTasks,
+              },
+            ]
+          : fallbackSubcategories;
+
       return {
         id: category.id,
+        slug: category.slug,
         name: category.name_fr,
         fromPrice: category.from_price_chf,
-        subcategories: [
-          {
-            id: `${category.id}-default`,
-            name: "Services disponibles",
-            tasks: categoryServices.map((service) => ({
-              id: service.id,
-              title: service.title,
-              mode: service.mode,
-              tags: (service.tags ?? []).map((tag: string) => ({ tag: { name: tag } })),
-            })),
-          },
-        ],
+        subcategories,
       };
     });
+
+    const hasAnyTask = categoriesWithServices.some((category) =>
+      category.subcategories.some((subcategory) => subcategory.tasks.length > 0),
+    );
+
+    if (!hasAnyTask) {
+      return getFallbackCatalogueData();
+    }
+
+    return categoriesWithServices;
   } catch {
-    return [];
+    return getFallbackCatalogueData();
   }
 }
 
