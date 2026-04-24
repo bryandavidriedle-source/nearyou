@@ -1,4 +1,4 @@
-import { ProviderDocumentsPanel } from "@/components/provider/provider-documents-panel";
+﻿import { ProviderDocumentsPanel } from "@/components/provider/provider-documents-panel";
 import { Card } from "@/components/ui/card";
 import { requireProviderAccess } from "@/lib/auth";
 import { providerWorkflowLabels } from "@/lib/workflow";
@@ -18,10 +18,11 @@ export default async function ProviderVerificationsPage() {
           </span>
         </p>
         <p className="mt-1 text-sm text-slate-600">
-          Les documents sont traites manuellement par l&apos;equipe admin NearYou.
+          Les documents sont traites manuellement par l&apos;equipe admin PrèsDeToi.
         </p>
       </Card>
       <ProviderDocumentsPanel />
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 
 import { Footer } from "@/components/layout/footer";
@@ -20,19 +20,19 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   ...pageMetadata({
-    title: "NearYou | Services à domicile premium en Suisse",
-    description: "Plateforme suisse de mise en relation locale avec prestataires vérifiés et suivi humain.",
+    title: "PrèsDeToi | Services à domicile en Suisse",
+    description: "Plateforme suisse locale pour réserver un prestataire vérifié près de chez vous.",
     path: "/",
   }),
   manifest: "/manifest.webmanifest",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   openGraph: {
-    title: "NearYou | Services locaux vérifiés",
-    description: "Réservation simple, confiance forte et opération locale en Suisse romande.",
+    title: "PrèsDeToi | Services locaux vérifiés",
+    description: "Réservation simple, confiance forte et service local en Suisse romande.",
     type: "website",
     locale: "fr_CH",
   },
-  applicationName: "NearYou",
+  applicationName: "PrèsDeToi",
 };
 
 export const viewport: Viewport = {
@@ -66,3 +66,4 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </html>
   );
 }
+

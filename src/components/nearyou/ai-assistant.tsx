@@ -55,7 +55,7 @@ export function AiAssistant() {
         ...prev,
         {
           role: "assistant",
-          content: "Erreur réseau. Merci de réessayer ou de contacter support@nearyou.ch.",
+          content: "Erreur réseau. Merci de réessayer ou de contacter support@presdetoi.com.",
         },
       ]);
     } finally {
@@ -65,7 +65,7 @@ export function AiAssistant() {
 
   return (
     <Card className="rounded-2xl border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">Assistant NearYou</h2>
+      <h2 className="text-lg font-semibold text-slate-900">Assistant PrèsDeToi</h2>
       <p className="mt-1 text-sm text-slate-600">
         Posez vos questions: catégorie de service, réservation, onboarding prestataire.
       </p>
@@ -104,3 +104,5 @@ export function AiAssistant() {
     </Card>
   );
 }
+
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,8 +19,8 @@ type Props = {
 
 const slotTemplates = [
   { id: "morning", label: "Matin (08:00 - 10:00)", startHour: 8, durationHours: 2 },
-  { id: "midday", label: "Mi-journee (11:00 - 13:00)", startHour: 11, durationHours: 2 },
-  { id: "afternoon", label: "Apres-midi (14:00 - 16:00)", startHour: 14, durationHours: 2 },
+  { id: "midday", label: "Mi-journée (11:00 - 13:00)", startHour: 11, durationHours: 2 },
+  { id: "afternoon", label: "Après-midi (14:00 - 16:00)", startHour: 14, durationHours: 2 },
   { id: "evening", label: "Soir (17:00 - 19:00)", startHour: 17, durationHours: 2 },
 ] as const;
 
@@ -117,7 +117,12 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
       body: JSON.stringify(values),
     });
 
-    const data = (await response.json().catch(() => null)) as (FormApiResponse & { bookingId?: string; loginPath?: string }) | null;
+    const data = (await response.json().catch(() => null)) as (FormApiResponse & {
+      bookingId?: string;
+      loginPath?: string;
+      paymentPreview?: { totalChf: number; platformFeeChf: number; providerNetChf: number };
+    }) | null;
+
     if (response.status === 401 && data?.loginPath) {
       router.push(data.loginPath);
       return;
@@ -130,7 +135,10 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
     }
 
     setResultType("success");
-    setResult(`Réservation créée (réf. ${data.bookingId?.slice(0, 8) ?? "NearYou"}). Nous confirmons les détails rapidement.`);
+    const paymentLine = data.paymentPreview
+      ? ` Montant estimé ${data.paymentPreview.totalChf} CHF (commission plateforme ${data.paymentPreview.platformFeeChf} CHF).`
+      : "";
+    setResult(`Réservation créée (réf. ${data.bookingId?.slice(0, 8) ?? "PrèsDeToi"}).${paymentLine}`);
   };
 
   return (
@@ -152,7 +160,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Date souhaitee</label>
+            <label className="text-sm font-medium text-slate-700">Date souhaitée</label>
             <Input
               type="date"
               min={new Date().toISOString().slice(0, 10)}
@@ -207,7 +215,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
             value={reservationSource}
             onChange={(e) => setValue("reservationSource", e.target.value as BookingIntentInput["reservationSource"])}
           >
-            <option value="app">Site NearYou</option>
+            <option value="app">Site PrèsDeToi</option>
             <option value="partner_cafe">Partenaire café</option>
             <option value="partner_pharmacy">Partenaire pharmacie</option>
             <option value="hotline">Hotline</option>
@@ -216,7 +224,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
 
         <label className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
           <input type="checkbox" checked={consent} onChange={(e) => setValue("consent", e.target.checked, { shouldValidate: true })} />
-          <span>J'accepte que NearYou traite ma demande pour organiser la mise en relation.</span>
+          <span>J'accepte que PrèsDeToi traite ma demande pour organiser la mise en relation.</span>
         </label>
         {errors.consent ? <p className="text-xs text-red-600">{errors.consent.message}</p> : null}
         {errors.startAt ? <p className="text-xs text-red-600">{errors.startAt.message}</p> : null}
@@ -227,7 +235,7 @@ export function BookingIntentForm({ missionId, defaultFromPrice }: Props) {
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
-          <p className="font-semibold text-slate-900">Résumé avant confirmation</p>
+          <p className="font-semibold text-slate-900">Récapitulatif avant confirmation</p>
           <p className="mt-1">Service: Mission #{missionId.slice(0, 8)}</p>
           <p>Date et créneau: {slotSummary.date} - {slotSummary.label}</p>
           <p>Email: {bookingPreview.contactEmail || "-"}</p>

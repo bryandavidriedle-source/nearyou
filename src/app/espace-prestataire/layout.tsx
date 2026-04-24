@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
@@ -12,11 +12,11 @@ const providerNav = [
   { href: "/espace-prestataire/missions", label: "Missions" },
   { href: "/espace-prestataire/revenus", label: "Revenus" },
   { href: "/espace-prestataire/avis", label: "Avis" },
-  { href: "/espace-prestataire/competences", label: "Competences" },
+  { href: "/espace-prestataire/competences", label: "Compétences" },
   { href: "/espace-prestataire/banque", label: "Banque" },
-  { href: "/espace-prestataire/verifications", label: "Verifications" },
+  { href: "/espace-prestataire/verifications", label: "Vérifications" },
   { href: "/espace-prestataire/profil", label: "Profil" },
-  { href: "/espace-prestataire/disponibilites", label: "Disponibilites" },
+  { href: "/espace-prestataire/disponibilites", label: "Disponibilités" },
   { href: "/espace-prestataire/documents", label: "Documents" },
 ];
 
@@ -45,7 +45,7 @@ export default async function ProviderLayout({ children }: { children: React.Rea
         {workflowStatus ? (
           <Card className="rounded-2xl border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
             Statut dossier: <span className="font-semibold">{providerWorkflowLabels[workflowStatus] ?? workflowStatus}</span>
-            {auth.isSuspended ? " - Votre compte est temporairement suspendu. Contactez le support NearYou." : ""}
+            {auth.isSuspended ? " - Votre compte est temporairement suspendu. Contactez le support PrèsDeToi." : ""}
           </Card>
         ) : (
           <Card className="rounded-2xl border-amber-100 bg-amber-50 p-4 text-sm text-amber-900">

@@ -1,4 +1,4 @@
-import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
+﻿import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { sendEmail } from "@/lib/email/sender";
 import { emailTemplates } from "@/lib/email/templates";
 import { getErrorMessage, logEvent } from "@/lib/monitoring";
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const parsed = serviceRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return jsonError("Certains champs sont invalides. Merci de verifier le formulaire.", 400, parsed.error.flatten().fieldErrors);
+    return jsonError("Certains champs sont invalides. Merci de vérifier le formulaire.", 400, parsed.error.flatten().fieldErrors);
   }
 
   const securityGuard = await enforcePublicFormSecurity(parsed.data);
@@ -58,10 +58,10 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return jsonError("Enregistrement impossible pour le moment. Merci de reessayer.", 500);
+    return jsonError("Enregistrement impossible pour le moment. Merci de réessayer.", 500);
   }
 
-  const template = emailTemplates.bookingConfirmation(parsed.data.category, "a confirmer");
+  const template = emailTemplates.bookingConfirmation(parsed.data.category, "à confirmer");
   try {
     await sendEmail({ to: parsed.data.email, subject: template.subject, html: template.html });
   } catch (error) {
@@ -72,5 +72,5 @@ export async function POST(request: Request) {
     });
   }
 
-  return jsonSuccess("Votre demande a bien ete enregistree.");
+  return jsonSuccess("Votre demande a bien été enregistrée.");
 }

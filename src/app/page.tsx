@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { CheckCircle2, Clock3, ShieldCheck, UsersRound } from "lucide-react";
 
@@ -8,16 +8,17 @@ import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { swissCityTargets } from "@/lib/constants";
 import { getHomeData } from "@/lib/db";
 import { messages } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18n-server";
 import { priceHighlights, siteConfig } from "@/lib/site";
 
 const trustPillars = [
-  { icon: ShieldCheck, title: "Prestataires vérifiés", detail: "Validation documentaire et contrôle manuel avant activation." },
-  { icon: Clock3, title: "Réponse rapide", detail: "Demande traitée rapidement avec suivi clair dans votre espace client." },
-  { icon: UsersRound, title: "Approche humaine", detail: "Équipe locale disponible par email, téléphone et WhatsApp." },
-  { icon: CheckCircle2, title: "Cadre suisse prudent", detail: "NearYou est une plateforme d'intermédiation, pas un employeur." },
+  { icon: ShieldCheck, title: "Prestataires vérifiés", detail: "Validation documentaire et contrôle manuel avant publication." },
+  { icon: Clock3, title: "Réservation rapide", detail: "Parcours mobile simple pour réserver un créneau sans friction." },
+  { icon: UsersRound, title: "Support humain local", detail: "Équipe de proximité en Suisse romande pour vous accompagner." },
+  { icon: CheckCircle2, title: "Cadre suisse clair", detail: "PrèsDeToi est une plateforme d'intermédiation, pas un employeur." },
 ];
 
 const socialProof: Array<{ name: string; text: string }> = [];
@@ -51,6 +52,7 @@ export default async function HomePage() {
       badge: mission.badge,
       lat: mission.lat,
       lng: mission.lng,
+      city: mission.city,
       providerName: `${mission.provider.profile?.firstName ?? ""} ${mission.provider.profile?.lastName ?? ""}`.trim(),
       providerAvatar: mission.provider.profile?.avatarUrl ?? "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
       rating: mission.provider.profile?.rating ?? 0,
@@ -66,8 +68,13 @@ export default async function HomePage() {
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-5">
                 <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">{m.home.badge}</Badge>
-                <h1 className="text-balance text-4xl font-bold text-slate-900 sm:text-5xl">{m.home.title}</h1>
-                <p className="max-w-2xl text-lg text-slate-600">{m.home.subtitle}</p>
+                <h1 className="text-balance text-4xl font-bold text-slate-900 sm:text-5xl">
+                  Trouvez une personne de confiance près de chez vous
+                </h1>
+                <p className="max-w-2xl text-lg text-slate-600">
+                  Réservez un service local en Suisse: ménage, jardinage, bricolage, aide seniors et bien plus, avec des
+                  prestataires vérifiés et validés manuellement.
+                </p>
 
                 <div className="flex flex-wrap gap-2">
                   {m.home.actions.map((action) => (
@@ -77,21 +84,23 @@ export default async function HomePage() {
 
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="h-12 rounded-xl bg-green-600 px-6 text-base hover:bg-green-700">
-                    <Link href="/trouver-un-prestataire">Demander un service</Link>
+                    <Link href="/trouver-un-prestataire">Réserver un service</Link>
                   </Button>
                   <Button asChild variant="outline" className="h-12 rounded-xl border-blue-200 px-6 text-base text-blue-700 hover:bg-blue-50">
                     <Link href="/devenir-prestataire">Devenir prestataire</Link>
                   </Button>
                 </div>
-                <p className="text-sm text-slate-500">Opération pilote à {siteConfig.city}. Extension progressive en Suisse romande.</p>
+                <p className="text-sm text-slate-500">
+                  Lancement prioritaire à {siteConfig.city} ({siteConfig.canton}), puis extension Vaud, Genève et Fribourg.
+                </p>
               </div>
 
               <Card className="premium-card border-blue-100 p-5">
                 <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Comment ça marche</p>
                 <ol className="mt-3 space-y-3 text-sm text-slate-600">
                   <li>1. Choisissez un service.</li>
-                  <li>2. Sélectionnez un prestataire vérifié.</li>
-                  <li>3. Réservez en quelques clics.</li>
+                  <li>2. Comparez les prestataires.</li>
+                  <li>3. Réservez en sécurité.</li>
                 </ol>
                 <p className="mt-4 rounded-xl bg-green-50 px-3 py-2 text-sm text-green-800">
                   Validation manuelle obligatoire des prestataires avant publication.
@@ -115,8 +124,8 @@ export default async function HomePage() {
       <section className="py-8 sm:py-12">
         <Container className="space-y-4">
           <div className="flex items-end justify-between gap-3">
-          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Catégories les plus demandées</h2>
-          <Link href="/catalogue" className="text-sm font-medium text-blue-700 hover:text-blue-800">Voir tout le catalogue</Link>
+            <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Catégories les plus demandées</h2>
+            <Link href="/catalogue" className="text-sm font-medium text-blue-700 hover:text-blue-800">Voir tout le catalogue</Link>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {categoryHighlights.slice(0, 8).map((category) => (
@@ -168,11 +177,28 @@ export default async function HomePage() {
       </section>
 
       <section className="py-8 sm:py-12">
+        <Container className="space-y-4">
+          <h2 className="text-2xl font-semibold text-slate-900 sm:text-3xl">Près de chez vous</h2>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {swissCityTargets.slice(0, 6).map((city) => (
+              <Card key={city.slug} className="premium-card p-4">
+                <p className="font-semibold text-slate-900">{city.name} ({city.canton})</p>
+                <p className="text-sm text-slate-600">Services disponibles autour du NPA {city.postalCode}.</p>
+                <Link className="mt-2 inline-flex text-sm font-semibold text-blue-700 hover:underline" href={`/services/menage/${city.slug}`}>
+                  Voir les services locaux
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <section className="py-8 sm:py-12">
         <Container className="grid gap-6 lg:grid-cols-3">
           <Card className="section-shell p-6 lg:col-span-2">
-            <h3 className="text-2xl font-semibold text-slate-900">Vous êtes prestataire indépendant en Suisse ?</h3>
+            <h3 className="text-2xl font-semibold text-slate-900">Vous êtes prestataire en Suisse ?</h3>
             <p className="mt-2 text-slate-600">
-              Rejoignez NearYou avec un dossier structuré, validation manuelle et cadre clair d'intermédiation.
+              Rejoignez PrèsDeToi avec un dossier structuré, validation manuelle et cadre clair d'intermédiation.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-slate-600">
               <li>- Candidature en ligne et upload de justificatifs.</li>

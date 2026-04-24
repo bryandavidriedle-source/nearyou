@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -73,7 +73,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
           return data.path;
         }
       } catch {
-        // Retry once before fallback.
+        // retry once before fallback
       }
       if (attempt === 0) {
         await new Promise((resolve) => setTimeout(resolve, 150));
@@ -105,7 +105,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
               destination = clientDestination;
             }
           } catch {
-            // Keep server-based fallback.
+            // keep server fallback
           }
         }
 
@@ -140,8 +140,8 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
       } else {
         setMessage(
           signupRole === "provider"
-            ? "Compte cree. Verifiez votre email puis finalisez votre dossier prestataire."
-            : "Compte cree. Verifiez votre email pour confirmer l'inscription.",
+            ? "Compte créé. Vérifiez votre email puis finalisez votre dossier prestataire."
+            : "Compte créé. Vérifiez votre email pour confirmer l'inscription.",
         );
       }
     } finally {
@@ -151,7 +151,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
 
   async function onForgotPassword() {
     if (!email) {
-      setMessage("Ajoutez votre email pour recevoir le lien de reinitialisation.");
+      setMessage("Ajoutez votre email pour recevoir le lien de réinitialisation.");
       return;
     }
 
@@ -166,7 +166,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
       if (error) {
         setMessage(error.message);
       } else {
-        setMessage("Email envoye. Verifiez votre boite de reception.");
+        setMessage("Email envoyé. Vérifiez votre boîte de réception.");
       }
     } finally {
       setLoading(false);
@@ -177,16 +177,12 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
     <Card className="rounded-2xl border-slate-200 bg-white p-6 shadow-sm">
       <h2 className="text-2xl font-bold text-slate-900">{mode === "login" ? "Connexion sécurisée" : "Créer un compte"}</h2>
       <p className="mt-1 text-sm text-slate-600">
-        {mode === "login" ? "Accédez à votre espace client, prestataire ou admin." : "Choisissez votre profil pour démarrer avec NearYou."}
+        {mode === "login" ? "Accédez à votre espace client, prestataire ou admin." : "Choisissez votre profil pour démarrer avec PrèsDeToi."}
       </p>
 
       <div className="mt-4 flex gap-2">
-        <Button type="button" variant={mode === "login" ? "default" : "outline"} onClick={() => setMode("login")}>
-          Se connecter
-        </Button>
-        <Button type="button" variant={mode === "signup" ? "default" : "outline"} onClick={() => setMode("signup")}>
-          Créer un compte
-        </Button>
+        <Button type="button" variant={mode === "login" ? "default" : "outline"} onClick={() => setMode("login")}>Se connecter</Button>
+        <Button type="button" variant={mode === "signup" ? "default" : "outline"} onClick={() => setMode("signup")}>Créer un compte</Button>
       </div>
 
       <form className="mt-4 space-y-3" onSubmit={onSubmit}>
@@ -216,7 +212,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
                 onClick={() => setSignupRole("provider")}
               >
                 <span className="block font-semibold">Prestataire</span>
-                <span className="text-xs text-slate-500">Je veux proposer mes services.</span>
+                <span className="text-xs text-slate-500">Je propose mes services.</span>
               </button>
             </div>
 
@@ -245,8 +241,10 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
             />
           </div>
         ) : null}
+
         <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
         <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mot de passe" required minLength={8} />
+
         <Button type="submit" disabled={loading} className="w-full rounded-xl bg-blue-700 hover:bg-blue-800">
           {loading ? "Chargement..." : mode === "login" ? "Se connecter" : "Créer un compte"}
         </Button>
@@ -264,7 +262,7 @@ export function AuthForm({ initialMode = "login", signupRedirectPath = "/espace-
 
       {searchParams.get("error") ? (
         <p className="mt-3 text-sm text-amber-700">
-          Lien de confirmation invalide ou expire. Merci de relancer l&apos;inscription ou la recuperation.
+          Lien de confirmation invalide ou expiré. Merci de relancer l'inscription ou la récupération.
         </p>
       ) : null}
       {message ? <p className="mt-3 text-sm text-slate-600">{message}</p> : null}

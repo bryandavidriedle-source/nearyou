@@ -1,23 +1,23 @@
-export const emailTemplates = {
+﻿export const emailTemplates = {
   welcomeAccount: (firstName: string) => ({
-    subject: "Bienvenue sur NearYou",
-    html: `<p>Bonjour ${firstName},</p><p>Votre compte NearYou est actif. Vous pouvez des maintenant reserver un service local en Suisse.</p>`,
+    subject: "Bienvenue sur PrèsDeToi",
+    html: `<p>Bonjour ${firstName},</p><p>Votre compte PrèsDeToi est actif. Vous pouvez des maintenant reserver un service local en Suisse.</p>`,
   }),
   bookingConfirmation: (service: string, when: string) => ({
-    subject: "Confirmation de reservation NearYou",
+    subject: "Confirmation de reservation PrèsDeToi",
     html: `<p>Votre reservation est confirmee.</p><p>Service: <strong>${service}</strong><br/>Quand: <strong>${when}</strong></p>`,
   }),
   bookingReminder: (service: string, when: string) => ({
-    subject: "Rappel de votre reservation NearYou",
+    subject: "Rappel de votre reservation PrèsDeToi",
     html: `<p>Rappel: votre service <strong>${service}</strong> est prevu le ${when}.</p>`,
   }),
   reviewRequest: (service: string) => ({
     subject: "Votre avis nous aide",
-    html: `<p>Merci d'avoir utilise NearYou pour ${service}. Pouvez-vous laisser une note ?</p>`,
+    html: `<p>Merci d'avoir utilise PrèsDeToi pour ${service}. Pouvez-vous laisser une note ?</p>`,
   }),
   providerApplicationReceived: (name: string) => ({
     subject: "Dossier prestataire recu",
-    html: `<p>Bonjour ${name},</p><p>Nous avons bien recu votre dossier prestataire NearYou.</p><p>Statut actuel: <strong>En attente de validation manuelle</strong>.</p>`,
+    html: `<p>Bonjour ${name},</p><p>Nous avons bien recu votre dossier prestataire PrèsDeToi.</p><p>Statut actuel: <strong>En attente de validation manuelle</strong>.</p>`,
   }),
   providerApplicationPendingReview: (name: string) => ({
     subject: "Votre dossier est en cours de verification",
@@ -36,7 +36,7 @@ export const emailTemplates = {
     html: `<p>Bonjour ${name},</p><p>Un complement d'information est requis pour poursuivre l'analyse de votre dossier.</p>${note ? `<p><strong>Note admin:</strong> ${note}</p>` : ""}`,
   }),
   serviceRequestStatusChanged: (statusLabel: string, category: string) => ({
-    subject: "Mise a jour de votre demande NearYou",
+    subject: "Mise a jour de votre demande PrèsDeToi",
     html: `<p>Votre demande <strong>${category}</strong> a ete mise a jour.</p><p>Nouveau statut: <strong>${statusLabel}</strong>.</p>`,
   }),
   callbackRequestReceived: (firstName: string) => ({
@@ -44,3 +44,4 @@ export const emailTemplates = {
     html: `<p>Bonjour ${firstName},</p><p>Votre demande de rappel a bien ete prise en compte. Notre equipe vous contacte au plus vite.</p>`,
   }),
 };
+

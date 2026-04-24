@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { resolveAuthenticatedHomePath } from "@/lib/auth";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -32,7 +32,7 @@ async function bootstrapProviderOnboardingIfNeeded(supabase: Awaited<ReturnType<
 
   const firstName = ((user.user_metadata?.first_name as string | undefined) ?? "").trim();
   const lastName = ((user.user_metadata?.last_name as string | undefined) ?? "").trim();
-  const displayName = `${firstName} ${lastName}`.trim() || "Prestataire NearYou";
+  const displayName = `${firstName} ${lastName}`.trim() || "Prestataire PrèsDeToi";
 
   await supabase.from("provider_applications").insert({
     profile_id: user.id,
@@ -123,3 +123,4 @@ export async function GET(request: Request) {
     return NextResponse.redirect(fallbackUrl);
   }
 }
+

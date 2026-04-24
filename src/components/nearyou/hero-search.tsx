@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,7 +23,7 @@ export function HeroSearch({ lang, onSearch }: Props) {
   const router = useRouter();
   const m = messages[lang];
   const [service, setService] = useState<string>(serviceCategories[0]?.label ?? "Ménage");
-  const [address, setAddress] = useState("Lausanne, VD");
+  const [address, setAddress] = useState("St-Prex, 1162");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
 
@@ -57,8 +57,24 @@ export function HeroSearch({ lang, onSearch }: Props) {
   return (
     <div className="space-y-3 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
       <div className="grid gap-3 md:grid-cols-3">
-        <Input value={service} onChange={(e) => setService(e.target.value)} placeholder={m.search.service} className="h-12 text-base" />
-        <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={m.search.address} className="h-12 text-base" />
+        <select
+          value={service}
+          onChange={(event) => setService(event.target.value)}
+          className="h-12 w-full rounded-lg border border-input bg-background px-3 text-base"
+          aria-label="De quel service avez-vous besoin ?"
+        >
+          {serviceCategories.map((category) => (
+            <option key={category.slug} value={category.label}>
+              {category.label}
+            </option>
+          ))}
+        </select>
+        <Input
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Ville ou NPA"
+          className="h-12 text-base"
+        />
         <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-12 text-base" />
       </div>
       <div className="flex flex-wrap gap-3">

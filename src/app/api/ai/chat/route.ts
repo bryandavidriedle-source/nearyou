@@ -7,17 +7,17 @@ import { getErrorMessage, logEvent } from "@/lib/monitoring";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
-const SYSTEM_PROMPT = `Tu es Assistant NearYou, assistant d'une marketplace locale suisse.
+const SYSTEM_PROMPT = `Tu es Assistant PrèsDeToi, assistant d'une marketplace locale suisse.
 Objectifs:
 - Répondre en français simple et rassurant.
 - Aider l'utilisateur à choisir une catégorie de service.
-- Expliquer le fonctionnement des réservations NearYou.
+- Expliquer le fonctionnement des réservations PrèsDeToi.
 - Aider les prestataires sur l'onboarding.
 - Si tu n'es pas certain, proposer un transfert vers support humain (email ou hotline).
 Contraintes:
 - Ne jamais inventer des prix exacts non confirmés. Utilise des formulations "dès".
 - Rester concis, pratique, humain.
-- Mentionner que NearYou est une plateforme intermédiaire et que les prestataires restent indépendants.`;
+- Mentionner que PrèsDeToi est une plateforme intermédiaire et que les prestataires restent indépendants.`;
 
 export async function POST(request: Request) {
   const originGuard = enforceWriteOrigin(request);
@@ -108,3 +108,4 @@ export async function POST(request: Request) {
     reply: assistantReply,
   });
 }
+

@@ -1,4 +1,4 @@
-import { jsonError } from "@/lib/api";
+﻿import { jsonError } from "@/lib/api";
 import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -46,7 +46,7 @@ async function bootstrapProviderOnboardingIfNeeded() {
 
   const firstName = ((user.user_metadata?.first_name as string | undefined) ?? "").trim();
   const lastName = ((user.user_metadata?.last_name as string | undefined) ?? "").trim();
-  const displayName = `${firstName} ${lastName}`.trim() || "Prestataire NearYou";
+  const displayName = `${firstName} ${lastName}`.trim() || "Prestataire PrèsDeToi";
 
   await supabase.from("provider_applications").insert({
     profile_id: user.id,
@@ -84,3 +84,5 @@ export async function GET() {
     return jsonError("Impossible de déterminer la redirection.", 500);
   }
 }
+
+

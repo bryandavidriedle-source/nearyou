@@ -1,4 +1,4 @@
-import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
+﻿import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { requireApiAdminScopes } from "@/lib/auth";
 import { sendEmail } from "@/lib/email/sender";
 import { emailTemplates } from "@/lib/email/templates";
@@ -138,7 +138,7 @@ export async function PATCH(
       : parsed.data.workflowStatus === "rejected"
         ? emailTemplates.providerApplicationRejected(name)
         : parsed.data.workflowStatus === "suspended"
-          ? emailTemplates.providerApplicationNeedsInfo(name, "Votre compte prestataire est temporairement suspendu. Contactez le support NearYou.")
+          ? emailTemplates.providerApplicationNeedsInfo(name, "Votre compte prestataire est temporairement suspendu. Contactez le support PrèsDeToi.")
         : parsed.data.workflowStatus === "needs_info"
           ? emailTemplates.providerApplicationNeedsInfo(name, parsed.data.adminNote || undefined)
           : emailTemplates.providerApplicationPendingReview(name);
@@ -167,3 +167,4 @@ export async function PATCH(
 
   return jsonSuccess("Dossier mis a jour.");
 }
+

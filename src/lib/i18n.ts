@@ -93,7 +93,7 @@ type Messages = {
 export const messages: Record<Language, Messages> = {
   en: {
     navbar: { home: "Home", catalogue: "Catalogue", phoneHelp: "Phone help", admin: "Admin", bookNow: "Book now", find: "Find", account: "Account" },
-    footer: { tagline: "NearYou - Local help in seconds.", protection: "Payment and support protection is only guaranteed through the platform." },
+    footer: { tagline: "PrèsDeToi - Local help in seconds.", protection: "Payment and support protection is only guaranteed through the platform." },
     home: {
       badge: "Fast local marketplace - Switzerland",
       title: "What do you need today?",
@@ -141,7 +141,7 @@ export const messages: Record<Language, Messages> = {
   },
   fr: {
     navbar: { home: "Accueil", catalogue: "Catalogue", phoneHelp: "Aide téléphone", admin: "Admin", bookNow: "Réserver", find: "Trouver", account: "Compte" },
-    footer: { tagline: "NearYou - Services locaux premium en Suisse.", protection: "NearYou agit comme plateforme d'intermédiation. Les prestataires restent juridiquement indépendants." },
+    footer: { tagline: "PrèsDeToi - Services locaux premium en Suisse.", protection: "PrèsDeToi agit comme plateforme d'intermédiation. Les prestataires restent juridiquement indépendants." },
     home: {
       badge: "Plateforme locale premium - Suisse",
       title: "Réservez un service près de chez vous en quelques minutes",
@@ -183,7 +183,7 @@ export const messages: Record<Language, Messages> = {
   },
   it: {
     navbar: { home: "Home", catalogue: "Catalogo", phoneHelp: "Aiuto telefono", admin: "Admin", bookNow: "Prenota", find: "Trova", account: "Account" },
-    footer: { tagline: "NearYou - Aiuto locale in pochi secondi.", protection: "Pagamento e supporto garantiti solo tramite piattaforma." },
+    footer: { tagline: "PrèsDeToi - Aiuto locale in pochi secondi.", protection: "Pagamento e supporto garantiti solo tramite piattaforma." },
     home: {
       badge: "Marketplace locale veloce - Svizzera", title: "Di cosa hai bisogno oggi?", subtitle: "Trova aiuto affidabile vicino a te in pochi secondi.",
       actions: ["Aiuto a domicilio", "Visita senior", "Passeggiata cane", "Parcheggio"],
@@ -214,7 +214,7 @@ export const messages: Record<Language, Messages> = {
   },
   de: {
     navbar: { home: "Start", catalogue: "Katalog", phoneHelp: "Telefonhilfe", admin: "Admin", bookNow: "Buchen", find: "Finden", account: "Konto" },
-    footer: { tagline: "NearYou - Lokale Hilfe in Sekunden.", protection: "Zahlung und Support sind nur über die Plattform garantiert." },
+    footer: { tagline: "PrèsDeToi - Lokale Hilfe in Sekunden.", protection: "Zahlung und Support sind nur über die Plattform garantiert." },
     home: {
       badge: "Schneller lokaler Marktplatz - Schweiz", title: "Was brauchen Sie heute?", subtitle: "Finden Sie vertrauenswürdige Hilfe in Ihrer Nähe in Sekunden.",
       actions: ["Hilfe zu Hause", "Seniorenbesuch", "Hundespaziergang", "Parken"],

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { CustomerOnboardingCard } from "@/components/customer/customer-onboarding-card";
 import { ServiceRequestActions } from "@/components/customer/service-request-actions";
@@ -118,7 +118,7 @@ export default async function CustomerDashboardPage() {
             </p>
             <p className="text-sm text-slate-600">Ville: {auth.profile?.city ?? "-"}</p>
             <p className="mt-2 text-sm text-slate-600">
-              Vos demandes et reservations sont suivies ici avec les statuts operationnels NearYou.
+              Vos demandes et reservations sont suivies ici avec les statuts operationnels PrèsDeToi.
             </p>
           </Card>
           <Card className="rounded-2xl border-slate-200 bg-white p-5">
@@ -226,3 +226,4 @@ export default async function CustomerDashboardPage() {
     </section>
   );
 }
+

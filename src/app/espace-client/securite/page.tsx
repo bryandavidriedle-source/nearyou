@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { Container } from "@/components/shared/container";
 import { Card } from "@/components/ui/card";
@@ -25,7 +25,7 @@ export default async function ClientSecurityPage() {
         <Card className="premium-card p-5">
           <h2 className="text-lg font-semibold text-slate-900">Protection renforcee</h2>
           <p className="mt-2 text-sm text-slate-700">
-            NearYou est structure pour accueillir une verification multi-facteur (2FA) lors du renforcement de securite.
+            PrèsDeToi est structure pour accueillir une verification multi-facteur (2FA) lors du renforcement de securite.
           </p>
           <p className="mt-2 text-xs text-slate-500">
             Conseil: verifiez regulierement vos informations de contact pour recuperer facilement votre compte.
@@ -35,3 +35,4 @@ export default async function ClientSecurityPage() {
     </section>
   );
 }
+

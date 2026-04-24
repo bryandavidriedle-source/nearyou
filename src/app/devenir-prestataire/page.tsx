@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -11,8 +11,8 @@ import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
 import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Devenir prestataire | NearYou",
-  description: "Candidature prestataire avec validation manuelle obligatoire et controle documentaire securise.",
+  title: "Devenir prestataire | PrèsDeToi",
+  description: "Candidature prestataire avec validation manuelle obligatoire et contrôle documentaire sécurisé.",
   path: "/devenir-prestataire",
 });
 
@@ -32,17 +32,22 @@ export default async function BecomeProviderPage() {
       <Container className="max-w-4xl space-y-6">
         <SectionHeader
           eyebrow="Candidature prestataire"
-          title="Rejoignez NearYou en tant que professionnel independant"
-          description="Chaque dossier est verifie manuellement avant activation publique."
+          title="Rejoignez PrèsDeToi en tant que prestataire local"
+          description="Chaque dossier est vérifié manuellement avant activation publique."
         />
 
         <Card className="rounded-2xl border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           <p>
-            NearYou agit comme intermediaire de mise en relation. Chaque prestataire reste juridiquement et fiscalement
-            independant, responsable de ses obligations professionnelles, sociales et administratives en Suisse.
+            PrèsDeToi agit comme intermédiaire de mise en relation. Chaque prestataire reste juridiquement et
+            fiscalement indépendant, responsable de ses obligations professionnelles, sociales et administratives en
+            Suisse.
           </p>
           <p className="mt-2">
-            Les justificatifs transmis sont consultables uniquement par des administrateurs autorises pour la validation.
+            Âge minimum pour candidater: 15 ans. Entre 15 et 17 ans, l'accès est limité à des missions simples après
+            validation admin renforcée.
+          </p>
+          <p className="mt-2">
+            Les justificatifs transmis sont consultables uniquement par des administrateurs autorisés pour la validation.
           </p>
         </Card>
 
@@ -55,14 +60,15 @@ export default async function BecomeProviderPage() {
         ) : (
           <Card className="rounded-3xl border-blue-100 bg-blue-50 p-6">
             <p className="text-sm text-blue-900">
-              Pour deposer un dossier prestataire, connectez-vous ou creez un compte. Vos documents restent prives et lies a votre profil.
+              Pour déposer un dossier prestataire, connectez-vous ou créez un compte. Vos documents restent privés et
+              liés à votre profil.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button asChild className="rounded-xl bg-blue-700 hover:bg-blue-800">
                 <Link href="/connexion?next=/devenir-prestataire">Se connecter</Link>
               </Button>
               <Button asChild variant="outline" className="rounded-xl border-blue-200">
-                <Link href="/inscription?next=/devenir-prestataire">Creer un compte</Link>
+                <Link href="/inscription?next=/devenir-prestataire">Créer un compte</Link>
               </Button>
             </div>
           </Card>

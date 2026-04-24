@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 
 import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { requireApiProviderAccess } from "@/lib/auth";
@@ -36,11 +36,11 @@ const updateProfileSchema = z.object({
     if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) {
       years -= 1;
     }
-    if (years < 16) {
+    if (years < 15) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["birthDate"],
-        message: "Age minimum requis: 16 ans.",
+        message: "Âge minimum requis: 15 ans.",
       });
     }
   }
@@ -196,18 +196,18 @@ export async function PATCH(request: Request) {
       workflow_status: parsed.data.submitForReview ? "pending_review" : "draft",
       first_name: parsed.data.firstName ?? auth.profile?.first_name ?? null,
       last_name: parsed.data.lastName ?? auth.profile?.last_name ?? null,
-      business_name: `${parsed.data.firstName ?? auth.profile?.first_name ?? ""} ${parsed.data.lastName ?? auth.profile?.last_name ?? ""}`.trim() || "Prestataire NearYou",
+      business_name: `${parsed.data.firstName ?? auth.profile?.first_name ?? ""} ${parsed.data.lastName ?? auth.profile?.last_name ?? ""}`.trim() || "Prestataire PrèsDeToi",
       email: userEmail,
       phone: parsed.data.phone ?? null,
       address_line: parsed.data.addressLine ?? null,
       postal_code: parsed.data.postalCode ?? null,
       canton: parsed.data.canton ?? null,
       city: parsed.data.city ?? auth.profile?.city ?? null,
-      category: parsed.data.category ?? "A definir",
+      category: parsed.data.category ?? "À définir",
       intervention_radius_km: parsed.data.interventionRadiusKm ?? 20,
-      services_description: parsed.data.servicesDescription ?? "Description a completer",
+      services_description: parsed.data.servicesDescription ?? "Description à compléter",
       years_experience: parsed.data.yearsExperience ?? "0",
-      availability: parsed.data.availability ?? "A definir",
+      availability: parsed.data.availability ?? "À définir",
       legal_status: parsed.data.legalStatus ?? "independant",
       birth_date: parsed.data.birthDate ?? null,
       company_name: parsed.data.companyName || null,
@@ -230,3 +230,4 @@ export async function PATCH(request: Request) {
 
   return jsonSuccess("Profil prestataire mis a jour.");
 }
+

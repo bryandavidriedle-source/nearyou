@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 import { LeadForm } from "@/components/forms/lead-form";
 import { Container } from "@/components/shared/container";
@@ -13,8 +13,8 @@ type FindProviderPageProps = {
 };
 
 export const metadata: Metadata = buildMetadata({
-  title: "Trouver un prestataire | NearYou",
-  description: "Faites une demande locale en Suisse romande en quelques minutes.",
+  title: "Trouver un prestataire | PrèsDeToi",
+  description: "Faites une demande locale en Suisse romande en quelques minutes avec PrèsDeToi.",
   path: "/trouver-un-prestataire",
 });
 
@@ -50,3 +50,5 @@ export default async function FindProviderPage({ searchParams }: FindProviderPag
     </section>
   );
 }
+
+

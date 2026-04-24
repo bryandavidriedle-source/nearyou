@@ -23,7 +23,7 @@ async function sendWithResend(payload: EmailPayload) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: serverEnv.SMTP_FROM || "no-reply@nearyou.ch",
+      from: serverEnv.SMTP_FROM || "no-reply@presdetoi.com",
       to: [payload.to],
       subject: payload.subject,
       html: payload.html,
@@ -59,3 +59,4 @@ export async function sendEmail(payload: EmailPayload) {
   console.info("[EMAIL SMTP PLACEHOLDER]", payload);
   return { ok: true, provider };
 }
+

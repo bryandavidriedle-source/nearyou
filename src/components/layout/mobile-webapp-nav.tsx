@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -36,7 +36,7 @@ function iconForItem(item: NavigationItem) {
   if (href.includes("prestataire") || href.includes("clients")) return Users;
   if (href.includes("demandes")) return ClipboardList;
   if (href.includes("paiements")) return CreditCard;
-  if (href.includes("catalogue")) return Grid2x2;
+  if (href.includes("catalogue") || href.includes("services")) return Grid2x2;
   if (href.includes("trouver") || href.includes("connexion")) return Search;
   return User;
 }
@@ -123,7 +123,7 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: Mob
                 void signOut();
               }}
               className="flex min-h-14 flex-col items-center justify-center rounded-xl px-1 text-[11px] font-medium text-slate-600 transition hover:bg-slate-100"
-              aria-label="Se deconnecter"
+              aria-label="Se déconnecter"
             >
               <LogOut className="mb-1 h-4 w-4" />
               <span>{loggingOut ? "..." : "Déconnexion"}</span>

@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -28,10 +28,10 @@ export default async function ProviderProfilePage({ params }: { params: Promise<
               <h1 className="text-3xl font-bold text-slate-900">{profile.firstName} {profile.lastName}</h1>
               <p className="text-slate-600">{profile.description}</p>
               <p className="mt-1 text-sm text-slate-500">
-                Note {profile.rating > 0 ? profile.rating.toFixed(1) : "Nouveau"} - {profile.completedMissions} missions - {profile.city}
+                Note {profile.rating > 0 ? profile.rating.toFixed(1) : "Nouveau"} · {profile.completedMissions} missions · {profile.city}
               </p>
               <div className="mt-2 flex gap-2">
-                {profile.isVerified ? <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Profil vérifié</Badge> : null}
+                {profile.isVerified ? <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Prestataire vérifié</Badge> : null}
                 {profile.isTopProvider ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Top prestataire</Badge> : null}
               </div>
               <Button asChild className="mt-4 rounded-xl bg-green-600 hover:bg-green-700">
@@ -55,6 +55,11 @@ export default async function ProviderProfilePage({ params }: { params: Promise<
         ) : (
           <Card className="rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-sm text-slate-600">
             Les services détaillés de ce prestataire seront publiés prochainement.
+            <div className="mt-3">
+              <Button asChild size="sm" className="rounded-lg bg-green-600 hover:bg-green-700">
+                <Link href="/trouver-un-prestataire">Faire une demande</Link>
+              </Button>
+            </div>
           </Card>
         )}
       </Container>

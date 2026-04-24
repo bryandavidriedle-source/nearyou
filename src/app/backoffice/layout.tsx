@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Container } from "@/components/shared/container";
@@ -25,7 +25,7 @@ export default async function BackofficeLayout({ children }: { children: React.R
       <Container className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Backoffice NearYou</h1>
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">Backoffice PrèsDeToi</h1>
             <p className="text-sm text-slate-600">
               Role actif: <span className="font-semibold">{auth.adminScope}</span>
             </p>
@@ -52,3 +52,4 @@ export default async function BackofficeLayout({ children }: { children: React.R
     </section>
   );
 }
+

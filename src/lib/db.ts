@@ -8,6 +8,7 @@ type HomeData = {
     title: string;
     description: string;
     fromPrice: number;
+    city: string;
     isAvailableToday: boolean;
     distanceKm: number | null;
     badge: string | null;
@@ -73,8 +74,6 @@ function getFallbackCatalogueData() {
   }));
 }
 
-const allowedCategoryNames = new Set(serviceCategories.map((category) => category.label));
-
 function getEmptyHomeData(): HomeData {
   return {
     missions: [],
@@ -115,7 +114,7 @@ export async function getHomeData() {
       }
     }
 
-    const visibleCategories = (categoriesRes.data ?? []).filter((category) => allowedCategoryNames.has(category.name_fr));
+    const visibleCategories = categoriesRes.data ?? [];
     const categoryByName = visibleCategories.map((c) => c.name_fr);
     const visibleProviders = (providersRes.data ?? []).filter((provider) => {
       if (!provider.profile_id) return false;
@@ -176,6 +175,7 @@ export async function getHomeData() {
         title: categoryName,
         description: `Intervention locale en Suisse (${profile?.city ?? "zone locale"})`,
         fromPrice: Number(provider.hourly_from_chf ?? categoryFromPrice),
+        city: profile?.city ?? "Suisse romande",
         isAvailableToday: isAvailableNow,
         distanceKm: null,
         badge: provider.verified ? "Vérifié" : provider.top_provider ? "Top" : null,
@@ -299,15 +299,31 @@ export async function getCatalogueData() {
       };
     });
 
-    const hasAnyTask = categoriesWithServices.some((category) =>
-      category.subcategories.some((subcategory) => subcategory.tasks.length > 0),
+    const categoryBySlug = new Map(categoriesWithServices.map((category) => [category.slug, category]));
+    const fallbackCategories = getFallbackCatalogueData();
+    const merged = fallbackCategories.map((fallbackCategory) => {
+      const dbCategory = categoryBySlug.get(fallbackCategory.slug);
+      if (!dbCategory) return fallbackCategory;
+
+      const dbHasTasks = dbCategory.subcategories.some((subcategory) => subcategory.tasks.length > 0);
+      if (!dbHasTasks) {
+        return {
+          ...fallbackCategory,
+          id: dbCategory.id,
+          fromPrice: dbCategory.fromPrice || fallbackCategory.fromPrice,
+        };
+      }
+
+      return dbCategory;
+    });
+
+    const extraDbCategories = categoriesWithServices.filter(
+      (dbCategory) => !fallbackCategories.some((fallbackCategory) => fallbackCategory.slug === dbCategory.slug),
     );
 
-    if (!hasAnyTask) {
-      return getFallbackCatalogueData();
-    }
-
-    return categoriesWithServices;
+    const combined = [...merged, ...extraDbCategories];
+    const hasAnyTask = combined.some((category) => category.subcategories.some((subcategory) => subcategory.tasks.length > 0));
+    return hasAnyTask ? combined : fallbackCategories;
   } catch {
     return getFallbackCatalogueData();
   }
@@ -356,7 +372,7 @@ export async function getProviderProfile(providerId: string) {
         firstName: profile?.first_name ?? provider.display_name,
         lastName: profile?.last_name ?? "",
         avatarUrl: profile?.avatar_url ?? "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
-        description: profile?.bio ?? "Prestataire local NearYou",
+        description: profile?.bio ?? "Prestataire local PrèsDeToi",
         rating: Number(provider.rating ?? 0),
         completedMissions: provider.completed_missions ?? 0,
         providerScore: Math.min(100, Math.round(Number(provider.rating ?? 0) * 14 + Math.min(provider.completed_missions ?? 0, 250) * 0.22)),

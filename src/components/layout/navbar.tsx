@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { messages } from "@/lib/i18n";
 import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
@@ -54,8 +54,8 @@ export async function Navbar() {
     <header className="sticky top-0 z-50 border-b border-blue-100 bg-white/95 backdrop-blur">
       <Container className="flex h-18 items-center justify-between gap-4 py-2">
         <Link href="/" className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-slate-900">
-          <span className="grid h-9 w-9 place-content-center rounded-xl bg-blue-700 text-white">N</span>
-          NearYou
+          <span className="grid h-9 w-9 place-content-center rounded-xl bg-blue-700 text-white">P</span>
+          PrèsDeToi
         </Link>
         <nav className="hidden items-center gap-5 text-sm text-slate-600 lg:flex">
           {navItems.map((item) => (

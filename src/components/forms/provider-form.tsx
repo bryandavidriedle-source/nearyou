@@ -146,7 +146,7 @@ export function ProviderForm() {
       <FormField
         id="birthDate"
         label="Date de naissance"
-        hint="Age minimum requis pour les prestataires: 16 ans."
+        hint="Âge minimum requis: 15 ans. Entre 15 et 17 ans, seules des missions simples sont autorisées."
         error={errors.birthDate?.message}
       >
         <Input id="birthDate" type="date" {...register("birthDate")} />
@@ -369,7 +369,7 @@ export function ProviderForm() {
             onCheckedChange={(checked) => setValue("termsAck", Boolean(checked), { shouldValidate: true })}
           />
           <span className="text-sm leading-relaxed text-muted-foreground">
-            J'accepte les CGU prestataires et comprends que la validation NearYou ne remplace pas mes obligations légales en Suisse.
+            J'accepte les conditions prestataires et comprends que la validation PrèsDeToi ne remplace pas mes obligations légales en Suisse.
           </span>
         </label>
         {errors.termsAck?.message ? <p className="text-xs text-destructive">{errors.termsAck.message}</p> : null}
@@ -382,7 +382,7 @@ export function ProviderForm() {
             onCheckedChange={(checked) => setValue("consent", Boolean(checked), { shouldValidate: true })}
           />
           <span className="text-sm leading-relaxed text-muted-foreground">
-            J'autorise NearYou à traiter ce dossier de candidature et mes justificatifs, visibles uniquement par les administrateurs autorisés.
+            J'autorise PrèsDeToi à traiter ce dossier et mes justificatifs, visibles uniquement par les administrateurs autorisés.
           </span>
         </label>
         {errors.consent?.message ? <p className="text-xs text-destructive">{errors.consent.message}</p> : null}
@@ -400,3 +400,4 @@ export function ProviderForm() {
     </form>
   );
 }
+

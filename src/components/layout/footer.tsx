@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { Container } from "@/components/shared/container";
 import { messages } from "@/lib/i18n";
@@ -14,7 +14,7 @@ export async function Footer() {
       <Container className="space-y-8 text-sm text-slate-600">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-3">
-            <p className="text-base font-semibold text-slate-900">NearYou</p>
+            <p className="text-base font-semibold text-slate-900">PrèsDeToi</p>
             <p>{m.footer.tagline}</p>
             <p className="text-xs text-slate-500">{m.footer.protection}</p>
           </div>
@@ -51,7 +51,7 @@ export async function Footer() {
         </div>
 
         <div className="flex flex-col gap-2 border-t border-slate-100 pt-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>{siteConfig.name} - Suisse - Lausanne</p>
+          <p>{siteConfig.name} · Suisse · {siteConfig.city} ({siteConfig.canton})</p>
           <p>Plateforme d'intermédiation locale, opérationnelle en Suisse romande.</p>
         </div>
       </Container>

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 
 import { BookingIntentForm } from "@/components/nearyou/booking-intent-form";
 import { Container } from "@/components/shared/container";
@@ -23,15 +23,15 @@ export default async function ReserveMissionPage({ params }: { params: Promise<{
         <Card className="section-shell p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-blue-700">Réservation encadrée NearYou</p>
+              <p className="text-sm font-medium text-blue-700">Réservation encadrée PrèsDeToi</p>
               <h1 className="mt-1 text-3xl font-bold text-slate-900">{mission.title}</h1>
               <p className="mt-2 text-sm text-slate-600">
-                Prestataire: <span className="font-semibold text-slate-900">{providerName}</span> - Catégorie {mission.category.name}
+                Prestataire: <span className="font-semibold text-slate-900">{providerName}</span> · Catégorie {mission.category.name}
               </p>
               <p className="mt-1 text-sm text-slate-600">
                 Disponibilité: {mission.isAvailableToday ? "Possible aujourd'hui" : "Planification standard"}.
               </p>
-              <p className="mt-1 text-sm text-slate-600">Vous pourrez créer un compte ou vous connecter uniquement au moment de confirmer.</p>
+              <p className="mt-1 text-sm text-slate-600">Le compte est demandé seulement au moment final pour confirmer et payer.</p>
             </div>
             <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Tarif dès {mission.fromPrice} CHF</Badge>
           </div>
@@ -42,12 +42,12 @@ export default async function ReserveMissionPage({ params }: { params: Promise<{
               <p className="mt-1">Sélection mobile-first de la date et de la plage horaire.</p>
             </Card>
             <Card className="premium-card p-4 text-sm text-slate-600">
-              <p className="font-semibold text-slate-900">2. Confirmation claire</p>
-              <p className="mt-1">État explicite en succès ou erreur, sans ambiguïté.</p>
+              <p className="font-semibold text-slate-900">2. Récapitulatif clair</p>
+              <p className="mt-1">Validation finale avec états succès/erreur explicites.</p>
             </Card>
             <Card className="premium-card p-4 text-sm text-slate-600">
-              <p className="font-semibold text-slate-900">3. Cadre juridique clair</p>
-              <p className="mt-1">NearYou reste une plateforme d'intermédiation.</p>
+              <p className="font-semibold text-slate-900">3. Cadre suisse prudent</p>
+              <p className="mt-1">PrèsDeToi reste une plateforme d'intermédiation.</p>
             </Card>
           </div>
         </Card>

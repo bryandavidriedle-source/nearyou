@@ -1,4 +1,4 @@
-export type NavigationRole = "guest" | "client" | "provider" | "admin";
+﻿export type NavigationRole = "guest" | "client" | "provider" | "admin";
 
 export type NavigationItem = {
   href: string;
@@ -43,16 +43,16 @@ export function getDesktopPrimaryNav(role: NavigationRole): NavigationItem[] {
     return [
       { href: "/", label: "Accueil" },
       { href: "/espace-client", label: "Mes demandes" },
-      { href: "/trouver-un-prestataire", label: "Trouver un prestataire" },
+      { href: "/services", label: "Services" },
       { href: "/espace-client", label: "Mon compte" },
     ];
   }
 
   return [
     { href: "/", label: "Accueil" },
+    { href: "/services", label: "Services" },
     { href: "/trouver-un-prestataire", label: "Trouver un prestataire" },
     { href: "/devenir-prestataire", label: "Devenir prestataire" },
-    { href: "/hotline", label: "Aide téléphone" },
   ];
 }
 
@@ -79,15 +79,15 @@ export function getMobileNav(role: NavigationRole): NavigationItem[] {
     return [
       { href: "/", label: "Accueil" },
       { href: "/espace-client", label: "Demandes" },
-      { href: "/trouver-un-prestataire", label: "Trouver" },
+      { href: "/services", label: "Services" },
       { href: "/espace-client", label: "Compte" },
     ];
   }
 
   return [
     { href: "/", label: "Accueil" },
+    { href: "/services", label: "Services" },
     { href: "/trouver-un-prestataire", label: "Trouver" },
-    { href: "/devenir-prestataire", label: "Devenir" },
     { href: "/connexion", label: "Connexion" },
   ];
 }

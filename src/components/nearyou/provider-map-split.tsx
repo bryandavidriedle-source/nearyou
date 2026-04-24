@@ -18,6 +18,7 @@ type ProviderItem = {
   title: string;
   fromPrice: number;
   category: string;
+  city?: string;
   distanceKm: number | null;
   isAvailableToday: boolean;
   badge: string | null;
@@ -218,6 +219,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
                       </p>
                     </div>
                     <p className="text-sm text-slate-600">{provider.title}</p>
+                    {provider.city ? <p className="text-xs text-slate-500">{provider.city}</p> : null}
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-600">
                       <span className="inline-flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />{" "}

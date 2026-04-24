@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
+import { computeSwissMarketplaceBreakdown } from "@/lib/payments/pricing";
 import { bookingIntentSchema } from "@/lib/schemas";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
   const {
     data: { user },
   } = await supabaseServer.auth.getUser();
+
   if (!user) {
     const safeMissionId = parsed.data.missionId.replace(/[^a-zA-Z0-9-_]/g, "");
     return NextResponse.json(
@@ -41,7 +43,7 @@ export async function POST(request: Request) {
   const supabase = getSupabaseAdminClient();
   const { data: provider } = await supabase
     .from("providers")
-    .select("id, is_active, profile_id")
+    .select("id, is_active, profile_id, hourly_from_chf")
     .eq("id", parsed.data.missionId)
     .maybeSingle();
 
@@ -61,6 +63,8 @@ export async function POST(request: Request) {
     return jsonError("Ce prestataire n'est pas publiable actuellement.", 403);
   }
 
+  const breakdown = computeSwissMarketplaceBreakdown(Number(provider.hourly_from_chf ?? 0));
+
   const { data: booking, error } = await supabase
     .from("bookings")
     .insert({
@@ -71,7 +75,7 @@ export async function POST(request: Request) {
       starts_at: parsed.data.startAt,
       ends_at: parsed.data.endAt,
       notes: parsed.data.details || null,
-      price_from_chf: 0,
+      price_from_chf: breakdown.totalChf,
     })
     .select("id")
     .single();
@@ -82,9 +86,19 @@ export async function POST(request: Request) {
 
   await supabase.from("payments").insert({
     booking_id: booking.id,
-    amount_chf: 0,
+    provider_id: provider.id,
+    amount_chf: breakdown.totalChf,
+    platform_fee_chf: breakdown.platformFeeChf,
+    provider_payout_chf: breakdown.providerNetChf,
     status: "pending",
   });
 
-  return jsonSuccess("Réservation enregistrée.", { bookingId: booking.id });
+  return jsonSuccess("Réservation enregistrée.", {
+    bookingId: booking.id,
+    paymentPreview: {
+      totalChf: breakdown.totalChf,
+      platformFeeChf: breakdown.platformFeeChf,
+      providerNetChf: breakdown.providerNetChf,
+    },
+  });
 }

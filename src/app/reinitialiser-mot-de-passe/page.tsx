@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
       <Container className="max-w-lg">
         <Card className="rounded-2xl border-slate-200 bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-bold text-slate-900">Reinitialiser le mot de passe</h1>
-          <p className="mt-1 text-sm text-slate-600">Definissez un nouveau mot de passe pour votre compte NearYou.</p>
+          <p className="mt-1 text-sm text-slate-600">Definissez un nouveau mot de passe pour votre compte PrèsDeToi.</p>
 
           <form className="mt-4 space-y-3" onSubmit={onSubmit}>
             <Input
@@ -92,3 +92,4 @@ export default function ResetPasswordPage() {
     </section>
   );
 }
+

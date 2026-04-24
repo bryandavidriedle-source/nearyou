@@ -8,8 +8,8 @@ import { messages } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18n-server";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Rappel téléphonique | NearYou",
-  description: "Assistance téléphonique NearYou pour réserver simplement avec accompagnement humain.",
+  title: "Rappel téléphonique | PrèsDeToi",
+  description: "Assistance téléphonique PrèsDeToi pour réserver simplement avec accompagnement humain.",
   path: "/hotline",
 });
 
@@ -45,6 +45,7 @@ export default async function HotlinePage() {
     </section>
   );
 }
+
 
 
 

@@ -1,11 +1,13 @@
 ﻿import type { Metadata } from "next";
 
 export const siteConfig = {
-  name: "NearYou",
+  name: "PrèsDeToi",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "support@nearyou.ch",
+  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "support@presdetoi.com",
   phone: "+41 21 555 00 00",
-  city: "Lausanne",
+  city: "St-Prex",
+  canton: "Vaud",
+  commissionRate: 0.2,
   locale: "fr_CH",
 };
 
@@ -19,9 +21,10 @@ export function pageMetadata(input: { title: string; description: string; path?:
     keywords: [
       "services à domicile suisse",
       "prestataires vérifiés",
-      "réserver service local lausanne",
+      "réserver service local vaud",
       "mise en relation locale",
-      "NearYou",
+      "PrèsDeToi",
+      "St-Prex",
     ],
     alternates: { canonical: url },
     robots: {
@@ -49,12 +52,12 @@ export function pageMetadata(input: { title: string; description: string; path?:
 }
 
 export const priceHighlights = [
-  { label: "Aide à domicile", fromPrice: 35 },
-  { label: "Visite senior", fromPrice: 29 },
-  { label: "Promenade chien", fromPrice: 22 },
-  { label: "Parking", fromPrice: 12 },
+  { label: "Ménage", fromPrice: 35 },
+  { label: "Jardinage", fromPrice: 40 },
+  { label: "Bricolage", fromPrice: 45 },
+  { label: "Aide seniors", fromPrice: 35 },
 ] as const;
 
-export const homepageActions = ["Aide à domicile", "Visite proche", "Promenade chien", "Parking"] as const;
+export const homepageActions = ["Ménage", "Jardinage", "Bricolage", "Livraison locale"] as const;
 
 export const reviewReminderPlan = ["24h", "3 jours", "7 jours"] as const;

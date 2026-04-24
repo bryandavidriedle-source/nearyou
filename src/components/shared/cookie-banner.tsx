@@ -19,7 +19,7 @@ export function CookieBanner() {
   return (
     <div className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
       <p className="text-sm text-slate-700">
-        NearYou utilise des cookies essentiels pour la sécurité et l'expérience, et des cookies d'analyse après consentement.
+        PrèsDeToi utilise des cookies essentiels pour la sécurité et l'expérience, et des cookies d'analyse après consentement.
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
@@ -39,3 +39,4 @@ export function CookieBanner() {
     </div>
   );
 }
+

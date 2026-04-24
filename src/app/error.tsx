@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";
@@ -14,7 +14,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("NearYou runtime error:", error);
+    console.error("PrèsDeToi runtime error:", error);
   }, [error]);
 
   return (
@@ -23,11 +23,11 @@ export default function ErrorPage({
         <p className="text-sm font-semibold uppercase tracking-wide text-red-700">Incident applicatif</p>
         <h1 className="text-3xl font-bold text-slate-900">Une erreur est survenue</h1>
         <p className="text-slate-600">
-          L&apos;equipe NearYou a ete notifiee. Vous pouvez reessayer ou revenir a l&apos;accueil.
+          L&apos;équipe PrèsDeToi a été notifiée. Vous pouvez réessayer ou revenir à l&apos;accueil.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button onClick={() => reset()} className="rounded-xl bg-green-600 hover:bg-green-700">
-            Reessayer
+            Réessayer
           </Button>
           <Button asChild variant="outline" className="rounded-xl border-blue-200 text-blue-700">
             <Link href="/">Retour accueil</Link>
@@ -37,3 +37,5 @@ export default function ErrorPage({
     </section>
   );
 }
+
+

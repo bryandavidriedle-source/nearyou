@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -51,7 +51,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       lastName: "",
       email: "",
       phone: "",
-      city: "Lausanne",
+      city: "St-Prex",
       category: safeInitialCategory,
       serviceId: "",
       interventionAddress: "",
@@ -64,7 +64,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       requestedFor: "",
       description: "",
       urgency: "Moyenne",
-      budget: "",
+      budget: "150-300 CHF",
       consent: false,
       website: "",
       submittedAt: new Date().toISOString(),
@@ -97,7 +97,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
   function selectSuggestion(item: CatalogSuggestion) {
     setValue("serviceId", item.id, { shouldValidate: true });
     setValue("category", item.categoryName, { shouldValidate: true });
-    setServiceQuery(`${item.title} - des ${item.fromPriceChf} CHF`);
+    setServiceQuery(`${item.title} - dès ${item.fromPriceChf} CHF`);
     setSuggestions([]);
   }
 
@@ -161,7 +161,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
               setServiceQuery(event.target.value);
               setValue("serviceId", "", { shouldValidate: true });
             }}
-            placeholder="Ex: Tondre la pelouse, Promenade de chien..."
+            placeholder="Ex: Tondre la pelouse, promenade de chien..."
           />
         </FormField>
         {loadingSuggestions ? <p className="text-xs text-slate-500">Recherche des services...</p> : null}
@@ -184,7 +184,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="city" label="Ville" error={errors.city?.message}>
-          <Input id="city" placeholder="Lausanne" {...register("city")} />
+          <Input id="city" placeholder="St-Prex" {...register("city")} />
         </FormField>
         <FormField id="category" label="Catégorie de service" error={errors.category?.message}>
           <Select
@@ -209,7 +209,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       </div>
 
       <FormField id="interventionAddress" label="Adresse d'intervention" error={errors.interventionAddress?.message}>
-        <Input id="interventionAddress" placeholder="Rue, numero, NPA, ville" {...register("interventionAddress")} />
+        <Input id="interventionAddress" placeholder="Rue, numéro, NPA, ville" {...register("interventionAddress")} />
       </FormField>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -232,18 +232,18 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
           <Input id="parkingInstructions" placeholder="Infos parking utiles" {...register("parkingInstructions")} />
         </FormField>
         <FormField id="gardenAccessInstructions" label="Accès jardin (optionnel)" error={errors.gardenAccessInstructions?.message}>
-          <Input id="gardenAccessInstructions" placeholder="Portail, acces lateral..." {...register("gardenAccessInstructions")} />
+          <Input id="gardenAccessInstructions" placeholder="Portail, accès latéral..." {...register("gardenAccessInstructions")} />
         </FormField>
       </div>
 
-        <FormField
-          id="accessInstructions"
-          label="Instructions d'accès"
-          hint="Indiquez les points d'attention: accès immeuble, ascenseur, difficultés, etc."
-          error={errors.accessInstructions?.message}
-        >
-          <Textarea id="accessInstructions" placeholder="Instructions d'accès..." className="min-h-24" {...register("accessInstructions")} />
-        </FormField>
+      <FormField
+        id="accessInstructions"
+        label="Instructions d'accès"
+        hint="Indiquez les points d'attention: accès immeuble, ascenseur, difficultés, etc."
+        error={errors.accessInstructions?.message}
+      >
+        <Textarea id="accessInstructions" placeholder="Instructions d'accès..." className="min-h-24" {...register("accessInstructions")} />
+      </FormField>
 
       <FormField
         id="description"
@@ -298,7 +298,7 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
             onCheckedChange={(checked) => setValue("consent", Boolean(checked), { shouldValidate: true })}
           />
           <span className="text-sm leading-relaxed text-muted-foreground">
-            J&apos;accepte que mes informations soient utilisees pour la mise en relation avec un prestataire.
+            J&apos;accepte que mes informations soient utilisées pour la mise en relation avec un prestataire.
           </span>
         </label>
         {errors.consent?.message ? <p className="text-xs text-destructive">{errors.consent.message}</p> : null}
@@ -311,8 +311,8 @@ export function LeadForm({ initialCategory }: LeadFormProps) {
       ) : null}
 
       <Button type="submit" className="h-11 w-full rounded-full" disabled={isSubmitting}>
-          {isSubmitting ? "Envoi en cours..." : "Envoyer ma demande"}
-        </Button>
-      </form>
+        {isSubmitting ? "Envoi en cours..." : "Envoyer ma demande"}
+      </Button>
+    </form>
   );
 }

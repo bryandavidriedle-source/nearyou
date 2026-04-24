@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 
 import { CategoryCard } from "@/components/sections/category-card";
 import { Container } from "@/components/shared/container";
@@ -7,8 +7,8 @@ import { buildMetadata } from "@/lib/metadata";
 import { serviceCategories } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Catégories de services | NearYou",
-  description: "Explorez les catégories de services disponibles sur NearYou en Suisse romande.",
+  title: "Catégories de services | PrèsDeToi",
+  description: "Explorez les catégories de services disponibles sur PrèsDeToi en Suisse romande.",
   path: "/categories",
 });
 

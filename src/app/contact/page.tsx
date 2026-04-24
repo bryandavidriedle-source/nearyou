@@ -7,8 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { pageMetadata, siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact | NearYou",
-  description: "Contactez l'équipe NearYou pour toute question sur la phase test à Lausanne.",
+  title: "Contact | PrèsDeToi",
+  description: "Contactez l'équipe PrèsDeToi pour toute question sur la phase test à Lausanne.",
   path: "/contact",
 });
 
@@ -34,3 +34,4 @@ export default function ContactPage() {
     </section>
   );
 }
+

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Container } from "@/components/shared/container";
@@ -28,7 +28,7 @@ export default async function CustomerLayout({ children }: { children: React.Rea
               Profil
             </Link>
             <Link href="/espace-client/securite" className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-              Securite
+              Sécurité
             </Link>
             <Link href="/trouver-un-prestataire" className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Nouvelle demande

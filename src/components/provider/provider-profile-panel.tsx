@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { serviceCategories } from "@/lib/constants";
 import { providerWorkflowLabels } from "@/lib/workflow";
 
 type ProviderProfileResponse = {
@@ -143,6 +144,19 @@ export function ProviderProfilePanel() {
 
     return { step1, step2, step3, step4 };
   }, [documents.needsResubmission, documents.total, form, workflowStatus]);
+
+  const isMinorProvider = useMemo(() => {
+    if (!form.birthDate) return false;
+    const birth = new Date(form.birthDate);
+    if (Number.isNaN(birth.getTime())) return false;
+    const now = new Date();
+    let years = now.getFullYear() - birth.getFullYear();
+    const monthDiff = now.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) {
+      years -= 1;
+    }
+    return years >= 15 && years < 18;
+  }, [form.birthDate]);
 
   async function load() {
     setLoading(true);
@@ -312,7 +326,18 @@ export function ProviderProfilePanel() {
           <Input value={form.lastName} onChange={(event) => updateField("lastName", event.target.value)} placeholder="Nom" />
           <Input value={form.phone} onChange={(event) => updateField("phone", event.target.value)} placeholder="Telephone" />
           <Input type="date" value={form.birthDate} onChange={(event) => updateField("birthDate", event.target.value)} placeholder="Date de naissance" />
-          <Input value={form.category} onChange={(event) => updateField("category", event.target.value)} placeholder="Categorie principale" />
+          <select
+            value={form.category}
+            onChange={(event) => updateField("category", event.target.value)}
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Catégorie principale</option>
+            {serviceCategories.map((category) => (
+              <option key={category.slug} value={category.label}>
+                {category.label}
+              </option>
+            ))}
+          </select>
           <Input value={form.city} onChange={(event) => updateField("city", event.target.value)} placeholder="Ville" />
           <Input value={form.canton} onChange={(event) => updateField("canton", event.target.value)} placeholder="Canton" />
           <Input value={form.addressLine} onChange={(event) => updateField("addressLine", event.target.value)} placeholder="Adresse" />
@@ -401,6 +426,11 @@ export function ProviderProfilePanel() {
               <li>3. Documents + IBAN valides: {completion.step3 ? "Oui" : "Non"}</li>
             </ul>
           </Card>
+          {isMinorProvider ? (
+            <Card className="rounded-xl border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              Prestataire mineur (15-17 ans): accès limité aux missions simples après validation admin renforcée.
+            </Card>
+          ) : null}
           <p className="text-sm text-slate-600">
             Une fois soumis, le dossier passe en revue manuelle. Vous verrez les retours admin ici en cas de besoin
             d'informations complementaires.
