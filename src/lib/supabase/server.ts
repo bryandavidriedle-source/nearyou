@@ -15,9 +15,16 @@ export async function getSupabaseServerClient() {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+          // In Server Components, Next.js can throw if cookies are mutated outside
+          // Server Actions / Route Handlers. We silently ignore writes here so
+          // read-only auth lookups do not crash page rendering.
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // no-op
+          }
         },
       },
     },
