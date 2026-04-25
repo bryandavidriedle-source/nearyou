@@ -1,4 +1,4 @@
-import { SERVICE_CATEGORIES, SWISS_CITY_TARGETS } from "@/lib/catalog";
+﻿import { SERVICE_CATEGORIES, SWISS_CITY_TARGETS } from "@/lib/catalog";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type SearchTagRow = {
@@ -712,7 +712,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
           ? "Aucune correspondance exacte pour le moment. Essayez une catégorie proche ou créez une demande personnalisée."
           : null,
       suggestedCategories: suggestedFallbackCategories,
-      customRequestUrl: "/trouver-un-prestataire",
+      customRequestUrl: "/demande",
     },
   };
 
@@ -753,3 +753,4 @@ export const __smartSearchInternals = {
   detectSwissLocation,
   detectTags,
 };
+

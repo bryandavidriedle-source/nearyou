@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -29,7 +29,7 @@ export function SearchSuggestions({ loading, suggestions, detected, onApply }: P
   if (loading) {
     return (
       <Card className="rounded-xl border border-slate-200 bg-white p-4">
-        <p className="text-sm text-slate-500">Recherche intelligente en cours...</p>
+        <p className="text-sm text-slate-500">Recherche en cours...</p>
       </Card>
     );
   }

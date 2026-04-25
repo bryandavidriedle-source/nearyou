@@ -41,17 +41,17 @@ export function getDesktopPrimaryNav(role: NavigationRole): NavigationItem[] {
 
   if (role === "client") {
     return [
-      { href: "/", label: "Accueil" },
-      { href: "/espace-client", label: "Mes demandes" },
       { href: "/services", label: "Services" },
-      { href: "/espace-client", label: "Mon compte" },
+      { href: "/search", label: "Prestataires" },
+      { href: "/comment-ca-marche", label: "Comment ça marche" },
+      { href: "/devenir-prestataire", label: "Devenir prestataire" },
     ];
   }
 
   return [
-    { href: "/", label: "Accueil" },
     { href: "/services", label: "Services" },
-    { href: "/trouver-un-prestataire", label: "Trouver un prestataire" },
+    { href: "/search", label: "Prestataires" },
+    { href: "/comment-ca-marche", label: "Comment ça marche" },
     { href: "/devenir-prestataire", label: "Devenir prestataire" },
   ];
 }
@@ -59,35 +59,35 @@ export function getDesktopPrimaryNav(role: NavigationRole): NavigationItem[] {
 export function getMobileNav(role: NavigationRole): NavigationItem[] {
   if (role === "admin") {
     return [
-      { href: "/admin", label: "Dashboard" },
-      { href: "/admin/prestataires", label: "Prestataires" },
-      { href: "/admin/clients", label: "Clients" },
+      { href: "/admin", label: "Accueil" },
       { href: "/admin/demandes", label: "Demandes" },
+      { href: "/admin/prestataires", label: "Prestataires" },
+      { href: "/admin", label: "Profil" },
     ];
   }
 
   if (role === "provider") {
     return [
-      { href: "/espace-prestataire", label: "Dashboard" },
-      { href: "/espace-prestataire/demandes", label: "Missions" },
-      { href: "/espace-prestataire/disponibilites", label: "Dispo" },
-      { href: "/espace-prestataire/paiements", label: "Paiements" },
+      { href: "/espace-prestataire", label: "Accueil" },
+      { href: "/search", label: "Rechercher" },
+      { href: "/espace-prestataire/demandes", label: "Réservations" },
+      { href: "/espace-prestataire/profil", label: "Profil" },
     ];
   }
 
   if (role === "client") {
     return [
       { href: "/", label: "Accueil" },
-      { href: "/espace-client", label: "Demandes" },
-      { href: "/services", label: "Services" },
-      { href: "/espace-client", label: "Compte" },
+      { href: "/search", label: "Rechercher" },
+      { href: "/espace-client/prestations", label: "Réservations" },
+      { href: "/espace-client", label: "Profil" },
     ];
   }
 
   return [
     { href: "/", label: "Accueil" },
-    { href: "/services", label: "Services" },
-    { href: "/trouver-un-prestataire", label: "Trouver" },
-    { href: "/connexion", label: "Connexion" },
+    { href: "/search", label: "Rechercher" },
+    { href: "/reserve", label: "Réservations" },
+    { href: "/connexion", label: "Profil" },
   ];
 }

@@ -60,10 +60,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           currentLanguage={lang}
           items={mobileItems}
           isAuthenticated={Boolean(auth.user)}
+          role={navRole}
         />
         <CookieBanner />
       </body>
     </html>
   );
 }
-

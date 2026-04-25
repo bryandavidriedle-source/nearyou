@@ -1,6 +1,5 @@
 ﻿import Link from "next/link";
 
-import { messages } from "@/lib/i18n";
 import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
 import { getCurrentLanguage } from "@/lib/i18n-server";
 import { getDesktopPrimaryNav, resolveNavigationRole } from "@/lib/navigation";
@@ -12,7 +11,6 @@ import { UserMenu } from "@/components/auth/user-menu";
 
 export async function Navbar() {
   const lang = await getCurrentLanguage();
-  const m = messages[lang];
   const auth = await getAuthContext();
   const dashboardHref = auth.user ? await resolveAuthenticatedHomePath() : null;
   const navRole = resolveNavigationRole({
@@ -30,7 +28,7 @@ export async function Navbar() {
           : "Prestataire en attente"
         : "Client"
     : null;
-  const dashboardLabel = navRole === "provider" || navRole === "admin" ? "Dashboard" : "Mon compte";
+
   const userMenuItems =
     navRole === "admin"
       ? [
@@ -46,7 +44,7 @@ export async function Navbar() {
           ]
         : [
             { href: "/espace-client", label: "Mon compte" },
-            { href: "/espace-client/prestations", label: "Mes prestations" },
+            { href: "/espace-client/prestations", label: "Mes réservations" },
             { href: "/espace-client/securite", label: "Sécurité" },
           ];
 
@@ -68,11 +66,13 @@ export async function Navbar() {
           <LanguageTabs current={lang} />
         </div>
         <div className="flex items-center gap-2">
-          {statusLabel ? <Badge className="hidden bg-blue-100 text-blue-700 hover:bg-blue-100 md:inline-flex">{statusLabel}</Badge> : null}
-          {auth.user && dashboardHref ? (
+          {statusLabel ? (
+            <Badge className="hidden bg-blue-100 text-blue-700 hover:bg-blue-100 md:inline-flex">{statusLabel}</Badge>
+          ) : null}
+          {auth.user ? (
             <>
-              <Button asChild variant="outline" className="hidden rounded-xl border-blue-200 sm:inline-flex">
-                <Link href={dashboardHref}>{dashboardLabel}</Link>
+              <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
+                <Link href="/demande">Décrire mon besoin</Link>
               </Button>
               <UserMenu
                 firstName={auth.profile?.first_name ?? null}
@@ -88,11 +88,8 @@ export async function Navbar() {
               <Button asChild variant="outline" className="hidden rounded-xl border-blue-200 sm:inline-flex">
                 <Link href="/connexion">Connexion</Link>
               </Button>
-              <Button asChild variant="outline" className="hidden rounded-xl border-slate-200 lg:inline-flex">
-                <Link href="/inscription">Inscription</Link>
-              </Button>
               <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
-                <Link href="/trouver-un-prestataire">{m.navbar.bookNow}</Link>
+                <Link href="/demande">Décrire mon besoin</Link>
               </Button>
             </>
           )}
@@ -101,3 +98,4 @@ export async function Navbar() {
     </header>
   );
 }
+

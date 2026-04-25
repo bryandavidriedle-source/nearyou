@@ -6,42 +6,36 @@ import { useMemo, useState } from "react";
 
 import {
   ClipboardList,
-  CreditCard,
-  Grid2x2,
   Home,
   Languages,
   LayoutDashboard,
   LogOut,
   Search,
   User,
-  Users,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { supportedLanguages, type Language } from "@/lib/i18n";
-import type { NavigationItem } from "@/lib/navigation";
+import type { NavigationItem, NavigationRole } from "@/lib/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type MobileWebappNavProps = {
   currentLanguage: Language;
   items: NavigationItem[];
   isAuthenticated: boolean;
+  role: NavigationRole;
 };
 
 function iconForItem(item: NavigationItem) {
   const href = item.href;
-  if (href === "/") return Home;
-  if (href === "/espace-client") return User;
-  if (href.includes("dashboard") || href === "/admin" || href === "/backoffice" || href === "/espace-prestataire") return LayoutDashboard;
-  if (href.includes("prestataire") || href.includes("clients")) return Users;
-  if (href.includes("demandes")) return ClipboardList;
-  if (href.includes("paiements")) return CreditCard;
-  if (href.includes("catalogue") || href.includes("services")) return Grid2x2;
-  if (href.includes("trouver") || href.includes("connexion")) return Search;
-  return User;
+  if (href === "/" || href === "/admin" || href === "/espace-prestataire") return Home;
+  if (href.includes("search") || href.includes("trouver") || href.includes("services")) return Search;
+  if (href.includes("reservation") || href.includes("prestations") || href.includes("demandes")) return ClipboardList;
+  if (href.includes("espace") || href.includes("profil") || href.includes("connexion")) return User;
+  return LayoutDashboard;
 }
 
-export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: MobileWebappNavProps) {
+export function MobileWebappNav({ currentLanguage, items, isAuthenticated, role }: MobileWebappNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [languageOpen, setLanguageOpen] = useState(false);
@@ -55,6 +49,8 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: Mob
       })),
     [items],
   );
+
+  const showNeedCta = role === "guest" || role === "client";
 
   function setLanguage(language: Language) {
     document.cookie = `lang=${language}; path=/; max-age=31536000`;
@@ -73,6 +69,14 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: Mob
 
   return (
     <>
+      {showNeedCta ? (
+        <div className="fixed inset-x-0 bottom-[5.7rem] z-50 px-4 md:hidden">
+          <Button asChild className="mx-auto flex h-11 w-full max-w-md rounded-xl bg-green-600 text-sm font-semibold hover:bg-green-700">
+            <Link href="/demande">Décrire mon besoin</Link>
+          </Button>
+        </div>
+      ) : null}
+
       {languageOpen ? (
         <div className="fixed inset-x-0 bottom-[5.7rem] z-50 px-4 md:hidden">
           <div className="mx-auto max-w-md rounded-2xl border border-blue-100 bg-white p-3 shadow-lg">
@@ -99,8 +103,7 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: Mob
         <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive =
-              item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
+            const isActive = item.href === "/" ? pathname === "/" : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -126,7 +129,7 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated }: Mob
               aria-label="Se déconnecter"
             >
               <LogOut className="mb-1 h-4 w-4" />
-              <span>{loggingOut ? "..." : "Déconnexion"}</span>
+              <span>{loggingOut ? "..." : "Sortir"}</span>
             </button>
           ) : (
             <button
