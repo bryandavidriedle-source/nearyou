@@ -138,7 +138,9 @@ export async function getHomeData() {
       if (!provider.profile_id) return false;
       if (isProduction && (provider as { is_demo?: boolean }).is_demo) return false;
       if (!enforceWorkflowStatus) return true;
-      return latestWorkflowByProfile.get(provider.profile_id) === "approved";
+      const workflowStatus = latestWorkflowByProfile.get(provider.profile_id);
+      if (!workflowStatus) return true;
+      return workflowStatus === "approved";
     });
 
     const providerProfileIds = visibleProviders
