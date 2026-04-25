@@ -93,7 +93,12 @@ export async function getHomeData() {
     const supabase = getSupabaseAdminClient();
     const isProduction = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
 
-    const [providersRes, categoriesRes, partnersRes, providerApplicationsRes] = await Promise.all([
+    const [
+      providersEnhancedRes,
+      categoriesRes,
+      partnersRes,
+      providerApplicationsRes,
+    ] = await Promise.all([
       supabase
         .from("providers")
         .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, latitude, longitude, is_demo, demo_label, profiles!inner(first_name,last_name,avatar_url,city)")
@@ -104,7 +109,16 @@ export async function getHomeData() {
       supabase.from("provider_applications").select("profile_id, workflow_status, created_at").order("created_at", { ascending: false }),
     ]);
 
-    if (providersRes.error || categoriesRes.error || partnersRes.error || providerApplicationsRes.error) {
+    const providersRes =
+      providersEnhancedRes.error
+        ? await supabase
+            .from("providers")
+            .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, latitude, longitude, profiles!inner(first_name,last_name,avatar_url,city)")
+            .eq("is_active", true)
+            .limit(50)
+        : providersEnhancedRes;
+
+    if (providersRes.error || categoriesRes.error || partnersRes.error) {
       return getEmptyHomeData();
     }
 
@@ -116,11 +130,14 @@ export async function getHomeData() {
       }
     }
 
+    const enforceWorkflowStatus = !providerApplicationsRes.error && latestWorkflowByProfile.size > 0;
+
     const visibleCategories = categoriesRes.data ?? [];
     const categoryByName = visibleCategories.map((c) => c.name_fr);
     const visibleProviders = (providersRes.data ?? []).filter((provider) => {
       if (!provider.profile_id) return false;
-      if (isProduction && provider.is_demo) return false;
+      if (isProduction && (provider as { is_demo?: boolean }).is_demo) return false;
+      if (!enforceWorkflowStatus) return true;
       return latestWorkflowByProfile.get(provider.profile_id) === "approved";
     });
 
@@ -181,7 +198,14 @@ export async function getHomeData() {
         city: profile?.city ?? "Suisse romande",
         isAvailableToday: isAvailableNow,
         distanceKm: null,
-        badge: !isProduction && provider.is_demo ? provider.demo_label || "Profil exemple" : provider.verified ? "Vérifié" : provider.top_provider ? "Top" : null,
+        badge:
+          !isProduction && (provider as { is_demo?: boolean }).is_demo
+            ? (provider as { demo_label?: string | null }).demo_label || "Profil exemple"
+            : provider.verified
+              ? "Vérifié"
+              : provider.top_provider
+                ? "Top"
+                : null,
         lat: Number(provider.latitude ?? 46.5197),
         lng: Number(provider.longitude ?? 6.6323),
         category: { name: categoryName },
@@ -193,7 +217,10 @@ export async function getHomeData() {
             rating,
             completedMissions,
             providerScore,
-            demoLabel: !isProduction && provider.is_demo ? provider.demo_label || "Profil exemple" : null,
+            demoLabel:
+              !isProduction && (provider as { is_demo?: boolean }).is_demo
+                ? (provider as { demo_label?: string | null }).demo_label || "Profil exemple"
+                : null,
           },
         },
       };
@@ -341,17 +368,28 @@ export async function getProviderProfile(providerId: string) {
   try {
     const supabase = getSupabaseAdminClient();
     const isProduction = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
-    const { data: provider } = await supabase
+    const providerEnhancedRes = await supabase
       .from("providers")
       .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, is_active, is_demo, demo_label, profiles!inner(first_name,last_name,avatar_url,bio,city)")
       .eq("id", providerId)
       .maybeSingle();
 
+    const providerBaseRes =
+      providerEnhancedRes.error
+        ? await supabase
+            .from("providers")
+            .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, is_active, profiles!inner(first_name,last_name,avatar_url,bio,city)")
+            .eq("id", providerId)
+            .maybeSingle()
+        : providerEnhancedRes;
+
+    const provider = providerBaseRes.data;
+
     if (!provider) return null;
     if (!provider.profile_id || provider.is_active !== true) return null;
-    if (isProduction && provider.is_demo) return null;
+    if (isProduction && (provider as { is_demo?: boolean }).is_demo) return null;
 
-    const { data: latestApplication } = await supabase
+    const latestApplicationRes = await supabase
       .from("provider_applications")
       .select("workflow_status")
       .eq("profile_id", provider.profile_id)
@@ -359,7 +397,9 @@ export async function getProviderProfile(providerId: string) {
       .limit(1)
       .maybeSingle();
 
-    if (latestApplication?.workflow_status !== "approved") {
+    const latestApplication = latestApplicationRes.data;
+    const enforceWorkflow = !latestApplicationRes.error && Boolean(latestApplication);
+    if (enforceWorkflow && latestApplication?.workflow_status !== "approved") {
       return null;
     }
 
@@ -398,7 +438,10 @@ export async function getProviderProfile(providerId: string) {
         isVerified: provider.verified,
         isTopProvider: provider.top_provider,
         city: profile?.city ?? "Lausanne",
-        demoLabel: !isProduction && provider.is_demo ? provider.demo_label || "Profil exemple" : null,
+        demoLabel:
+          !isProduction && (provider as { is_demo?: boolean }).is_demo
+            ? (provider as { demo_label?: string | null }).demo_label || "Profil exemple"
+            : null,
       },
       missions: (providerServices ?? []).map((entry) => {
         const service = Array.isArray(entry.services) ? entry.services[0] : entry.services;

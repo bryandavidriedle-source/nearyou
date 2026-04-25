@@ -382,53 +382,78 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
   const limit = Math.max(3, Math.min(input.limit ?? 24, 48));
 
   const supabase = getSupabaseAdminClient();
-  const [
-    tagsRes,
-    categoriesRes,
-    keywordsRes,
-    servicesRes,
-    providersRes,
-    applicationsRes,
-    providerServicesRes,
-    availabilityRes,
-  ] = await Promise.all([
-    supabase.from("search_tags").select("slug, label, synonyms").eq("active", true),
-    supabase.from("service_categories").select("id, slug, name_fr, from_price_chf, ai_search_hint").eq("active", true),
-    supabase.from("service_keywords").select("keyword, category_id, service_id, weight").limit(1200),
-    supabase
-      .from("services")
-      .select("id, slug, title, from_price_chf, category_id, service_categories(slug, name_fr)")
-      .eq("active", true)
-      .limit(1500),
-    supabase
-      .from("providers")
-      .select(
-        "id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, is_demo, demo_label, provider_type, intervention_radius_km, available_now, search_tags, profiles!inner(first_name,last_name,avatar_url,city,account_status,bio)",
-      )
-      .eq("is_active", true)
-      .limit(1000),
-    supabase
-      .from("provider_applications")
-      .select("profile_id, workflow_status, category, city, postal_code, canton, legal_status, intervention_radius_km")
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("provider_services")
-      .select("profile_id, min_price_chf, services(id, slug, title, from_price_chf, service_categories(slug, name_fr))")
-      .eq("is_active", true),
-    supabase
-      .from("provider_availability_rules")
-      .select("profile_id, day_of_week, start_time, end_time, is_active")
-      .eq("is_active", true),
-  ]);
 
-  const dbTags = (tagsRes.data ?? []) as SearchTagRow[];
-  const categories = (categoriesRes.data ?? []) as CategoryRow[];
-  const keywordRows = (keywordsRes.data ?? []) as ServiceKeywordRow[];
+  const tagsRes = await supabase.from("search_tags").select("slug, label, synonyms").eq("active", true);
+  const dbTags = (tagsRes.error ? [] : tagsRes.data ?? []) as SearchTagRow[];
+
+  const categoriesEnhancedRes = await supabase
+    .from("service_categories")
+    .select("id, slug, name_fr, from_price_chf, ai_search_hint")
+    .eq("active", true);
+  const categoriesRes =
+    categoriesEnhancedRes.error
+      ? await supabase.from("service_categories").select("id, slug, name_fr, from_price_chf").eq("active", true)
+      : categoriesEnhancedRes;
+  const categories = (categoriesRes.data ?? []).map((row) => ({
+    ...row,
+    ai_search_hint: "ai_search_hint" in row ? (row as { ai_search_hint?: string | null }).ai_search_hint ?? null : null,
+  })) as CategoryRow[];
+
+  const keywordsRes = await supabase.from("service_keywords").select("keyword, category_id, service_id, weight").limit(1200);
+  const keywordRows = (keywordsRes.error ? [] : keywordsRes.data ?? []) as ServiceKeywordRow[];
+
+  const servicesRes = await supabase
+    .from("services")
+    .select("id, slug, title, from_price_chf, category_id, service_categories(slug, name_fr)")
+    .eq("active", true)
+    .limit(1500);
   const services = (servicesRes.data ?? []) as ServiceRow[];
-  const providers = (providersRes.data ?? []) as ProviderRow[];
+
+  const providersEnhancedRes = await supabase
+    .from("providers")
+    .select(
+      "id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, is_demo, demo_label, provider_type, intervention_radius_km, available_now, search_tags, profiles!inner(first_name,last_name,avatar_url,city,account_status,bio)",
+    )
+    .eq("is_active", true)
+    .limit(1000);
+  const providersBaseRes =
+    providersEnhancedRes.error
+      ? await supabase
+          .from("providers")
+          .select(
+            "id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, profiles!inner(first_name,last_name,avatar_url,city,account_status,bio)",
+          )
+          .eq("is_active", true)
+          .limit(1000)
+      : providersEnhancedRes;
+  const providers = (providersBaseRes.data ?? []).map((row) => ({
+    ...row,
+    is_demo: "is_demo" in row ? (row as { is_demo?: boolean | null }).is_demo ?? false : false,
+    demo_label: "demo_label" in row ? (row as { demo_label?: string | null }).demo_label ?? null : null,
+    provider_type: "provider_type" in row ? (row as { provider_type?: string | null }).provider_type ?? null : null,
+    intervention_radius_km:
+      "intervention_radius_km" in row ? (row as { intervention_radius_km?: number | null }).intervention_radius_km ?? null : null,
+    available_now: "available_now" in row ? (row as { available_now?: boolean | null }).available_now ?? false : false,
+    search_tags: "search_tags" in row ? ((row as { search_tags?: string[] | null }).search_tags ?? []) : [],
+  })) as ProviderRow[];
+
+  const applicationsRes = await supabase
+    .from("provider_applications")
+    .select("profile_id, workflow_status, category, city, postal_code, canton, legal_status, intervention_radius_km")
+    .order("created_at", { ascending: false });
   const applications = (applicationsRes.data ?? []) as ProviderApplicationRow[];
-  const providerServices = (providerServicesRes.data ?? []) as ProviderServiceRow[];
-  const availabilityRows = (availabilityRes.data ?? []) as AvailabilityRow[];
+
+  const providerServicesRes = await supabase
+    .from("provider_services")
+    .select("profile_id, min_price_chf, services(id, slug, title, from_price_chf, service_categories(slug, name_fr))")
+    .eq("is_active", true);
+  const providerServices = (providerServicesRes.error ? [] : providerServicesRes.data ?? []) as ProviderServiceRow[];
+
+  const availabilityRes = await supabase
+    .from("provider_availability_rules")
+    .select("profile_id, day_of_week, start_time, end_time, is_active")
+    .eq("is_active", true);
+  const availabilityRows = (availabilityRes.error ? [] : availabilityRes.data ?? []) as AvailabilityRow[];
 
   const detectedLocation = detectSwissLocation(query, input.city, input.postalCode);
   const detectedTags = detectTags(query, dbTags);
@@ -442,6 +467,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       latestAppByProfile.set(application.profile_id, application);
     }
   }
+  const enforceWorkflowStatus = latestAppByProfile.size > 0;
 
   const providerServiceByProfile = new Map<string, ProviderServiceRow[]>();
   for (const row of providerServices) {
@@ -460,7 +486,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       const profile = getProfileRelation(provider.profiles);
       if (!profile || profile.account_status === "suspended") return null;
       const app = latestAppByProfile.get(provider.profile_id);
-      if (!app || app.workflow_status !== "approved") return null;
+      if (enforceWorkflowStatus && app && app.workflow_status !== "approved") return null;
       if (isProd && provider.is_demo) return null;
 
       const providerServiceRows = providerServiceByProfile.get(provider.profile_id) ?? [];
@@ -481,7 +507,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
         }
       }
 
-      if (app.category) {
+      if (app?.category) {
         const appCategoryNormalized = normalize(app.category);
         const match = SERVICE_CATEGORIES.find((category) => normalize(category.label) === appCategoryNormalized || normalize(category.slug) === appCategoryNormalized);
         if (match) providerCategorySlugs.add(match.slug);
@@ -502,7 +528,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (isAvailableNow) badges.push("Disponible maintenant");
       if (!isProd && provider.is_demo) badges.push(provider.demo_label?.trim() || "Profil exemple");
 
-      const city = app.city ?? profile.city ?? "Suisse romande";
+      const city = app?.city ?? profile.city ?? "Suisse romande";
       const categoryLabels = Array.from(providerCategorySlugs).map((slug) => categoryLabelBySlug.get(slug) ?? slug);
 
       return {
@@ -513,13 +539,13 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
           profile.avatar_url ??
           "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
         city,
-        postalCode: app.postal_code ?? null,
-        canton: app.canton ?? null,
+        postalCode: app?.postal_code ?? null,
+        canton: app?.canton ?? null,
         rating: providerRating,
         completedMissions,
         fromPrice: providerFromPrice,
-        providerType: provider.provider_type ?? app.legal_status ?? null,
-        interventionRadiusKm: Number(provider.intervention_radius_km ?? app.intervention_radius_km ?? 15),
+        providerType: provider.provider_type ?? app?.legal_status ?? null,
+        interventionRadiusKm: Number(provider.intervention_radius_km ?? app?.intervention_radius_km ?? 15),
         categories: categoryLabels,
         tags: Array.from(detectedProviderTags).slice(0, 16),
         badges,

@@ -394,6 +394,88 @@ async function ensureAuthUser(supabase, usersMap, { email, firstName, lastName, 
   return data.user.id;
 }
 
+function stripUndefined(input) {
+  return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
+}
+
+async function upsertProfileSafe(supabase, payload) {
+  const variants = [
+    payload,
+    { ...payload, account_status: undefined },
+    { ...payload, birth_date: undefined, account_status: undefined },
+    {
+      id: payload.id,
+      role: payload.role,
+      first_name: payload.first_name,
+      last_name: payload.last_name,
+      phone: payload.phone ?? null,
+      city: payload.city ?? null,
+    },
+    {
+      id: payload.id,
+      role: payload.role,
+      first_name: payload.first_name,
+      last_name: payload.last_name,
+    },
+  ].map(stripUndefined);
+
+  let lastError = null;
+  for (const variant of variants) {
+    const { error } = await supabase.from("profiles").upsert(variant, { onConflict: "id" });
+    if (!error) return;
+    lastError = error;
+  }
+
+  throw lastError ?? new Error("Impossible de mettre à jour le profil");
+}
+
+async function ensureProviderApplicationApproved(supabase, profileId, payload) {
+  try {
+    const { data: latestApp, error: latestAppError } = await supabase
+      .from("provider_applications")
+      .select("id")
+      .eq("profile_id", profileId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestAppError) {
+      console.warn(`[seed] provider_applications inaccessible pour ${profileId}: ${latestAppError.message}`);
+      return;
+    }
+
+    const updateVariants = [
+      payload,
+      { workflow_status: "approved", status: "new" },
+      { workflow_status: "approved" },
+    ].map(stripUndefined);
+
+    const insertVariants = [
+      { profile_id: profileId, ...payload },
+      { profile_id: profileId, workflow_status: "approved", status: "new" },
+      { profile_id: profileId, workflow_status: "approved" },
+    ].map(stripUndefined);
+
+    if (latestApp?.id) {
+      for (const variant of updateVariants) {
+        const { error } = await supabase.from("provider_applications").update(variant).eq("id", latestApp.id);
+        if (!error) return;
+      }
+      console.warn(`[seed] impossible de mettre provider_application en approved pour ${profileId}`);
+      return;
+    }
+
+    for (const variant of insertVariants) {
+      const { error } = await supabase.from("provider_applications").insert(variant);
+      if (!error) return;
+    }
+
+    console.warn(`[seed] impossible d'insérer provider_application pour ${profileId}`);
+  } catch (error) {
+    console.warn(`[seed] provider_applications ignoré pour ${profileId}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 function pickServiceIds(services, keywords, limit = 5) {
   const normalizedKeywords = keywords.map((keyword) => slugify(keyword));
   const scored = services
@@ -447,135 +529,112 @@ async function main() {
     const phone = randomPhone(providerIndex + 10);
     const displayName = `${provider.firstName} ${provider.lastName}`;
 
-    const { error: profileError } = await supabase.from("profiles").upsert(
-      {
-        id: providerProfileId,
-        role: "provider",
-        first_name: provider.firstName,
-        last_name: provider.lastName,
-        phone,
-        city: provider.city,
-        bio: provider.description,
-        birth_date: birthDate,
-        language: "fr",
-        account_status: "active",
-      },
-      { onConflict: "id" },
-    );
-    if (profileError) throw profileError;
+    await upsertProfileSafe(supabase, {
+      id: providerProfileId,
+      role: "provider",
+      first_name: provider.firstName,
+      last_name: provider.lastName,
+      phone,
+      city: provider.city,
+      bio: provider.description,
+      birth_date: birthDate,
+      language: "fr",
+      account_status: "active",
+    });
 
-    const { data: latestApp } = await supabase
-      .from("provider_applications")
-      .select("id")
-      .eq("profile_id", providerProfileId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    await ensureProviderApplicationApproved(supabase, providerProfileId, {
+      workflow_status: "approved",
+      status: "new",
+      first_name: provider.firstName,
+      last_name: provider.lastName,
+      business_name: displayName,
+      email: providerEmail,
+      phone,
+      address_line: `Rue du Port ${providerIndex + 5}`,
+      postal_code: provider.postalCode,
+      city: provider.city,
+      canton: provider.canton,
+      country: "Suisse",
+      category: provider.category,
+      intervention_radius_km: provider.radiusKm,
+      legal_status: provider.providerType,
+      company_name: provider.providerType === "entreprise" ? `${provider.lastName} Services Sàrl` : null,
+      iban: `CH93 0076 2011 6238 529${providerIndex}`,
+      services_description: provider.headline,
+      years_experience: String(provider.yearsExperience),
+      availability: "Lundi au samedi, selon créneaux",
+      legal_responsibility_ack: true,
+      terms_ack: true,
+      consent: true,
+      languages: ["fr"],
+      accepts_urgency: true,
+      birth_date: birthDate,
+      reviewed_at: new Date().toISOString(),
+    });
 
-    if (latestApp?.id) {
-      const { error: appUpdateError } = await supabase
-        .from("provider_applications")
-        .update({
-          workflow_status: "approved",
-          first_name: provider.firstName,
-          last_name: provider.lastName,
-          business_name: displayName,
-          email: providerEmail,
-          phone,
-          address_line: `Rue du Port ${providerIndex + 5}`,
-          postal_code: provider.postalCode,
-          city: provider.city,
-          canton: provider.canton,
-          country: "Suisse",
-          category: provider.category,
-          intervention_radius_km: provider.radiusKm,
-          legal_status: provider.providerType,
-          company_name: provider.providerType === "entreprise" ? `${provider.lastName} Services Sàrl` : null,
-          iban: `CH93 0076 2011 6238 529${providerIndex}`,
-          services_description: provider.headline,
-          years_experience: String(provider.yearsExperience),
-          availability: "Lundi au samedi, selon créneaux",
-          legal_responsibility_ack: true,
-          terms_ack: true,
-          consent: true,
-          languages: ["fr"],
-          accepts_urgency: true,
-          birth_date: birthDate,
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq("id", latestApp.id);
-      if (appUpdateError) throw appUpdateError;
-    } else {
-      const { error: appInsertError } = await supabase.from("provider_applications").insert({
-        profile_id: providerProfileId,
-        status: "new",
-        workflow_status: "approved",
-        first_name: provider.firstName,
-        last_name: provider.lastName,
-        business_name: displayName,
-        email: providerEmail,
-        phone,
-        address_line: `Rue du Port ${providerIndex + 5}`,
-        postal_code: provider.postalCode,
-        city: provider.city,
-        canton: provider.canton,
-        country: "Suisse",
-        category: provider.category,
-        intervention_radius_km: provider.radiusKm,
-        legal_status: provider.providerType,
-        company_name: provider.providerType === "entreprise" ? `${provider.lastName} Services Sàrl` : null,
-        iban: `CH93 0076 2011 6238 529${providerIndex}`,
-        services_description: provider.headline,
-        years_experience: String(provider.yearsExperience),
-        availability: "Lundi au samedi, selon créneaux",
-        legal_responsibility_ack: true,
-        terms_ack: true,
-        consent: true,
-        languages: ["fr"],
-        accepts_urgency: true,
-        birth_date: birthDate,
-        reviewed_at: new Date().toISOString(),
-      });
-      if (appInsertError) throw appInsertError;
-    }
+    const providerPayload = {
+      profile_id: providerProfileId,
+      display_name: displayName,
+      rating: provider.rating,
+      completed_missions: provider.completed,
+      verified: true,
+      top_provider: provider.rating >= 4.8,
+      hourly_from_chf: provider.hourlyFrom,
+      is_active: true,
+      provider_type: provider.providerType,
+      intervention_radius_km: provider.radiusKm,
+      available_now: provider.tags.includes("disponible maintenant"),
+      search_tags: provider.tags,
+      is_demo: true,
+      demo_label: "Profil exemple",
+    };
 
-    const { data: providerRow, error: providerUpsertError } = await supabase
+    let providerUpsert = await supabase
       .from("providers")
-      .upsert(
-        {
-          profile_id: providerProfileId,
-          display_name: displayName,
-          rating: provider.rating,
-          completed_missions: provider.completed,
-          verified: true,
-          top_provider: provider.rating >= 4.8,
-          hourly_from_chf: provider.hourlyFrom,
-          is_active: true,
-          provider_type: provider.providerType,
-          intervention_radius_km: provider.radiusKm,
-          available_now: provider.tags.includes("disponible maintenant"),
-          search_tags: provider.tags,
-          is_demo: true,
-          demo_label: "Profil exemple",
-        },
-        { onConflict: "profile_id" },
-      )
+      .upsert(providerPayload, { onConflict: "profile_id" })
       .select("id")
       .single();
+
+    if (providerUpsert.error) {
+      const fallbackPayload = {
+        profile_id: providerProfileId,
+        display_name: displayName,
+        rating: provider.rating,
+        completed_missions: provider.completed,
+        verified: true,
+        top_provider: provider.rating >= 4.8,
+        hourly_from_chf: provider.hourlyFrom,
+        is_active: true,
+      };
+      providerUpsert = await supabase
+        .from("providers")
+        .upsert(fallbackPayload, { onConflict: "profile_id" })
+        .select("id")
+        .single();
+    }
+
+    const { data: providerRow, error: providerUpsertError } = providerUpsert;
     if (providerUpsertError || !providerRow) throw providerUpsertError ?? new Error("Provider row missing after upsert");
 
-    await supabase.from("provider_availability_rules").delete().eq("profile_id", providerProfileId);
-    const { error: availabilityError } = await supabase.from("provider_availability_rules").insert([
-      { profile_id: providerProfileId, day_of_week: 1, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
-      { profile_id: providerProfileId, day_of_week: 2, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
-      { profile_id: providerProfileId, day_of_week: 3, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
-      { profile_id: providerProfileId, day_of_week: 4, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
-      { profile_id: providerProfileId, day_of_week: 5, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
-      { profile_id: providerProfileId, day_of_week: 6, start_time: "09:00:00", end_time: "14:00:00", is_active: true },
-    ]);
-    if (availabilityError) throw availabilityError;
+    try {
+      await supabase.from("provider_availability_rules").delete().eq("profile_id", providerProfileId);
+      await supabase.from("provider_availability_rules").insert([
+        { profile_id: providerProfileId, day_of_week: 1, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
+        { profile_id: providerProfileId, day_of_week: 2, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
+        { profile_id: providerProfileId, day_of_week: 3, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
+        { profile_id: providerProfileId, day_of_week: 4, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
+        { profile_id: providerProfileId, day_of_week: 5, start_time: "08:00:00", end_time: "18:00:00", is_active: true },
+        { profile_id: providerProfileId, day_of_week: 6, start_time: "09:00:00", end_time: "14:00:00", is_active: true },
+      ]);
+    } catch (error) {
+      console.warn(`[seed] disponibilités ignorées pour ${displayName}: ${error instanceof Error ? error.message : String(error)}`);
+    }
 
-    await supabase.from("provider_services").delete().eq("profile_id", providerProfileId);
+    try {
+      await supabase.from("provider_services").delete().eq("profile_id", providerProfileId);
+    } catch {
+      // table or column can be absent on partially migrated projects
+    }
     const selectedServiceIds = pickServiceIds(services, provider.serviceKeywords, 6);
     if (selectedServiceIds.length > 0) {
       const providerServicesRows = selectedServiceIds.map((serviceId, index) => ({
@@ -585,7 +644,9 @@ async function main() {
         is_active: true,
       }));
       const { error: providerServicesError } = await supabase.from("provider_services").insert(providerServicesRows);
-      if (providerServicesError) throw providerServicesError;
+      if (providerServicesError) {
+        console.warn(`[seed] provider_services ignoré pour ${displayName}: ${providerServicesError.message}`);
+      }
     }
 
     await supabase
@@ -605,20 +666,16 @@ async function main() {
         role: "customer",
       });
 
-      const { error: customerProfileError } = await supabase.from("profiles").upsert(
-        {
-          id: customerProfileId,
-          role: "customer",
-          first_name: clientSeed.firstName,
-          last_name: clientSeed.lastName,
-          city: clientSeed.city,
-          phone: randomPhone(providerIndex * 10 + reviewIndex),
-          language: "fr",
-          account_status: "active",
-        },
-        { onConflict: "id" },
-      );
-      if (customerProfileError) throw customerProfileError;
+      await upsertProfileSafe(supabase, {
+        id: customerProfileId,
+        role: "customer",
+        first_name: clientSeed.firstName,
+        last_name: clientSeed.lastName,
+        city: clientSeed.city,
+        phone: randomPhone(providerIndex * 10 + reviewIndex),
+        language: "fr",
+        account_status: "active",
+      });
 
       const startsAt = new Date();
       startsAt.setDate(startsAt.getDate() - (reviewIndex + 2 + providerIndex));
