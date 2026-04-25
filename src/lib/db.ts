@@ -23,6 +23,7 @@ type HomeData = {
         rating: number;
         completedMissions: number;
         providerScore: number;
+        demoLabel: string | null;
       } | null;
     };
   }>;
@@ -90,11 +91,12 @@ export async function getHomeData() {
 
   try {
     const supabase = getSupabaseAdminClient();
+    const isProduction = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
 
     const [providersRes, categoriesRes, partnersRes, providerApplicationsRes] = await Promise.all([
       supabase
         .from("providers")
-        .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, latitude, longitude, profiles!inner(first_name,last_name,avatar_url,city)")
+        .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, hourly_from_chf, latitude, longitude, is_demo, demo_label, profiles!inner(first_name,last_name,avatar_url,city)")
         .eq("is_active", true)
         .limit(50),
       supabase.from("service_categories").select("id, name_fr, from_price_chf").eq("active", true),
@@ -118,6 +120,7 @@ export async function getHomeData() {
     const categoryByName = visibleCategories.map((c) => c.name_fr);
     const visibleProviders = (providersRes.data ?? []).filter((provider) => {
       if (!provider.profile_id) return false;
+      if (isProduction && provider.is_demo) return false;
       return latestWorkflowByProfile.get(provider.profile_id) === "approved";
     });
 
@@ -178,7 +181,7 @@ export async function getHomeData() {
         city: profile?.city ?? "Suisse romande",
         isAvailableToday: isAvailableNow,
         distanceKm: null,
-        badge: provider.verified ? "Vérifié" : provider.top_provider ? "Top" : null,
+        badge: !isProduction && provider.is_demo ? provider.demo_label || "Profil exemple" : provider.verified ? "Vérifié" : provider.top_provider ? "Top" : null,
         lat: Number(provider.latitude ?? 46.5197),
         lng: Number(provider.longitude ?? 6.6323),
         category: { name: categoryName },
@@ -190,6 +193,7 @@ export async function getHomeData() {
             rating,
             completedMissions,
             providerScore,
+            demoLabel: !isProduction && provider.is_demo ? provider.demo_label || "Profil exemple" : null,
           },
         },
       };
@@ -336,14 +340,16 @@ export async function getProviderProfile(providerId: string) {
 
   try {
     const supabase = getSupabaseAdminClient();
+    const isProduction = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
     const { data: provider } = await supabase
       .from("providers")
-      .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, is_active, profiles!inner(first_name,last_name,avatar_url,bio,city)")
+      .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, is_active, is_demo, demo_label, profiles!inner(first_name,last_name,avatar_url,bio,city)")
       .eq("id", providerId)
       .maybeSingle();
 
     if (!provider) return null;
     if (!provider.profile_id || provider.is_active !== true) return null;
+    if (isProduction && provider.is_demo) return null;
 
     const { data: latestApplication } = await supabase
       .from("provider_applications")
@@ -359,12 +365,25 @@ export async function getProviderProfile(providerId: string) {
 
     const profile = Array.isArray(provider.profiles) ? provider.profiles[0] : provider.profiles;
 
-    const { data: providerServices } = await supabase
-      .from("provider_services")
-      .select("service_id, min_price_chf, services(id, title, description, from_price_chf, service_categories(name_fr))")
-      .eq("profile_id", provider.profile_id)
-      .eq("is_active", true)
-      .limit(12);
+    const [providerServicesRes, reviewsRes] = await Promise.all([
+      supabase
+        .from("provider_services")
+        .select("service_id, min_price_chf, services(id, title, description, from_price_chf, service_categories(name_fr))")
+        .eq("profile_id", provider.profile_id)
+        .eq("is_active", true)
+        .limit(12),
+      supabase
+        .from("reviews")
+        .select("id, rating, comment, created_at")
+        .eq("provider_id", provider.id)
+        .eq("is_public", true)
+        .eq("is_moderated", true)
+        .order("created_at", { ascending: false })
+        .limit(6),
+    ]);
+
+    const providerServices = providerServicesRes.data ?? [];
+    const providerReviews = reviewsRes.data ?? [];
 
     return {
       id: provider.id,
@@ -379,6 +398,7 @@ export async function getProviderProfile(providerId: string) {
         isVerified: provider.verified,
         isTopProvider: provider.top_provider,
         city: profile?.city ?? "Lausanne",
+        demoLabel: !isProduction && provider.is_demo ? provider.demo_label || "Profil exemple" : null,
       },
       missions: (providerServices ?? []).map((entry) => {
         const service = Array.isArray(entry.services) ? entry.services[0] : entry.services;
@@ -399,6 +419,12 @@ export async function getProviderProfile(providerId: string) {
           category: { name: categoryName },
         };
       }).filter((service) => service.fromPrice > 0),
+      reviews: providerReviews.map((review) => ({
+        id: review.id,
+        rating: review.rating,
+        comment: review.comment,
+        createdAt: review.created_at,
+      })),
     };
   } catch {
     return null;

@@ -2,8 +2,8 @@
 
 import { CheckCircle2, Clock3, ShieldCheck, UsersRound } from "lucide-react";
 
-import { HeroSearch } from "@/components/nearyou/hero-search";
 import { ProviderMapSplit } from "@/components/nearyou/provider-map-split";
+import { SmartSearchBar } from "@/components/search/smart-search-bar";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -109,7 +109,7 @@ export default async function HomePage() {
             </div>
 
             <div className="mt-6">
-              <HeroSearch lang={lang} />
+              <SmartSearchBar submitLabel="Réserver un service" />
             </div>
           </div>
         </Container>

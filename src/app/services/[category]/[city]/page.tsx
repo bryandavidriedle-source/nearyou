@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { SmartSearchBar } from "@/components/search/smart-search-bar";
 import { Container } from "@/components/shared/container";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { findCategoryBySlug, findCityBySlug, SERVICE_CATEGORIES, SWISS_CITY_TARGETS } from "@/lib/catalog";
@@ -17,7 +19,7 @@ type Params = {
 function normalize(value: string) {
   return value
     .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
 }
 
@@ -85,6 +87,8 @@ export default async function LocalServicePage({ params }: { params: Promise<Par
           </p>
         </div>
 
+        <SmartSearchBar initialQuery={category.label} initialCity={`${city.name}, ${city.postalCode}`} submitLabel="Comparer les prestataires" />
+
         {providers.length === 0 ? (
           <Card className="rounded-2xl border border-dashed border-blue-200 bg-white p-6">
             <p className="text-lg font-semibold text-slate-900">Aucun prestataire disponible actuellement</p>
@@ -111,7 +115,10 @@ export default async function LocalServicePage({ params }: { params: Promise<Par
               const providerName = `${profile.firstName} ${profile.lastName}`.trim();
               return (
                 <Card key={provider.id} className="premium-card space-y-2 p-5">
-                  <p className="text-lg font-semibold text-slate-900">{providerName}</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-lg font-semibold text-slate-900">{providerName}</p>
+                    {profile.demoLabel ? <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">{profile.demoLabel}</Badge> : null}
+                  </div>
                   <p className="text-sm text-slate-600">{provider.title}</p>
                   <p className="text-sm text-slate-500">{provider.city}</p>
                   <p className="text-sm font-semibold text-green-700">dès {provider.fromPrice} CHF</p>

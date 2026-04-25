@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
+import { SmartSearchBar } from "@/components/search/smart-search-bar";
 import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,9 +21,12 @@ export default function ServicesPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-slate-900">Services à domicile en Suisse</h1>
           <p className="text-slate-600">
-            Choisissez une catégorie puis une ville pour afficher les prestations locales disponibles.
+            Décrivez votre besoin en langage naturel, puis comparez les prestataires disponibles autour de St-Prex, Morges, Rolle,
+            Nyon et Lausanne.
           </p>
         </div>
+
+        <SmartSearchBar submitLabel="Lancer la recherche" />
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {serviceCategories.map((category) => (

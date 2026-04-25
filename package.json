@@ -17,7 +17,9 @@
         "validate:env": "node scripts/validate-env.mjs",
         "setup:local": "powershell -ExecutionPolicy Bypass -File scripts/setup-local.ps1 -Install -ValidateEnv",
         "release:check": "npm run preflight && npm run validate:env && npm run typecheck && npm run lint && npm run build",
-        "seed:demo-providers": "node scripts/seed-demo-providers.mjs"
+        "seed:demo-providers": "node scripts/seed-demo-providers.mjs",
+        "seed:provider-examples": "node scripts/seed-demo-providers.mjs",
+        "test:search": "tsx scripts/test-smart-search.ts"
     },
     "dependencies": {
         "@base-ui/react": "^1.4.1",

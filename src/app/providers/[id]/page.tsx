@@ -33,6 +33,7 @@ export default async function ProviderProfilePage({ params }: { params: Promise<
               <div className="mt-2 flex gap-2">
                 {profile.isVerified ? <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">Prestataire vérifié</Badge> : null}
                 {profile.isTopProvider ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Top prestataire</Badge> : null}
+                {profile.demoLabel ? <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">{profile.demoLabel}</Badge> : null}
               </div>
               <Button asChild className="mt-4 rounded-xl bg-green-600 hover:bg-green-700">
                 <Link href={`/reserve/${provider.id}`}>Réserver avec ce prestataire</Link>
@@ -62,6 +63,23 @@ export default async function ProviderProfilePage({ params }: { params: Promise<
             </div>
           </Card>
         )}
+
+        {provider.reviews?.length > 0 ? (
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold text-slate-900">Avis récents</h2>
+            <div className="grid gap-3 md:grid-cols-2">
+              {provider.reviews.map((review) => (
+                <Card key={review.id} className="premium-card p-4">
+                  <p className="text-sm font-semibold text-slate-900">{review.rating}/5</p>
+                  <p className="mt-1 text-sm text-slate-600">{review.comment || "Avis vérifié."}</p>
+                  <p className="mt-2 text-xs text-slate-500">
+                    {new Date(review.createdAt).toLocaleDateString("fr-CH", { day: "2-digit", month: "short", year: "numeric" })}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </Container>
 
       <div className="fixed inset-x-0 bottom-20 z-40 px-4 md:hidden">
