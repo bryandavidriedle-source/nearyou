@@ -144,6 +144,7 @@ export type SmartSearchProvider = {
   name: string;
   avatarUrl: string;
   city: string;
+  distanceKm: number | null;
   postalCode: string | null;
   canton: string | null;
   rating: number;
@@ -189,7 +190,24 @@ export type SmartSearchResult = {
 const STATIC_TAG_SYNONYMS: Record<string, string[]> = {
   menage: ["menage", "nettoyage", "proprete", "fin de bail", "appartement", "ménage", "nettoyer"],
   jardin: ["jardin", "jardinage", "tonte", "haie", "pelouse", "feuilles", "aide pour mon jardin"],
-  animaux: ["chien", "chat", "animaux", "promenade chien", "garde animaux", "promener mon chien", "sortir mon chien"],
+  animaux: [
+    "animal",
+    "animaux",
+    "chien",
+    "chiens",
+    "dog",
+    "dogs",
+    "dog walking",
+    "chat",
+    "chats",
+    "promenade",
+    "promenade chien",
+    "promener",
+    "promener mon chien",
+    "sortir mon chien",
+    "balade chien",
+    "garde animaux",
+  ],
   senior: ["senior", "seniors", "maman", "papa", "accompagnement", "courses senior", "aider un proche", "personne agee"],
   informatique: ["informatique", "ordinateur", "ordi", "mon ordi bug", "ordinateur bug", "telephone", "iphone", "tablette", "wifi"],
   bricolage: ["bricolage", "reparation", "petits travaux", "percer", "fixer", "depannage"],
@@ -197,6 +215,43 @@ const STATIC_TAG_SYNONYMS: Record<string, string[]> = {
   transport: ["transport", "demenagement", "livraison", "courses", "aide pour courses", "faire mes courses", "colis"],
   administratif: ["administratif", "formulaire", "papiers", "demarches", "classement", "aide administrative"],
   urgence: ["urgence", "urgent", "urgentissime", "disponible maintenant", "express"],
+};
+
+const TAG_CATEGORY_SLUGS: Record<string, string[]> = {
+  animaux: ["promenade-chien", "garde-animaux"],
+  jardin: ["jardinage"],
+  menage: ["menage"],
+  informatique: ["informatique"],
+  bricolage: ["bricolage"],
+  "montage-meuble": ["montage-meubles"],
+  senior: ["aide-seniors", "accompagnement"],
+  transport: ["aide-transport", "demenagement", "livraison-locale"],
+  administratif: ["aide-administrative"],
+};
+
+const CATEGORY_INTENT_ALIASES: Record<string, string[]> = {
+  "promenade-chien": ["chien", "chiens", "dog", "dogs", "dog walking", "promenade", "promener", "prome", "balade chien", "sortir mon chien"],
+  "garde-animaux": ["animaux", "animal", "chat", "chats", "garde animaux", "nourrir les animaux", "litiere", "litière"],
+  jardinage: ["jardin", "jardinage", "tondre", "tonte", "pelouse", "haie"],
+  menage: ["menage", "ménage", "nettoyage", "nettoyer", "appartement"],
+  informatique: ["informatique", "ordi", "ordinateur", "bug", "wifi", "iphone", "telephone", "téléphone"],
+  bricolage: ["bricolage", "reparation", "réparation", "fixer", "percer", "depannage", "dépannage"],
+  "montage-meubles": ["montage", "monter un meuble", "meuble", "armoire", "ikea"],
+  "aide-transport": ["courses", "transport", "livraison", "colis", "pharmacie"],
+  "aide-seniors": ["senior", "seniors", "aider un proche", "accompagnement", "courses senior"],
+  "aide-administrative": ["administratif", "papiers", "formulaire", "demarches", "démarches"],
+};
+
+const CITY_COORDINATES: Record<string, { lat: number; lon: number }> = {
+  "st-prex": { lat: 46.4796, lon: 6.4596 },
+  morges: { lat: 46.5113, lon: 6.4985 },
+  lausanne: { lat: 46.5197, lon: 6.6323 },
+  nyon: { lat: 46.3833, lon: 6.2396 },
+  rolle: { lat: 46.4582, lon: 6.3341 },
+  geneve: { lat: 46.2044, lon: 6.1432 },
+  fribourg: { lat: 46.8065, lon: 7.1619 },
+  "yverdon-les-bains": { lat: 46.7785, lon: 6.6412 },
+  aubonne: { lat: 46.4956, lon: 6.3912 },
 };
 
 function normalize(value: string) {
@@ -212,6 +267,54 @@ function tokenize(value: string) {
     .replace(/[^\p{L}\p{N}\s-]/gu, " ")
     .split(/\s+/)
     .filter(Boolean);
+}
+
+function phraseMatchesQuery(query: string, phrase: string) {
+  const normalizedQuery = normalize(query);
+  const normalizedPhrase = normalize(phrase);
+  if (!normalizedQuery || !normalizedPhrase) return false;
+  if (normalizedQuery.includes(normalizedPhrase) || normalizedPhrase.includes(normalizedQuery)) return true;
+
+  const queryTokens = tokenize(normalizedQuery);
+  const phraseTokens = tokenize(normalizedPhrase);
+  return queryTokens.some((queryToken) => {
+    if (queryToken.length < 3) return false;
+    return phraseTokens.some((phraseToken) => phraseToken.startsWith(queryToken) || queryToken.startsWith(phraseToken));
+  });
+}
+
+function anyPhraseMatchesQuery(query: string, phrases: Iterable<string>) {
+  for (const phrase of phrases) {
+    if (phraseMatchesQuery(query, phrase)) return true;
+  }
+  return false;
+}
+
+function getCityCoordinates(value: string | null | undefined) {
+  if (!value) return null;
+  const normalizedValue = normalize(value.replace(/\b\d{4}\b/g, "").replace(/[, ]+$/g, ""));
+  const exact = CITY_COORDINATES[normalizedValue];
+  if (exact) return exact;
+
+  const city = SWISS_CITY_TARGETS.find(
+    (target) => normalizedValue.includes(normalize(target.name)) || normalize(target.name).includes(normalizedValue),
+  );
+  return city ? CITY_COORDINATES[normalize(city.name)] ?? CITY_COORDINATES[city.slug] ?? null : null;
+}
+
+function distanceKmBetweenCities(fromCity: string | null | undefined, toCity: string | null | undefined) {
+  const from = getCityCoordinates(fromCity);
+  const to = getCityCoordinates(toCity);
+  if (!from || !to) return null;
+
+  const earthRadiusKm = 6371;
+  const toRad = (value: number) => (value * Math.PI) / 180;
+  const dLat = toRad(to.lat - from.lat);
+  const dLon = toRad(to.lon - from.lon);
+  const lat1 = toRad(from.lat);
+  const lat2 = toRad(to.lat);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return Math.round(earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * 10) / 10;
 }
 
 function getCategoryRelation(categoryRelation: ServiceRow["service_categories"]) {
@@ -308,18 +411,17 @@ function categoryHintsFromStaticCatalog() {
 const staticCategoryHintMap = categoryHintsFromStaticCatalog();
 
 function detectTags(query: string, dbTags: SearchTagRow[]) {
-  const normalizedQuery = normalize(query);
   const detected = new Set<string>();
 
   for (const [slug, words] of Object.entries(STATIC_TAG_SYNONYMS)) {
-    if (words.some((word) => normalizedQuery.includes(normalize(word)))) {
+    if (anyPhraseMatchesQuery(query, words)) {
       detected.add(slug);
     }
   }
 
   for (const tag of dbTags) {
-    const aliases = [tag.slug, tag.label, ...(tag.synonyms ?? [])].map((item) => normalize(item));
-    if (aliases.some((alias) => alias.length > 0 && normalizedQuery.includes(alias))) {
+    const aliases = [tag.slug, tag.label, ...(tag.synonyms ?? [])];
+    if (anyPhraseMatchesQuery(query, aliases)) {
       detected.add(tag.slug);
     }
   }
@@ -328,7 +430,6 @@ function detectTags(query: string, dbTags: SearchTagRow[]) {
 }
 
 function detectCategorySlugs(query: string, categories: CategoryRow[], detectedTags: string[], keywordRows: ServiceKeywordRow[]) {
-  const normalizedQuery = normalize(query);
   const matched = new Set<string>();
   const categoryById = new Map(categories.map((category) => [category.id, category.slug]));
 
@@ -338,16 +439,17 @@ function detectCategorySlugs(query: string, categories: CategoryRow[], detectedT
       normalize(category.name_fr),
       normalize(category.slug.replace(/-/g, " ")),
       ...(category.ai_search_hint ? [normalize(category.ai_search_hint)] : []),
+      ...(CATEGORY_INTENT_ALIASES[category.slug] ?? []),
     ];
 
-    if ([...staticHints, ...dbHints].some((hint) => hint.length > 1 && normalizedQuery.includes(hint))) {
+    if (anyPhraseMatchesQuery(query, [...staticHints, ...dbHints])) {
       matched.add(category.slug);
     }
   }
 
   for (const keywordRow of keywordRows) {
     if (!keywordRow.category_id) continue;
-    if (!normalizedQuery.includes(normalize(keywordRow.keyword))) continue;
+    if (!phraseMatchesQuery(query, keywordRow.keyword)) continue;
     const slug = categoryById.get(keywordRow.category_id);
     if (slug) matched.add(slug);
   }
@@ -355,15 +457,19 @@ function detectCategorySlugs(query: string, categories: CategoryRow[], detectedT
   for (const tagSlug of detectedTags) {
     const categoryFromTag = SERVICE_CATEGORIES.find((category) => normalize(category.slug) === normalize(tagSlug));
     if (categoryFromTag) matched.add(categoryFromTag.slug);
+    for (const mappedSlug of TAG_CATEGORY_SLUGS[tagSlug] ?? []) {
+      if (categories.some((category) => category.slug === mappedSlug) || SERVICE_CATEGORIES.some((category) => category.slug === mappedSlug)) {
+        matched.add(mappedSlug);
+      }
+    }
   }
 
   return Array.from(matched);
 }
 
 function detectServiceSlugs(query: string, services: ServiceRow[]) {
-  const normalizedQuery = normalize(query);
   return services
-    .filter((service) => normalizedQuery.includes(normalize(service.title)) || normalizedQuery.includes(normalize(service.slug.replace(/-/g, " "))))
+    .filter((service) => anyPhraseMatchesQuery(query, [service.title, service.slug.replace(/-/g, " ")]))
     .map((service) => service.slug);
 }
 
@@ -397,8 +503,10 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
     const staticCategories = SERVICE_CATEGORIES.filter((category) => {
       if (!query) return true;
       if (detectedTags.some((tag) => normalize(tag) === normalize(category.slug))) return true;
+      if ((CATEGORY_INTENT_ALIASES[category.slug] ?? []).some((alias) => phraseMatchesQuery(query, alias))) return true;
+      if (detectedTags.some((tag) => (TAG_CATEGORY_SLUGS[tag] ?? []).includes(category.slug))) return true;
       const hints = staticCategoryHintMap.get(category.slug) ?? new Set<string>();
-      return hints.has(normalizedQuery) || [...hints].some((hint) => normalizedQuery.includes(hint));
+      return hints.has(normalizedQuery) || anyPhraseMatchesQuery(query, hints);
     }).slice(0, 6);
 
     return {
@@ -594,6 +702,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (showDemoData && provider.is_demo) badges.push(provider.demo_label?.trim() || "Profil exemple");
 
       const city = app?.city ?? profile.city ?? "Suisse romande";
+      const distanceKm = detectedLocation.city ? distanceKmBetweenCities(detectedLocation.city, city) : null;
       const categoryLabels = Array.from(providerCategorySlugs).map((slug) => categoryLabelBySlug.get(slug) ?? slug);
 
       return {
@@ -604,6 +713,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
           profile.avatar_url ??
           "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=800&q=80",
         city,
+        distanceKm,
         postalCode: app?.postal_code ?? null,
         canton: app?.canton ?? null,
         rating: providerRating,
@@ -633,12 +743,14 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (requestedMaxPrice && provider.fromPrice > requestedMaxPrice) return false;
       if (onlyAvailableNow && !provider.isAvailableNow) return false;
 
-      if (
-        detectedLocation.city &&
-        !normalize(provider.city).includes(normalize(detectedLocation.city)) &&
-        !normalize(detectedLocation.city).includes(normalize(provider.city))
-      ) {
-        return false;
+      if (detectedLocation.city) {
+        const exactCityMatch =
+          normalize(provider.city).includes(normalize(detectedLocation.city)) ||
+          normalize(detectedLocation.city).includes(normalize(provider.city));
+        const hasDistanceMatch =
+          typeof provider.distanceKm === "number" && provider.distanceKm <= Math.max(provider.interventionRadiusKm, 20);
+
+        if (!exactCityMatch && !hasDistanceMatch) return false;
       }
 
       if (detectedCategorySlugs.length > 0) {
@@ -690,7 +802,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (!query) return true;
       const normalizedTitle = normalize(service.title);
       const normalizedSlug = normalize(service.slug.replace(/-/g, " "));
-      return normalizedTitle.includes(normalizedQuery) || normalizedQuery.includes(normalizedTitle) || normalizedSlug.includes(normalizedQuery);
+      return anyPhraseMatchesQuery(query, [normalizedTitle, normalizedSlug]);
     })
     .slice(0, 8)
     .map((service) => {
@@ -703,11 +815,11 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       };
     });
 
-  const matchedCategories = categories
+  const matchedCategoriesFromDb = categories
     .filter((category) => {
       if (detectedCategorySlugs.includes(category.slug)) return true;
       if (!query) return false;
-      return normalize(category.name_fr).includes(normalizedQuery) || normalizedQuery.includes(normalize(category.name_fr));
+      return anyPhraseMatchesQuery(query, [category.name_fr, category.slug.replace(/-/g, " "), ...(CATEGORY_INTENT_ALIASES[category.slug] ?? [])]);
     })
     .slice(0, 8)
     .map((category) => ({
@@ -716,6 +828,44 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       fromPrice: category.from_price_chf,
       reason: detectedCategorySlugs.includes(category.slug) ? "Correspondance détectée" : "Catégorie proche",
     }));
+
+  const staticServiceSuggestions = SERVICE_CATEGORIES.flatMap((category) =>
+    category.subcategories.flatMap((subcategory) =>
+      subcategory.tasks.map((task) => ({
+        slug: `${category.slug}-${normalize(task.title).replace(/\s+/g, "-")}`,
+        title: task.title,
+        categorySlug: category.slug,
+        fromPrice: category.fromPrice,
+        aliases: [task.title, category.label, category.slug.replace(/-/g, " "), subcategory.name, ...task.tags, ...(CATEGORY_INTENT_ALIASES[category.slug] ?? [])],
+      })),
+    ),
+  )
+    .filter((service) => !query || anyPhraseMatchesQuery(query, service.aliases))
+    .sort((a, b) => Number(detectedCategorySlugs.includes(b.categorySlug)) - Number(detectedCategorySlugs.includes(a.categorySlug)))
+    .slice(0, 8)
+    .map((service) => ({
+      slug: service.slug,
+      title: service.title,
+      categorySlug: service.categorySlug,
+      fromPrice: service.fromPrice,
+    }));
+
+  const matchedCategoryBySlug = new Map(matchedCategoriesFromDb.map((category) => [category.slug, category]));
+
+  for (const category of SERVICE_CATEGORIES) {
+    const isMatch =
+      detectedCategorySlugs.includes(category.slug) ||
+      Boolean(query && anyPhraseMatchesQuery(query, [category.label, category.slug.replace(/-/g, " "), ...(CATEGORY_INTENT_ALIASES[category.slug] ?? [])]));
+    if (!isMatch || matchedCategoryBySlug.has(category.slug)) continue;
+    matchedCategoryBySlug.set(category.slug, {
+      slug: category.slug,
+      label: category.label,
+      fromPrice: category.fromPrice,
+      reason: detectedCategorySlugs.includes(category.slug) ? "Correspondance détectée" : "Catégorie proche",
+    });
+  }
+
+  const matchedCategories = Array.from(matchedCategoryBySlug.values()).slice(0, 8);
 
   const providerSuggestions = filteredProviders.slice(0, 6).map((provider) => ({
     id: provider.id,
@@ -730,7 +880,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
     .filter((tag) => {
       if (detectedTags.includes(tag.slug)) return true;
       if (!query) return false;
-      return normalize(tag.label).includes(normalizedQuery) || normalize(tag.slug).includes(normalizedQuery);
+      return anyPhraseMatchesQuery(query, [tag.label, tag.slug, ...(tag.synonyms ?? [])]);
     })
     .slice(0, 10)
     .map((tag) => ({
@@ -754,7 +904,16 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
   const suggestedFallbackCategories =
     matchedCategories.length > 0
       ? matchedCategories.slice(0, 4).map((item) => ({ slug: item.slug, label: item.label, fromPrice: item.fromPrice }))
-      : categories.slice(0, 4).map((item) => ({ slug: item.slug, label: item.name_fr, fromPrice: item.from_price_chf }));
+      : categories.length > 0
+        ? categories.slice(0, 4).map((item) => ({ slug: item.slug, label: item.name_fr, fromPrice: item.from_price_chf }))
+        : SERVICE_CATEGORIES.slice(0, 4).map((item) => ({ slug: item.slug, label: item.label, fromPrice: item.fromPrice }));
+
+  const recognizedNeed =
+    detectedCategorySlugs.length > 0 ||
+    detectedServiceSlugs.length > 0 ||
+    matchedCategories.length > 0 ||
+    serviceSuggestions.length > 0 ||
+    staticServiceSuggestions.length > 0;
 
   const result: SmartSearchResult = {
     query,
@@ -775,7 +934,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       categories: matchedCategories,
       tags: tagSuggestions,
       cities: citySuggestions,
-      services: serviceSuggestions,
+      services: serviceSuggestions.length > 0 ? serviceSuggestions : staticServiceSuggestions,
       providers: providerSuggestions,
     },
     providers: filteredProviders,
@@ -783,7 +942,9 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       noResults: filteredProviders.length === 0,
       message:
         filteredProviders.length === 0
-          ? "Aucune correspondance exacte pour le moment. Essayez une catégorie proche ou créez une demande personnalisée."
+          ? recognizedNeed
+            ? "Besoin identifié. Aucun prestataire vérifié n'est disponible pour cette zone pour le moment; créez une demande et nous vous accompagnons."
+            : "Aucune correspondance exacte pour le moment. Essayez une catégorie proche ou créez une demande personnalisée."
           : null,
       suggestedCategories: suggestedFallbackCategories,
       customRequestUrl: "/demande",
@@ -824,7 +985,10 @@ export async function inferSearchIntentWithAi(query: string) {
 export const __smartSearchInternals = {
   normalize,
   tokenize,
+  phraseMatchesQuery,
   detectSwissLocation,
   detectTags,
+  detectCategorySlugs,
+  distanceKmBetweenCities,
 };
 

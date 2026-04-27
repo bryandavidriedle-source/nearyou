@@ -8,6 +8,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ??
 
 async function runSmartSearchUnitTests() {
   const { __smartSearchInternals } = await import("../src/lib/search/smart-search");
+  const { SERVICE_CATEGORIES } = await import("../src/lib/catalog");
 
   const normalized = __smartSearchInternals.normalize("  Déneiger Entrée  ");
   assert.equal(normalized, "deneiger entree");
@@ -27,6 +28,24 @@ async function runSmartSearchUnitTests() {
     [],
   );
   assert.ok(detectedTags.includes("animaux"));
+
+  for (const query of ["chien", "dog", "prome"]) {
+    const tags = __smartSearchInternals.detectTags(query, []);
+    assert.ok(tags.includes("animaux"), `${query} should detect animaux`);
+
+    const categoryRows = SERVICE_CATEGORIES.map((category) => ({
+      id: category.slug,
+      slug: category.slug,
+      name_fr: category.label,
+      from_price_chf: category.fromPrice,
+      ai_search_hint: null,
+    }));
+    const categorySlugs = __smartSearchInternals.detectCategorySlugs(query, categoryRows, tags, []);
+    assert.ok(categorySlugs.includes("promenade-chien"), `${query} should detect promenade-chien`);
+  }
+
+  const stPrexToMorges = __smartSearchInternals.distanceKmBetweenCities("St-Prex", "Morges");
+  assert.ok(typeof stPrexToMorges === "number" && stPrexToMorges < 12, "Morges should be inside nearby St-Prex search radius");
 
   console.log("Smart search tests: OK");
 }

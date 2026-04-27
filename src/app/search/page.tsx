@@ -47,6 +47,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     sourcePage: "search_page",
     logQuery: query.length >= 2,
   });
+  const hasRecognizedNeed =
+    result.detected.categorySlugs.length > 0 ||
+    result.detected.serviceSlugs.length > 0 ||
+    result.suggestions.categories.length > 0 ||
+    result.suggestions.services.length > 0;
 
   return (
     <section className="py-10">
@@ -90,6 +95,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   name={provider.name}
                   avatarUrl={provider.avatarUrl}
                   city={provider.city}
+                  distanceKm={provider.distanceKm}
                   rating={provider.rating}
                   reviewCount={provider.completedMissions}
                   fromPrice={provider.fromPrice}
@@ -104,7 +110,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           ) : (
             <Card className="rounded-2xl border border-dashed border-slate-300 bg-white p-6">
-              <p className="text-lg font-semibold text-slate-900">Aucune correspondance exacte</p>
+              <p className="text-lg font-semibold text-slate-900">
+                {hasRecognizedNeed ? "Besoin identifié" : "Aucune correspondance exacte"}
+              </p>
               <p className="mt-1 text-sm text-slate-600">{result.fallback.message}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {result.fallback.suggestedCategories.map((category) => (
