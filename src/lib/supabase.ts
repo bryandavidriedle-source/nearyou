@@ -1,4 +1,4 @@
-﻿import { publicEnv, serverEnv } from "@/lib/env";
+import { publicEnv, serverEnv } from "@/lib/env";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getSupabaseServerClient } from "@/lib/supabase/server";

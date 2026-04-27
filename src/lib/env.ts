@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 const optionalSecret = z.string().min(20).optional().or(z.literal(""));
 

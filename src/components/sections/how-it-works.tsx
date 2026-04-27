@@ -1,4 +1,4 @@
-﻿import { SearchCheck, ShieldCheck, Sparkles } from "lucide-react";
+import { SearchCheck, ShieldCheck, Sparkles } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 

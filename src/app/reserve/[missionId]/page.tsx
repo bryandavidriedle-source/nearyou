@@ -1,4 +1,4 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { BookingIntentForm } from "@/components/nearyou/booking-intent-form";
 import { Container } from "@/components/shared/container";

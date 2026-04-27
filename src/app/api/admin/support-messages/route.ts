@@ -1,4 +1,4 @@
-﻿import { jsonError } from "@/lib/api";
+import { jsonError } from "@/lib/api";
 import { requireApiAdminScopes } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 

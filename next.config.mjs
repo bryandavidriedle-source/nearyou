@@ -1,4 +1,7 @@
-﻿/** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */
+const scriptSrc =
+  process.env.NODE_ENV === "development" ? "'self' 'unsafe-inline' 'unsafe-eval'" : "'self' 'unsafe-inline'";
+
 const securityHeaders = [
   {
     key: "X-Frame-Options",
@@ -23,7 +26,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https://images.unsplash.com https://*.supabase.co https://api.mapbox.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://api.mapbox.com https://events.mapbox.com https://api.openai.com https://challenges.cloudflare.com; font-src 'self' data:; frame-ancestors 'none'; upgrade-insecure-requests;",
+      `default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https://images.unsplash.com https://*.supabase.co https://api.mapbox.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; script-src ${scriptSrc}; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co https://api.mapbox.com https://events.mapbox.com https://api.openai.com https://challenges.cloudflare.com; font-src 'self' data:; frame-ancestors 'none'; upgrade-insecure-requests;`,
   },
 ];
 

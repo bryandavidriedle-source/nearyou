@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 import { serviceCategoryLabels } from "@/lib/constants";
 
@@ -30,14 +30,14 @@ function isAtLeastAge(dateString: string, age: number) {
 }
 
 export const serviceRequestSchema = z.object({
-  firstName: sanitizedString(2, "PrÃ©nom requis."),
+  firstName: sanitizedString(2, "Prénom requis."),
   lastName: sanitizedString(2, "Nom requis."),
   email: z.string().email("Email invalide."),
-  phone: z.string().trim().regex(phoneRegex, "NumÃ©ro de tÃ©lÃ©phone invalide."),
+  phone: z.string().trim().regex(phoneRegex, "Numéro de téléphone invalide."),
   city: sanitizedString(2, "Ville requise."),
-  category: sanitizedString(2, "CatÃ©gorie requise.").refine(
+  category: sanitizedString(2, "Catégorie requise.").refine(
     (value) => serviceCategoryLabels.includes(value),
-    "CatÃ©gorie de service invalide.",
+    "Catégorie de service invalide.",
   ),
   serviceId: z.string().uuid().optional().or(z.literal("")),
   interventionAddress: sanitizedString(4, "Adresse d'intervention requise."),
@@ -53,20 +53,20 @@ export const serviceRequestSchema = z.object({
     .max(40)
     .optional()
     .or(z.literal(""))
-    .refine((value) => !value || !Number.isNaN(Date.parse(value)), "Date/heure demandee invalide."),
-  description: sanitizedString(15, "Veuillez dÃ©tailler votre besoin."),
-  urgency: z.enum(["Faible", "Moyenne", "Elevee", "Ã‰levÃ©e", "Low", "Medium", "High"]),
+    .refine((value) => !value || !Number.isNaN(Date.parse(value)), "Date/heure demandée invalide."),
+  description: sanitizedString(15, "Veuillez détailler votre besoin."),
+  urgency: z.enum(["Faible", "Moyenne", "Elevee", "Élevée", "Low", "Medium", "High"]),
   budget: sanitizedString(1, "Budget requis."),
   consent: z.boolean().refine((v) => v, "Consentement requis."),
   ...antiSpamFields,
 });
 
 export const providerApplicationSchema = z.object({
-  firstName: sanitizedString(2, "PrÃ©nom requis."),
+  firstName: sanitizedString(2, "Prénom requis."),
   lastName: sanitizedString(2, "Nom requis."),
   businessName: sanitizedString(2, "Nom requis."),
   email: z.string().email("Email invalide."),
-  phone: z.string().trim().regex(phoneRegex, "NumÃ©ro de tÃ©lÃ©phone invalide."),
+  phone: z.string().trim().regex(phoneRegex, "Numéro de téléphone invalide."),
   birthDate: z.string().date("Date de naissance invalide."),
   addressLine: sanitizedString(4, "Adresse requise."),
   postalCode: sanitizedString(4, "Code postal requis."),
@@ -74,9 +74,9 @@ export const providerApplicationSchema = z.object({
   city: sanitizedString(2, "Ville requise."),
   country: sanitizedString(2, "Pays requis."),
   interventionRadiusKm: z.number().int().min(1).max(80),
-  category: sanitizedString(2, "CatÃ©gorie requise.").refine(
+  category: sanitizedString(2, "Catégorie requise.").refine(
     (value) => serviceCategoryLabels.includes(value),
-    "CatÃ©gorie de service invalide.",
+    "Catégorie de service invalide.",
   ),
   legalStatus: z.enum(["independant", "entreprise"]),
   companyName: z.string().trim().max(100).optional().or(z.literal("")),
@@ -86,12 +86,12 @@ export const providerApplicationSchema = z.object({
   languages: sanitizedString(2, "Langues requises."),
   acceptsUrgency: z.boolean().default(false),
   servicesDescription: sanitizedString(20, "Description trop courte."),
-  yearsExperience: sanitizedString(1, "ExpÃ©rience requise."),
-  availability: sanitizedString(2, "DisponibilitÃ© requise."),
+  yearsExperience: sanitizedString(1, "Expérience requise."),
+  availability: sanitizedString(2, "Disponibilité requise."),
   idDocumentType: z.enum(["piece_identite", "titre_sejour_b", "titre_sejour_c"]),
   residencePermitType: z.enum(["B", "C"]).optional().or(z.literal("")),
   websiteOrInstagram: z.string().trim().optional().or(z.literal("")),
-  legalResponsibilityAck: z.boolean().refine((v) => v, "Validation de responsabilitÃ© requise."),
+  legalResponsibilityAck: z.boolean().refine((v) => v, "Validation de responsabilité requise."),
   termsAck: z.boolean().refine((v) => v, "Acceptation des conditions requise."),
   consent: z.boolean().refine((v) => v, "Consentement requis."),
   ...antiSpamFields,
@@ -110,17 +110,17 @@ export const contactMessageSchema = z.object({
   email: z.string().email("Email invalide."),
   subject: sanitizedString(3, "Sujet requis."),
   message: sanitizedString(10, "Message trop court."),
-  phone: z.string().trim().regex(phoneRegex, "NumÃ©ro invalide.").optional().or(z.literal("")),
+  phone: z.string().trim().regex(phoneRegex, "Numéro invalide.").optional().or(z.literal("")),
   consent: z.boolean().refine((v) => v, "Consentement requis."),
   ...antiSpamFields,
 });
 
 export const callRequestSchema = z.object({
-  firstName: sanitizedString(2, "PrÃ©nom requis."),
+  firstName: sanitizedString(2, "Prénom requis."),
   lastName: sanitizedString(2, "Nom requis."),
-  phone: z.string().trim().regex(phoneRegex, "NumÃ©ro de tÃ©lÃ©phone invalide."),
+  phone: z.string().trim().regex(phoneRegex, "Numéro de téléphone invalide."),
   city: sanitizedString(2, "Ville requise."),
-  category: sanitizedString(2, "CatÃ©gorie requise."),
+  category: sanitizedString(2, "Catégorie requise."),
   preferredSlot: z.enum(["morning", "afternoon", "evening", "matin", "apres-midi", "soir"]),
   contactMode: z.enum(["phone", "whatsapp"]),
   note: z.string().trim().max(500).optional().or(z.literal("")),
@@ -147,7 +147,7 @@ export const bookingIntentSchema = z.object({
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["endAt"],
-      message: "La fin doit Ãªtre aprÃ¨s le dÃ©but.",
+      message: "La fin doit être après le début.",
     });
   }
 
@@ -155,7 +155,7 @@ export const bookingIntentSchema = z.object({
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["startAt"],
-      message: "Le crÃ©neau doit Ãªtre dans le futur.",
+      message: "Le créneau doit être dans le futur.",
     });
   }
 });

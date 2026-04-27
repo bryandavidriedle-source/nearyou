@@ -1,4 +1,4 @@
-﻿-- NearYou auth/profile automation + updated_at triggers
+-- NearYou auth/profile automation + updated_at triggers
 
 create or replace function public.handle_new_user()
 returns trigger

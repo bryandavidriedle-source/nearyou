@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { ContactForm } from "@/components/forms/contact-form";
 import { Container } from "@/components/shared/container";

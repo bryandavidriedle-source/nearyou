@@ -1,4 +1,4 @@
-﻿export const supportedLanguages = ["fr", "en", "it", "de"] as const;
+export const supportedLanguages = ["fr", "en", "it", "de"] as const;
 
 export type Language = (typeof supportedLanguages)[number];
 

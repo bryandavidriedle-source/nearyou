@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { Container } from "@/components/shared/container";
 import { SectionHeader } from "@/components/sections/section-header";

@@ -1,4 +1,4 @@
-﻿export type NavigationRole = "guest" | "client" | "provider" | "admin";
+export type NavigationRole = "guest" | "client" | "provider" | "admin";
 
 export type NavigationItem = {
   href: string;

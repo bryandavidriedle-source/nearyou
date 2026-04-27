@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { CategoryCard } from "@/components/sections/category-card";
 import { Container } from "@/components/shared/container";

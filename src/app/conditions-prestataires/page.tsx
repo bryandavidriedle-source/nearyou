@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { Container } from "@/components/shared/container";
 import { pageMetadata, siteConfig } from "@/lib/site";
@@ -25,9 +25,9 @@ export default function ProviderTermsPage() {
           PrèsDeToi. Le prestataire assume seul ses obligations sociales, fiscales, administratives et réglementaires.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900">2. Âge minimum et restrictions</h2>
+        <h2 className="text-xl font-semibold text-slate-900">2. ge minimum et restrictions</h2>
         <p>
-          Âge minimum pour candidater: 15 ans.
+          ge minimum pour candidater: 15 ans.
         </p>
         <p>
           Entre 15 et 17 ans, seules des missions simples et sans risque sont autorisées après validation admin

@@ -1,4 +1,4 @@
-﻿import { jsonError } from "@/lib/api";
+import { jsonError } from "@/lib/api";
 import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 

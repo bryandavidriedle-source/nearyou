@@ -1,4 +1,4 @@
-﻿import { CreditCard, ShieldCheck, Star, UserCheck, UsersRound } from "lucide-react";
+import { CreditCard, ShieldCheck, Star, UserCheck, UsersRound } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 

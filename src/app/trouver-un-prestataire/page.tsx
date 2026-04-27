@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { LeadForm } from "@/components/forms/lead-form";
 import { Container } from "@/components/shared/container";

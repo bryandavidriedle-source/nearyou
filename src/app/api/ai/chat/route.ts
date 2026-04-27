@@ -1,4 +1,4 @@
-﻿import OpenAI from "openai";
+import OpenAI from "openai";
 
 import { aiChatSchema } from "@/lib/schemas";
 import { applyRateLimit, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";

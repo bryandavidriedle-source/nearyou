@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -43,7 +43,7 @@ export default async function BecomeProviderPage() {
             Suisse.
           </p>
           <p className="mt-2">
-            Âge minimum pour candidater: 15 ans. Entre 15 et 17 ans, l'accès est limité à des missions simples après
+            ge minimum pour candidater: 15 ans. Entre 15 et 17 ans, l'accès est limité à des missions simples après
             validation admin renforcée.
           </p>
           <p className="mt-2">

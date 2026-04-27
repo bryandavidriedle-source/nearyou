@@ -1,4 +1,6 @@
-﻿import { SERVICE_CATEGORIES, SWISS_CITY_TARGETS } from "@/lib/catalog";
+import { SERVICE_CATEGORIES, SWISS_CITY_TARGETS } from "@/lib/catalog";
+import { isDemoDataVisible } from "@/lib/runtime";
+import { hasSupabaseServiceRole } from "@/lib/supabase";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type SearchTagRow = {
@@ -185,15 +187,15 @@ export type SmartSearchResult = {
 };
 
 const STATIC_TAG_SYNONYMS: Record<string, string[]> = {
-  menage: ["menage", "nettoyage", "proprete", "fin de bail", "appartement"],
-  jardin: ["jardin", "jardinage", "tonte", "haie", "pelouse", "feuilles"],
-  animaux: ["chien", "chat", "animaux", "promenade chien", "garde animaux"],
-  senior: ["senior", "seniors", "maman", "papa", "accompagnement", "courses senior"],
-  informatique: ["informatique", "ordinateur", "telephone", "iphone", "tablette", "wifi"],
-  bricolage: ["bricolage", "reparation", "petits travaux", "percer", "fixer"],
-  "montage-meuble": ["montage meuble", "meuble", "armoire", "ikea", "lit"],
-  transport: ["transport", "demenagement", "livraison", "courses", "colis"],
-  administratif: ["administratif", "formulaire", "papiers", "demarches", "classement"],
+  menage: ["menage", "nettoyage", "proprete", "fin de bail", "appartement", "ménage", "nettoyer"],
+  jardin: ["jardin", "jardinage", "tonte", "haie", "pelouse", "feuilles", "aide pour mon jardin"],
+  animaux: ["chien", "chat", "animaux", "promenade chien", "garde animaux", "promener mon chien", "sortir mon chien"],
+  senior: ["senior", "seniors", "maman", "papa", "accompagnement", "courses senior", "aider un proche", "personne agee"],
+  informatique: ["informatique", "ordinateur", "ordi", "mon ordi bug", "ordinateur bug", "telephone", "iphone", "tablette", "wifi"],
+  bricolage: ["bricolage", "reparation", "petits travaux", "percer", "fixer", "depannage"],
+  "montage-meuble": ["montage meuble", "monter un meuble", "meuble", "armoire", "ikea", "lit"],
+  transport: ["transport", "demenagement", "livraison", "courses", "aide pour courses", "faire mes courses", "colis"],
+  administratif: ["administratif", "formulaire", "papiers", "demarches", "classement", "aide administrative"],
   urgence: ["urgence", "urgent", "urgentissime", "disponible maintenant", "express"],
 };
 
@@ -235,11 +237,23 @@ function getServiceRelation(serviceRelation: ProviderServiceRow["services"]) {
 
 function detectSwissLocation(query: string, cityInput?: string, postalCodeInput?: string) {
   const normalizedQuery = normalize(query);
-  const explicitCity = cityInput?.trim() ? cityInput.trim() : null;
+  const explicitCityRaw = cityInput?.trim() ? cityInput.trim() : null;
   const explicitPostal = postalCodeInput?.trim() ? postalCodeInput.trim() : null;
 
-  let detectedCity: string | null = explicitCity;
+  let detectedCity: string | null = null;
   let detectedPostalCode: string | null = explicitPostal;
+
+  if (explicitCityRaw) {
+    const normalizedExplicitCity = normalize(explicitCityRaw);
+    const explicitPostalFromCity = explicitCityRaw.match(/\b\d{4}\b/)?.[0] ?? null;
+    const cityMatch = SWISS_CITY_TARGETS.find(
+      (city) => normalizedExplicitCity.includes(normalize(city.name)) || normalizedExplicitCity.includes(city.postalCode),
+    );
+    detectedCity = cityMatch?.name ?? explicitCityRaw.replace(/\b\d{4}\b/g, "").replace(/[, ]+$/g, "").trim();
+    if (!detectedPostalCode && (explicitPostalFromCity || cityMatch?.postalCode)) {
+      detectedPostalCode = explicitPostalFromCity ?? cityMatch?.postalCode ?? null;
+    }
+  }
 
   const queryPostal = normalizedQuery.match(/\b\d{4}\b/)?.[0] ?? null;
   if (!detectedPostalCode && queryPostal) {
@@ -353,10 +367,6 @@ function detectServiceSlugs(query: string, services: ServiceRow[]) {
     .map((service) => service.slug);
 }
 
-function isProductionRuntime() {
-  return process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
-}
-
 function isProviderAvailableNow(profileId: string, availabilityRows: AvailabilityRow[], fallbackValue: boolean) {
   if (fallbackValue) return true;
   const now = new Date();
@@ -380,6 +390,61 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
   const query = (input.query ?? "").trim();
   const normalizedQuery = normalize(query);
   const limit = Math.max(3, Math.min(input.limit ?? 24, 48));
+
+  if (!hasSupabaseServiceRole()) {
+    const detectedLocation = detectSwissLocation(query, input.city, input.postalCode);
+    const detectedTags = detectTags(query, []);
+    const staticCategories = SERVICE_CATEGORIES.filter((category) => {
+      if (!query) return true;
+      if (detectedTags.some((tag) => normalize(tag) === normalize(category.slug))) return true;
+      const hints = staticCategoryHintMap.get(category.slug) ?? new Set<string>();
+      return hints.has(normalizedQuery) || [...hints].some((hint) => normalizedQuery.includes(hint));
+    }).slice(0, 6);
+
+    return {
+      query,
+      normalizedQuery,
+      detected: {
+        city: detectedLocation.city,
+        postalCode: detectedLocation.postalCode,
+        tags: detectedTags,
+        categorySlugs: staticCategories.map((category) => category.slug),
+        serviceSlugs: [],
+      },
+      filters: {
+        minRating: typeof input.minRating === "number" ? input.minRating : null,
+        maxPrice: typeof input.maxPrice === "number" ? input.maxPrice : null,
+        availableNow: Boolean(input.availableNow),
+      },
+      suggestions: {
+        categories: staticCategories.map((category) => ({
+          slug: category.slug,
+          label: category.label,
+          fromPrice: category.fromPrice,
+          reason: "Catégorie proche",
+        })),
+        tags: detectedTags.map((tag) => ({ tag, label: tag })),
+        cities: SWISS_CITY_TARGETS.slice(0, 4).map((city) => ({
+          city: city.name,
+          postalCode: city.postalCode,
+          canton: city.canton,
+        })),
+        services: [],
+        providers: [],
+      },
+      providers: [],
+      fallback: {
+        noResults: true,
+        message: "Aucun prestataire validé n'est disponible pour le moment. Vous pouvez créer une demande personnalisée.",
+        suggestedCategories: (staticCategories.length > 0 ? staticCategories : SERVICE_CATEGORIES.slice(0, 4)).map((category) => ({
+          slug: category.slug,
+          label: category.label,
+          fromPrice: category.fromPrice,
+        })),
+        customRequestUrl: "/demande",
+      },
+    };
+  }
 
   const supabase = getSupabaseAdminClient();
 
@@ -478,7 +543,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
 
   const categoryLabelBySlug = new Map(SERVICE_CATEGORIES.map((category) => [category.slug, category.label]));
   const categorySlugById = new Map(categories.map((category) => [category.id, category.slug]));
-  const isProd = isProductionRuntime();
+  const showDemoData = isDemoDataVisible();
 
   const enrichedProviders: SmartSearchProvider[] = providers
     .map((provider) => {
@@ -487,7 +552,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (!profile || profile.account_status === "suspended") return null;
       const app = latestAppByProfile.get(provider.profile_id);
       if (enforceWorkflowStatus && app && app.workflow_status !== "approved") return null;
-      if (isProd && provider.is_demo) return null;
+      if (!showDemoData && provider.is_demo) return null;
 
       const providerServiceRows = providerServiceByProfile.get(provider.profile_id) ?? [];
       const providerCategorySlugs = new Set<string>();
@@ -526,7 +591,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (provider.verified) badges.push("Vérifié");
       if (provider.top_provider || providerRating >= 4.8) badges.push("Top prestataire");
       if (isAvailableNow) badges.push("Disponible maintenant");
-      if (!isProd && provider.is_demo) badges.push(provider.demo_label?.trim() || "Profil exemple");
+      if (showDemoData && provider.is_demo) badges.push(provider.demo_label?.trim() || "Profil exemple");
 
       const city = app?.city ?? profile.city ?? "Suisse romande";
       const categoryLabels = Array.from(providerCategorySlugs).map((slug) => categoryLabelBySlug.get(slug) ?? slug);
@@ -550,7 +615,7 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
         tags: Array.from(detectedProviderTags).slice(0, 16),
         badges,
         isAvailableNow,
-        demoLabel: !isProd && provider.is_demo ? provider.demo_label?.trim() || "Profil exemple" : null,
+        demoLabel: showDemoData && provider.is_demo ? provider.demo_label?.trim() || "Profil exemple" : null,
         description: profile.bio ?? "Prestataire local pour services à domicile.",
         profileUrl: `/providers/${provider.id}`,
         bookingUrl: `/reserve/${provider.id}`,
@@ -568,7 +633,11 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
       if (requestedMaxPrice && provider.fromPrice > requestedMaxPrice) return false;
       if (onlyAvailableNow && !provider.isAvailableNow) return false;
 
-      if (detectedLocation.city && normalize(provider.city) !== normalize(detectedLocation.city)) {
+      if (
+        detectedLocation.city &&
+        !normalize(provider.city).includes(normalize(detectedLocation.city)) &&
+        !normalize(detectedLocation.city).includes(normalize(provider.city))
+      ) {
         return false;
       }
 
@@ -584,7 +653,12 @@ export async function getSmartSearchResult(input: SmartSearchInput): Promise<Sma
         if (!hasCategoryMatch) return false;
       }
 
-      if (normalizedQuery.length > 0) {
+      if (
+        normalizedQuery.length > 0 &&
+        detectedTags.length === 0 &&
+        detectedCategorySlugs.length === 0 &&
+        detectedServiceSlugs.length === 0
+      ) {
         const haystack = [
           provider.name,
           provider.description,

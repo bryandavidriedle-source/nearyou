@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -61,6 +61,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
   const m = messages[lang];
   const [radiusKm, setRadiusKm] = useState(10);
   const [priceLimit, setPriceLimit] = useState(80);
+  const [minRating, setMinRating] = useState(0);
   const [onlyToday, setOnlyToday] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -72,6 +73,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
     return providers.filter((provider) => {
       const byRadius = provider.distanceKm == null ? true : provider.distanceKm <= radiusKm;
       const byPrice = provider.fromPrice <= priceLimit;
+      const byRating = minRating === 0 || provider.rating >= minRating;
       const byAvailability = onlyToday ? provider.isAvailableToday : true;
       const byCategory = categoryFilter === "all" ? true : provider.category === categoryFilter;
       const bySearch =
@@ -79,9 +81,9 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
           ? true
           : `${provider.title} ${provider.providerName}`.toLowerCase().includes(search.toLowerCase());
 
-      return byRadius && byPrice && byAvailability && byCategory && bySearch;
+      return byRadius && byPrice && byRating && byAvailability && byCategory && bySearch;
     });
-  }, [providers, radiusKm, priceLimit, onlyToday, categoryFilter, search]);
+  }, [providers, radiusKm, priceLimit, minRating, onlyToday, categoryFilter, search]);
 
   const markers = useMemo(
     () => [
@@ -120,18 +122,23 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
   if (providers.length === 0) {
     return (
       <section className="space-y-4">
-        <Card className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 text-center shadow-sm">
-          <p className="text-lg font-semibold text-slate-900">Aucun prestataire disponible pour le moment</p>
-          <p className="mt-2 text-sm text-slate-600">Les premiers prestataires arrivent bientôt dans votre zone.</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
-              <Link href="/trouver-un-prestataire">Faire une demande</Link>
-            </Button>
-            <Button asChild variant="outline" className="rounded-xl border-blue-200 text-blue-700">
-              <Link href="/devenir-prestataire">Devenir prestataire</Link>
-            </Button>
-          </div>
-        </Card>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card className="rounded-2xl border border-dashed border-blue-200 bg-white p-6 shadow-sm">
+            <p className="text-lg font-semibold text-slate-900">Des prestataires arrivent bientôt près de chez vous</p>
+            <p className="mt-2 text-sm text-slate-600">
+              Aucun profil validé n'est encore publié dans cette zone. Décrivez votre besoin et l'équipe vous accompagne.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild className="rounded-xl bg-green-600 hover:bg-green-700">
+                <Link href="/demande">Créer une demande personnalisée</Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-xl border-blue-200 text-blue-700">
+                <Link href="/devenir-prestataire">Devenir prestataire</Link>
+              </Button>
+            </div>
+          </Card>
+          <ProviderMap markers={[]} selectedId={null} onSelect={() => {}} />
+        </div>
       </section>
     );
   }
@@ -139,7 +146,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
   return (
     <section className="space-y-4">
       <div className="rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
-        <div className="grid gap-3 md:grid-cols-5">
+        <div className="grid gap-3 md:grid-cols-6">
           <div>
             <label className="text-xs font-semibold text-slate-500">{m.map.radius}</label>
             <Input
@@ -161,6 +168,19 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
               onChange={(e) => setPriceLimit(Number(e.target.value))}
               className="h-10"
             />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-500">Note min.</label>
+            <select
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={minRating}
+              onChange={(e) => setMinRating(Number(e.target.value))}
+            >
+              <option value={0}>Toutes</option>
+              <option value={4}>4.0+</option>
+              <option value={4.5}>4.5+</option>
+              <option value={4.8}>4.8+</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">{m.map.category}</label>
@@ -278,7 +298,7 @@ export function ProviderMapSplit({ lang, providers, parkingListings, partners }:
               <p>{m.map.noMatch}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild size="sm" className="rounded-lg bg-green-600 hover:bg-green-700">
-                  <Link href="/trouver-un-prestataire">Faire une demande</Link>
+                  <Link href="/demande">Créer une demande</Link>
                 </Button>
                 <Button asChild size="sm" variant="outline" className="rounded-lg border-blue-200 text-blue-700">
                   <Link href="/devenir-prestataire">Devenir prestataire</Link>

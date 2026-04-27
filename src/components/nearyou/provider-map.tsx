@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -100,14 +100,14 @@ export function ProviderMap({ markers, selectedId, onSelect }: ProviderMapProps)
 
   if (!mapboxToken) {
     return (
-      <Card className="flex h-[600px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-600">
-        Clé Mapbox absente. Ajoutez `NEXT_PUBLIC_MAPBOX_TOKEN` pour activer la carte interactive.
+      <Card className="flex h-[420px] items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-600 sm:h-[600px]">
+        Carte indisponible pour le moment. Les prestataires validés restent accessibles dans la liste.
       </Card>
     );
   }
 
   return (
-    <div className="relative h-[600px] overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white shadow-sm">
+    <div className="relative h-[420px] overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white shadow-sm sm:h-[600px]">
       <div className="absolute left-3 top-3 z-10 rounded-xl border border-slate-200/80 bg-white/95 p-1 shadow backdrop-blur">
         <div className="flex items-center gap-1 text-xs">
           <button

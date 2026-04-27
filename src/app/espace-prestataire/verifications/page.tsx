@@ -1,4 +1,4 @@
-﻿import { ProviderDocumentsPanel } from "@/components/provider/provider-documents-panel";
+import { ProviderDocumentsPanel } from "@/components/provider/provider-documents-panel";
 import { Card } from "@/components/ui/card";
 import { requireProviderAccess } from "@/lib/auth";
 import { providerWorkflowLabels } from "@/lib/workflow";

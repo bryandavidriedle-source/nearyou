@@ -1,4 +1,4 @@
-﻿import { cookies } from "next/headers";
+import { cookies } from "next/headers";
 
 import { normalizeLanguage, type Language } from "@/lib/i18n";
 

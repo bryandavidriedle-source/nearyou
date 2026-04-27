@@ -1,4 +1,4 @@
-﻿import { ZodError } from "zod";
+import { ZodError } from "zod";
 
 export function toErrorMessage(error: unknown) {
   if (error instanceof ZodError) {

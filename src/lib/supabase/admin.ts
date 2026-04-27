@@ -1,4 +1,4 @@
-﻿import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 import { publicEnv, requireServerSecret, serverEnv } from "@/lib/env";
 

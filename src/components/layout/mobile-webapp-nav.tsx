@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -50,7 +50,14 @@ export function MobileWebappNav({ currentLanguage, items, isAuthenticated, role 
     [items],
   );
 
-  const showNeedCta = role === "guest" || role === "client";
+  const hasPrimaryFlowCta =
+    pathname === "/" ||
+    pathname.startsWith("/search") ||
+    pathname.startsWith("/demande") ||
+    pathname.startsWith("/trouver-un-prestataire") ||
+    pathname.startsWith("/reserve") ||
+    pathname.startsWith("/providers/");
+  const showNeedCta = (role === "guest" || role === "client") && !hasPrimaryFlowCta;
 
   function setLanguage(language: Language) {
     document.cookie = `lang=${language}; path=/; max-age=31536000`;

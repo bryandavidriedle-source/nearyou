@@ -1,4 +1,4 @@
-﻿import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
+import { applyRateLimit, enforcePublicFormSecurity, enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { sendEmail } from "@/lib/email/sender";
 import { emailTemplates } from "@/lib/email/templates";
 import { getErrorMessage, logEvent } from "@/lib/monitoring";

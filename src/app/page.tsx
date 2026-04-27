@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { ProviderMapSplit } from "@/components/nearyou/provider-map-split";
 import { SmartSearchBar } from "@/components/search/smart-search-bar";
@@ -59,15 +59,20 @@ export default async function HomePage() {
           <div className="section-shell overflow-hidden p-6 sm:p-8">
             <div className="space-y-5">
               <h1 className="max-w-4xl text-balance text-4xl font-bold text-slate-900 sm:text-5xl">
-                Trouvez une personne fiable près de chez vous en 2 minutes
+                Décrivez votre besoin, trouvez une aide fiable près de chez vous
               </h1>
               <p className="max-w-3xl text-lg text-slate-600">
-                Ménage, jardin, aide à domicile, animaux, informatique... décrivez votre besoin, comparez les
-                prestataires et réservez simplement.
+                Ménage, jardin, informatique, animaux, courses ou accompagnement: comparez les profils validés ou
+                créez une demande personnalisée si aucun prestataire ne correspond encore.
               </p>
               <SmartSearchBar submitLabel="Décrire mon besoin" initialCity={siteConfig.city} />
+              <div className="grid gap-2 text-sm text-slate-600 sm:grid-cols-3">
+                <p className="rounded-xl bg-slate-50 px-3 py-2">1. Je décris mon besoin</p>
+                <p className="rounded-xl bg-slate-50 px-3 py-2">2. Je vois des prestataires ou je crée une demande</p>
+                <p className="rounded-xl bg-slate-50 px-3 py-2">3. Je réserve avec accompagnement humain</p>
+              </div>
               <p className="text-sm text-slate-500">
-                Lancement prioritaire à {siteConfig.city} ({siteConfig.canton}), puis extension Vaud, Genève et Fribourg.
+                Vérification manuelle, avis modérés, support humain et paiement sécurisé.
               </p>
             </div>
           </div>
@@ -195,16 +200,6 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <div className="fixed inset-x-0 bottom-20 z-40 px-4 md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-2 gap-2">
-          <Button asChild className="h-11 rounded-xl bg-green-600 hover:bg-green-700">
-            <Link href="/demande">Décrire mon besoin</Link>
-          </Button>
-          <Button asChild variant="outline" className="h-11 rounded-xl border-blue-200 bg-white text-blue-700 hover:bg-blue-50">
-            <Link href="/search">Voir prestataires</Link>
-          </Button>
-        </div>
-      </div>
     </>
   );
 }

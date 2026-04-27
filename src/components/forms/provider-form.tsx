@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -146,7 +146,7 @@ export function ProviderForm() {
       <FormField
         id="birthDate"
         label="Date de naissance"
-        hint="Âge minimum requis: 15 ans. Entre 15 et 17 ans, seules des missions simples sont autorisées."
+        hint="ge minimum requis: 15 ans. Entre 15 et 17 ans, seules des missions simples sont autorisées."
         error={errors.birthDate?.message}
       >
         <Input id="birthDate" type="date" {...register("birthDate")} />

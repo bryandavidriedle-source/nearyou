@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Container } from "@/components/shared/container";

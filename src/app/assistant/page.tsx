@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { AiAssistant } from "@/components/nearyou/ai-assistant";
 import { Container } from "@/components/shared/container";

@@ -1,4 +1,5 @@
 import { fullCatalogue, serviceCategories } from "@/lib/constants";
+import { isDemoDataVisible } from "@/lib/runtime";
 import { hasSupabaseServiceRole } from "@/lib/supabase";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
@@ -84,6 +85,15 @@ function getEmptyHomeData(): HomeData {
   };
 }
 
+const approximateDistanceFromStPrexKm: Record<string, number> = {
+  "St-Prex": 1.2,
+  Morges: 7.5,
+  Aubonne: 9,
+  Rolle: 16,
+  Lausanne: 19,
+  Nyon: 31,
+};
+
 export async function getHomeData() {
   if (!hasSupabaseServiceRole()) {
     return getEmptyHomeData();
@@ -91,7 +101,7 @@ export async function getHomeData() {
 
   try {
     const supabase = getSupabaseAdminClient();
-    const isProduction = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
+    const showDemoData = isDemoDataVisible();
 
     const [
       providersEnhancedRes,
@@ -136,7 +146,7 @@ export async function getHomeData() {
     const categoryByName = visibleCategories.map((c) => c.name_fr);
     const visibleProviders = (providersRes.data ?? []).filter((provider) => {
       if (!provider.profile_id) return false;
-      if (isProduction && (provider as { is_demo?: boolean }).is_demo) return false;
+      if (!showDemoData && (provider as { is_demo?: boolean }).is_demo) return false;
       if (!enforceWorkflowStatus) return true;
       const workflowStatus = latestWorkflowByProfile.get(provider.profile_id);
       if (!workflowStatus) return true;
@@ -199,9 +209,9 @@ export async function getHomeData() {
         fromPrice: Number(provider.hourly_from_chf ?? categoryFromPrice),
         city: profile?.city ?? "Suisse romande",
         isAvailableToday: isAvailableNow,
-        distanceKm: null,
+        distanceKm: profile?.city ? approximateDistanceFromStPrexKm[profile.city] ?? null : null,
         badge:
-          !isProduction && (provider as { is_demo?: boolean }).is_demo
+          showDemoData && (provider as { is_demo?: boolean }).is_demo
             ? (provider as { demo_label?: string | null }).demo_label || "Profil exemple"
             : provider.verified
               ? "Vérifié"
@@ -220,7 +230,7 @@ export async function getHomeData() {
             completedMissions,
             providerScore,
             demoLabel:
-              !isProduction && (provider as { is_demo?: boolean }).is_demo
+              showDemoData && (provider as { is_demo?: boolean }).is_demo
                 ? (provider as { demo_label?: string | null }).demo_label || "Profil exemple"
                 : null,
           },
@@ -369,7 +379,7 @@ export async function getProviderProfile(providerId: string) {
 
   try {
     const supabase = getSupabaseAdminClient();
-    const isProduction = process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production";
+    const showDemoData = isDemoDataVisible();
     const providerEnhancedRes = await supabase
       .from("providers")
       .select("id, profile_id, display_name, rating, completed_missions, verified, top_provider, is_active, is_demo, demo_label, profiles!inner(first_name,last_name,avatar_url,bio,city)")
@@ -389,7 +399,7 @@ export async function getProviderProfile(providerId: string) {
 
     if (!provider) return null;
     if (!provider.profile_id || provider.is_active !== true) return null;
-    if (isProduction && (provider as { is_demo?: boolean }).is_demo) return null;
+    if (!showDemoData && (provider as { is_demo?: boolean }).is_demo) return null;
 
     const latestApplicationRes = await supabase
       .from("provider_applications")
@@ -441,7 +451,7 @@ export async function getProviderProfile(providerId: string) {
         isTopProvider: provider.top_provider,
         city: profile?.city ?? "Lausanne",
         demoLabel:
-          !isProduction && (provider as { is_demo?: boolean }).is_demo
+          showDemoData && (provider as { is_demo?: boolean }).is_demo
             ? (provider as { demo_label?: string | null }).demo_label || "Profil exemple"
             : null,
       },

@@ -1,4 +1,4 @@
-﻿import { z } from "zod";
+import { z } from "zod";
 
 import { enforceWriteOrigin, jsonError, jsonSuccess } from "@/lib/api";
 import { requireApiProviderAccess } from "@/lib/auth";
@@ -40,7 +40,7 @@ const updateProfileSchema = z.object({
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["birthDate"],
-        message: "Âge minimum requis: 15 ans.",
+        message: "ge minimum requis: 15 ans.",
       });
     }
   }

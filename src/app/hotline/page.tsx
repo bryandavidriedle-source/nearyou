@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 
 import { HotlineForm } from "@/components/nearyou/hotline-form";
 import { Container } from "@/components/shared/container";

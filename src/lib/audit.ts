@@ -1,4 +1,4 @@
-﻿import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function logAdminAction(action: string, entity: string, entityId: string, metadata: Record<string, unknown> = {}) {

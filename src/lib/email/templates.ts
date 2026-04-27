@@ -1,4 +1,4 @@
-﻿export const emailTemplates = {
+export const emailTemplates = {
   welcomeAccount: (firstName: string) => ({
     subject: "Bienvenue sur PrèsDeToi",
     html: `<p>Bonjour ${firstName},</p><p>Votre compte PrèsDeToi est actif. Vous pouvez des maintenant reserver un service local en Suisse.</p>`,

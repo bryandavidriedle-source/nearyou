@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { CustomerOnboardingCard } from "@/components/customer/customer-onboarding-card";
 import { ServiceRequestActions } from "@/components/customer/service-request-actions";

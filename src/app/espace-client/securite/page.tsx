@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { Container } from "@/components/shared/container";
 import { Card } from "@/components/ui/card";

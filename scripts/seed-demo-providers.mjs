@@ -3,6 +3,70 @@ import { createClient } from "@supabase/supabase-js";
 
 const DEMO_PASSWORD = "PresDeToi_demo_2026!";
 
+const PRODUCTION_HOSTS = new Set([
+  "xn--prsdetoi-20a.com",
+  "www.xn--prsdetoi-20a.com",
+  "presdetoi.com",
+  "www.presdetoi.com",
+]);
+
+const CITY_COORDS = {
+  "St-Prex": { lat: 46.4791, lng: 6.4591 },
+  Morges: { lat: 46.5111, lng: 6.4988 },
+  Aubonne: { lat: 46.495, lng: 6.3917 },
+  Rolle: { lat: 46.4582, lng: 6.3344 },
+  Lausanne: { lat: 46.5197, lng: 6.6323 },
+  Nyon: { lat: 46.3833, lng: 6.2396 },
+};
+
+const AVATAR_URLS = [
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1530268729831-4b0b9e170218?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80",
+];
+
+function hostnameFromUrl(value) {
+  if (!value) return null;
+  try {
+    return new URL(value.startsWith("http") ? value : `https://${value}`).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function assertDemoSeedAllowed() {
+  const appEnv = (process.env.APP_ENV ?? process.env.NEXT_PUBLIC_APP_ENV ?? "").toLowerCase();
+  const vercelEnv = (process.env.VERCEL_ENV ?? "").toLowerCase();
+  const siteHost = hostnameFromUrl(process.env.NEXT_PUBLIC_SITE_URL);
+  const vercelHost = hostnameFromUrl(process.env.VERCEL_URL);
+  const isProduction =
+    appEnv === "production" ||
+    vercelEnv === "production" ||
+    (siteHost ? PRODUCTION_HOSTS.has(siteHost) : false) ||
+    (vercelHost ? PRODUCTION_HOSTS.has(vercelHost) : false) ||
+    (!appEnv && !vercelEnv && process.env.NODE_ENV === "production");
+
+  if (isProduction) {
+    throw new Error("Seed démo bloqué: environnement de production détecté.");
+  }
+
+  if (process.env.DEMO_SEED_ENABLED !== "true") {
+    throw new Error("Seed démo désactivé. Définissez DEMO_SEED_ENABLED=true en local/staging uniquement.");
+  }
+}
+
 const providersSeed = [
   {
     key: "menage-regulier",
@@ -497,9 +561,7 @@ function pickServiceIds(services, keywords, limit = 5) {
 }
 
 async function main() {
-  if (process.env.VERCEL_ENV === "production" && process.env.ALLOW_PRODUCTION_DEMO_SEED !== "true") {
-    throw new Error("Seed démo bloqué en production. Utilisez ALLOW_PRODUCTION_DEMO_SEED=true uniquement si nécessaire.");
-  }
+  assertDemoSeedAllowed();
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? required("SUPABASE_URL");
   const serviceRoleKey = required("SUPABASE_SERVICE_ROLE_KEY");
@@ -528,6 +590,8 @@ async function main() {
     const birthDate = computeBirthDateFromAge(provider.age);
     const phone = randomPhone(providerIndex + 10);
     const displayName = `${provider.firstName} ${provider.lastName}`;
+    const avatarUrl = provider.avatarUrl ?? AVATAR_URLS[providerIndex % AVATAR_URLS.length];
+    const coords = CITY_COORDS[provider.city] ?? CITY_COORDS["St-Prex"];
 
     await upsertProfileSafe(supabase, {
       id: providerProfileId,
@@ -537,6 +601,7 @@ async function main() {
       phone,
       city: provider.city,
       bio: provider.description,
+      avatar_url: avatarUrl,
       birth_date: birthDate,
       language: "fr",
       account_status: "active",
@@ -585,6 +650,8 @@ async function main() {
       intervention_radius_km: provider.radiusKm,
       available_now: provider.tags.includes("disponible maintenant"),
       search_tags: provider.tags,
+      latitude: coords.lat,
+      longitude: coords.lng,
       is_demo: true,
       demo_label: "Profil exemple",
     };

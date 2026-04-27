@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { getAuthContext, resolveAuthenticatedHomePath } from "@/lib/auth";
 import { getCurrentLanguage } from "@/lib/i18n-server";

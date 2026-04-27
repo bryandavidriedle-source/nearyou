@@ -1,4 +1,4 @@
-﻿export type PaymentProvider = "stripe" | "twint";
+export type PaymentProvider = "stripe" | "twint";
 
 export type PaymentIntent = {
   provider: PaymentProvider;

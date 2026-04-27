@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -9,7 +9,7 @@ export function useLocationSearch() {
   async function searchLocation(nextQuery: string) {
     setQuery(nextQuery);
 
-    // Placeholder architecture: brancher Mapbox Geocoding API ici.
+    // Extension future: brancher Mapbox Geocoding API ici.
     if (!nextQuery.trim()) {
       setResults([]);
       return;

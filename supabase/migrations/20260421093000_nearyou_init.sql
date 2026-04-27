@@ -1,4 +1,4 @@
-﻿-- NearYou production schema (Supabase/Postgres)
+-- NearYou production schema (Supabase/Postgres)
 create extension if not exists "pgcrypto";
 
 create type public.app_role as enum ('customer', 'provider', 'admin');
