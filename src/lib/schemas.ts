@@ -3,6 +3,7 @@ import { z } from "zod";
 import { serviceCategoryLabels } from "@/lib/constants";
 
 const phoneRegex = /^[+0-9()\-\s]{8,20}$/;
+const swissIbanRegex = /^CH\d{2}[A-Z0-9]{1,30}$/i;
 
 const sanitizedString = (min: number, message: string) =>
   z
@@ -62,6 +63,7 @@ export const serviceRequestSchema = z.object({
 });
 
 export const providerApplicationSchema = z.object({
+  agePath: z.enum(["junior", "adult"]),
   firstName: sanitizedString(2, "Prénom requis."),
   lastName: sanitizedString(2, "Nom requis."),
   businessName: sanitizedString(2, "Nom requis."),
@@ -81,26 +83,103 @@ export const providerApplicationSchema = z.object({
   legalStatus: z.enum(["independant", "entreprise"]),
   companyName: z.string().trim().max(100).optional().or(z.literal("")),
   ideNumber: z.string().trim().max(30).optional().or(z.literal("")),
-  iban: z.string().trim().max(60).optional().or(z.literal("")),
+  iban: z
+    .string()
+    .trim()
+    .min(15, "IBAN suisse requis pour recevoir les paiements.")
+    .max(34)
+    .refine((value) => swissIbanRegex.test(value.replace(/\s+/g, "")), "IBAN suisse invalide. Il doit commencer par CH."),
   vatNumber: z.string().trim().max(40).optional().or(z.literal("")),
   languages: sanitizedString(2, "Langues requises."),
   acceptsUrgency: z.boolean().default(false),
   servicesDescription: sanitizedString(20, "Description trop courte."),
   yearsExperience: sanitizedString(1, "Expérience requise."),
   availability: sanitizedString(2, "Disponibilité requise."),
-  idDocumentType: z.enum(["piece_identite", "titre_sejour_b", "titre_sejour_c"]),
+  idDocumentType: z.enum(["piece_identite", "permis_conduire", "titre_sejour_b", "titre_sejour_c"]),
   residencePermitType: z.enum(["B", "C"]).optional().or(z.literal("")),
+  capabilities: z
+    .array(z.object({
+      slug: z.string().trim().min(1),
+      label: z.string().trim().min(1),
+      hasEquipment: z.boolean(),
+    }))
+    .min(1, "Cochez au moins une capacite."),
+  hasDrivingLicense: z.boolean().default(false),
+  drivingLicenseDetails: z.string().trim().max(120).optional().or(z.literal("")),
+  hasVehicle: z.boolean().default(false),
+  coverageAreas: sanitizedString(2, "Zone couverte requise."),
+  parentFirstName: z.string().trim().max(80).optional().or(z.literal("")),
+  parentLastName: z.string().trim().max(80).optional().or(z.literal("")),
+  parentEmail: z.string().trim().optional().or(z.literal("")),
+  parentPhone: z.string().trim().optional().or(z.literal("")),
+  parentAddressLine: z.string().trim().max(180).optional().or(z.literal("")),
+  juniorSafetyAck: z.boolean().default(false),
+  parentAuthorizationAck: z.boolean().default(false),
   websiteOrInstagram: z.string().trim().optional().or(z.literal("")),
   legalResponsibilityAck: z.boolean().refine((v) => v, "Validation de responsabilité requise."),
   termsAck: z.boolean().refine((v) => v, "Acceptation des conditions requise."),
   consent: z.boolean().refine((v) => v, "Consentement requis."),
   ...antiSpamFields,
 }).superRefine((value, ctx) => {
-  if (!isAtLeastAge(value.birthDate, 15)) {
+  const isAtLeast15 = isAtLeastAge(value.birthDate, 15);
+  const isAtLeast18 = isAtLeastAge(value.birthDate, 18);
+
+  if (!isAtLeast15) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["birthDate"],
       message: "Âge minimum requis: 15 ans pour devenir prestataire.",
+    });
+  }
+
+  if (value.agePath === "adult" && !isAtLeast18) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["birthDate"],
+      message: "Choisissez le parcours 15-17 ans ou indiquez une date de naissance adulte.",
+    });
+  }
+
+  if (value.agePath === "junior" && isAtLeast18) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["agePath"],
+      message: "Le parcours 15-17 ans est reserve aux candidats mineurs.",
+    });
+  }
+
+  if (value.agePath === "junior") {
+    const requiredParentFields: Array<[keyof typeof value, string]> = [
+      ["parentFirstName", "Prenom du parent requis."],
+      ["parentLastName", "Nom du parent requis."],
+      ["parentPhone", "Telephone du parent requis."],
+      ["parentAddressLine", "Adresse du parent requise."],
+    ];
+
+    for (const [field, message] of requiredParentFields) {
+      if (typeof value[field] !== "string" || String(value[field]).trim().length < 2) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [field], message });
+      }
+    }
+
+    if (!value.parentEmail || !z.string().email().safeParse(value.parentEmail).success) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["parentEmail"], message: "Email du parent invalide." });
+    }
+
+    if (!value.parentAuthorizationAck) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["parentAuthorizationAck"], message: "Autorisation parentale requise." });
+    }
+
+    if (!value.juniorSafetyAck) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["juniorSafetyAck"], message: "Validation des limites junior requise." });
+    }
+  }
+
+  if (value.hasDrivingLicense && !value.drivingLicenseDetails?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["drivingLicenseDetails"],
+      message: "Precisez le type de permis.",
     });
   }
 });

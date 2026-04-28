@@ -21,7 +21,7 @@ export async function GET(
   const [applicationRes, documentsRes] = await Promise.all([
     supabase
       .from("provider_applications")
-      .select("id, profile_id, created_at, updated_at, workflow_status, status, first_name, last_name, email, phone, business_name, address_line, postal_code, city, canton, country, category, intervention_radius_km, legal_status, company_name, ide_number, iban, vat_number, languages, accepts_urgency, services_description, years_experience, availability, website_or_instagram, id_document_type, id_document_path, residence_permit_type, residence_permit_path, admin_note, reviewed_at, reviewed_by")
+      .select("id, profile_id, created_at, updated_at, workflow_status, status, first_name, last_name, email, phone, business_name, birth_date, address_line, postal_code, city, canton, country, category, intervention_radius_km, legal_status, company_name, ide_number, iban, vat_number, languages, accepts_urgency, services_description, years_experience, availability, website_or_instagram, id_document_type, id_document_path, residence_permit_type, residence_permit_path, admin_note, reviewed_at, reviewed_by")
       .eq("id", id)
       .maybeSingle(),
     supabase

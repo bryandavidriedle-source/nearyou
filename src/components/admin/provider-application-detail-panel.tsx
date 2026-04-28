@@ -27,6 +27,7 @@ type ApplicationData = {
   email: string;
   phone: string | null;
   business_name: string;
+  birth_date: string | null;
   address_line: string | null;
   postal_code: string | null;
   city: string;
@@ -37,6 +38,8 @@ type ApplicationData = {
   legal_status: string | null;
   company_name: string | null;
   ide_number: string | null;
+  iban: string | null;
+  id_document_type: string | null;
   services_description: string | null;
   years_experience: string | null;
   availability: string | null;
@@ -137,6 +140,8 @@ export function ProviderApplicationDetailPanel({ applicationId }: { applicationI
     return <Card className="premium-card p-5">Dossier introuvable.</Card>;
   }
 
+  const maskedIban = application.iban ? `${application.iban.slice(0, 4)}••••${application.iban.slice(-4)}` : "-";
+
   return (
     <div className="space-y-4">
       {error ? <Card className="rounded-xl border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</Card> : null}
@@ -157,7 +162,10 @@ export function ProviderApplicationDetailPanel({ applicationId }: { applicationI
         <div className="mt-4 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
           <p><span className="font-semibold text-slate-900">Societe:</span> {application.company_name ?? "-"}</p>
           <p><span className="font-semibold text-slate-900">IDE:</span> {application.ide_number ?? "-"}</p>
+          <p><span className="font-semibold text-slate-900">Naissance:</span> {application.birth_date ?? "-"}</p>
+          <p><span className="font-semibold text-slate-900">IBAN:</span> {maskedIban}</p>
           <p><span className="font-semibold text-slate-900">Statut juridique:</span> {application.legal_status ?? "-"}</p>
+          <p><span className="font-semibold text-slate-900">Document:</span> {application.id_document_type ?? "-"}</p>
           <p><span className="font-semibold text-slate-900">Rayon:</span> {application.intervention_radius_km ?? "-"} km</p>
           <p className="md:col-span-2"><span className="font-semibold text-slate-900">Adresse:</span> {application.address_line ?? "-"}, {application.postal_code ?? "-"} {application.city} {application.country ?? ""}</p>
           <p><span className="font-semibold text-slate-900">Langues:</span> {(application.languages ?? []).join(", ") || "-"}</p>

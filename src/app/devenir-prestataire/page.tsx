@@ -12,7 +12,7 @@ import { buildMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = buildMetadata({
   title: "Devenir prestataire | PrèsDeToi",
-  description: "Candidature prestataire avec validation manuelle obligatoire et contrôle documentaire sécurisé.",
+  description: "Candidature prestataire avec parcours 15-17 ans ou 18+, validation manuelle et contrôle documentaire sécurisé.",
   path: "/devenir-prestataire",
 });
 
@@ -33,7 +33,7 @@ export default async function BecomeProviderPage() {
         <SectionHeader
           eyebrow="Candidature prestataire"
           title="Rejoignez PrèsDeToi en tant que prestataire local"
-          description="Chaque dossier est vérifié manuellement avant activation publique."
+          description="Choisissez le parcours adapté à votre âge. Chaque dossier est vérifié manuellement avant activation publique."
         />
 
         <Card className="rounded-2xl border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -43,8 +43,8 @@ export default async function BecomeProviderPage() {
             Suisse.
           </p>
           <p className="mt-2">
-            ge minimum pour candidater: 15 ans. Entre 15 et 17 ans, l'accès est limité à des missions simples après
-            validation admin renforcée.
+            Âge minimum pour candidater: 15 ans. Entre 15 et 17 ans, l'accès est limité à des missions simples après
+            validation admin renforcée et autorisation parentale signée.
           </p>
           <p className="mt-2">
             Les justificatifs transmis sont consultables uniquement par des administrateurs autorisés pour la validation.
